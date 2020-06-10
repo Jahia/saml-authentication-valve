@@ -26,7 +26,7 @@
         <opensaml.version>3.2.0</opensaml.version>
         <google.guava.version>26.0-jre</google.guava.version>
         <joda-time.version>2.9.9</joda-time.version>
-        <cryptacular.version>1.2.1</cryptacular.version>
+        <cryptacular.version>1.2.4</cryptacular.version>
         <xalan.version>2.7.2</xalan.version>
         <apachehttp.version>4.5.5</apachehttp.version>
         <bouncycastle.version>1.53</bouncycastle.version>
