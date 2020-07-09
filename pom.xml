@@ -7,12 +7,12 @@
     <parent>
         <artifactId>jahia-modules</artifactId>
         <groupId>org.jahia.modules</groupId>
-        <version>7.3.0.0</version>
+        <version>8.0.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>saml-authentication-valve</artifactId>
     <name>SAML Authentication Valve</name>
-    <version>1.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <description>This is the custom module (SAML Authentication Valve) for running on a Digital Experience Manager
         server.
@@ -31,6 +31,8 @@
         <apachehttp.version>4.5.5</apachehttp.version>
         <bouncycastle.version>1.53</bouncycastle.version>
         <java-support.version>7.1.1</java-support.version>
+        <jahia-module-signature>MC0CFH751+3c+S0iNIw3exA7kpnkQ+gKAhUAgntB0/7VpmU3WFIh/WnxovTlR7c=</jahia-module-signature>
+        <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
     </properties>
 
 
@@ -40,6 +42,13 @@
     </scm>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>3.2.13.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+
        <dependency>
             <groupId>org.pac4j</groupId>
             <artifactId>pac4j-saml</artifactId>
@@ -244,6 +253,7 @@
                     <instructions>
                         <Jahia-Depends>default</Jahia-Depends>
                         <Embed-Transitive>false</Embed-Transitive>
+                        <Import-Package>org.springframework.core.io;version="[3.2,4)",${jahia.plugin.projectPackageImport},*</Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

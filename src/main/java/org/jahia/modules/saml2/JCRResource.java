@@ -24,6 +24,16 @@ public class JCRResource implements Resource {
     }
 
     @Override
+    public boolean isReadable() {
+        return true;
+    }
+
+    @Override
+    public boolean isOpen() {
+        return false;
+    }
+
+    @Override
     public boolean exists() {
         try {
             return JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
