@@ -16,6 +16,7 @@
     <bean class="org.jahia.modules.saml2.actions.MetadataAction">
         <property name="name" value="metadata"/>
         <property name="requireAuthenticatedUser" value="true"/>
+        <property name="requiredMethods" value="GET,POST"/>
         <property name="requiredPermission" value="canSetupSaml2"/>
         <property name="saml2SettingsService" ref="saml2SettingsService"/>
         <property name="util" ref="saml2Util"/>
