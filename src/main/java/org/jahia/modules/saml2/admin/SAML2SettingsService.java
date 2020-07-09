@@ -1,12 +1,5 @@
 package org.jahia.modules.saml2.admin;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import javax.jcr.RepositoryException;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.data.templates.JahiaTemplatesPackage;
 import org.jahia.modules.saml2.SAML2Constants;
@@ -22,15 +15,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 
+import javax.jcr.RepositoryException;
+import java.io.IOException;
+import java.util.*;
+
 public final class SAML2SettingsService implements InitializingBean, JahiaModuleAware {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SAML2SettingsService.class);
+    private static final Logger logger = LoggerFactory.getLogger(SAML2SettingsService.class);
     private static final SAML2SettingsService INSTANCE = new SAML2SettingsService();
     private Map<String, SAML2Settings> settingsBySiteKeyMap = new HashMap<>();
     private String resourceBundleName;
     private JahiaTemplatesPackage module;
     private Set<String> supportedLocales = Collections.emptySet();
-    private SAML2Util util;           
+    private SAML2Util util;
 
     private SAML2SettingsService() {
         super();
@@ -69,24 +66,13 @@ public final class SAML2SettingsService implements InitializingBean, JahiaModule
                         settingsBySiteKeyMap.put(siteNode.getSiteKey(), settings);
                     }
                 } catch (Exception e) {
-                    LOGGER.error("Error while loading settings from "
-                            + siteNode.getPath() + "/"
-                            + SAML2Constants.SETTINGS_NODE_NAME, e);
+                    logger.error("Error while loading settings from " + siteNode.getPath() + "/" + SAML2Constants.SETTINGS_NODE_NAME, e);
                 }
             }
         });
     }
 
-    public SAML2Settings setSAML2Settings(final String siteKey,
-            final String identityProviderPath,
-            final String relyingPartyIdentifier,
-            final String incomingTargetUrl,
-            final String spMetaDataLocation,
-            final String keyStoreLocation,
-            final String keyStorePass,
-            final String privateKeyPass,
-            final String postLoginPath,
-            final Double maximumAuthentifcationLifetime) throws IOException {
+    public SAML2Settings setSAML2Settings(final String siteKey, final String identityProviderPath, final String relyingPartyIdentifier, final String incomingTargetUrl, final String spMetaDataLocation, final String keyStoreLocation, final String keyStorePass, final String privateKeyPass, final String postLoginPath, final Double maximumAuthentifcationLifetime) throws IOException {
         final SAML2Settings settings = new SAML2Settings(siteKey, util);
         settings.setIdentityProviderPath(identityProviderPath);
         settings.setRelyingPartyIdentifier(relyingPartyIdentifier);

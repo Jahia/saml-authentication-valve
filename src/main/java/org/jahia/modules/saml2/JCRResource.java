@@ -15,7 +15,7 @@ import org.springframework.core.io.Resource;
 
 public class JCRResource implements Resource {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(JCRResource.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(JCRResource.class);
 
     private final String path;
 
@@ -42,7 +42,7 @@ public class JCRResource implements Resource {
                 }
             });
         } catch (RepositoryException ex) {
-            LOGGER.error("Impossible to check if the node exists", ex);
+            logger.error("Impossible to check if the node exists", ex);
         }
         return false;
     }
@@ -63,7 +63,7 @@ public class JCRResource implements Resource {
                 }
             });
         } catch (RepositoryException ex) {
-            LOGGER.error("Impossible to check if the node exists", ex);
+            logger.error("Impossible to get filename", ex);
         }
         return (new File(path)).getName();
     }
@@ -74,50 +74,50 @@ public class JCRResource implements Resource {
             return JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<InputStream>() {
                 public InputStream doInJCR(final JCRSessionWrapper session) throws RepositoryException {
                     final JCRNodeWrapper node = session.getNode(path);
-                    if (node != null & node.isFile()) {
+                    if (node.isFile()) {
                         return node.getFileContent().downloadFile();
                     }
                     throw new IllegalStateException(String.format("Impossible to get InputStream from %s", path));
                 }
             });
         } catch (RepositoryException ex) {
-            LOGGER.error("Impossible to check if the node exists", ex);
+            logger.error("Impossible to check if the node exists", ex);
         }
         throw new IllegalStateException(String.format("Impossible to get InputStream from %s", path));
     }
 
     @Override
     public URL getURL() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public URI getURI() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public File getFile() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long contentLength() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long lastModified() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Resource createRelative(String arg0) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String getDescription() {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException();
     }
 }

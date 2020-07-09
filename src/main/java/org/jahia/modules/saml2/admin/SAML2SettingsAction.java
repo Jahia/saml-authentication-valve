@@ -1,10 +1,6 @@
 package org.jahia.modules.saml2.admin;
 
 import com.google.common.io.CharStreams;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
@@ -18,17 +14,18 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Map;
+
 public final class SAML2SettingsAction extends Action {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SAML2SettingsAction.class);
+    private static final Logger logger = LoggerFactory.getLogger(SAML2SettingsAction.class);
     private SAML2SettingsService saml2SettingsService;
 
     @Override
-    public ActionResult doExecute(final HttpServletRequest request,
-            final RenderContext renderContext,
-            final Resource resource,
-            final JCRSessionWrapper session, Map<String, List<String>> parameters,
-            final URLResolver urlResolver) throws Exception {
+    public ActionResult doExecute(final HttpServletRequest request, final RenderContext renderContext, final Resource resource, final JCRSessionWrapper session, Map<String, List<String>> parameters, final URLResolver urlResolver) throws Exception {
         try {
             final String responseText = CharStreams.toString(request.getReader());
             final JSONObject settings;
@@ -38,30 +35,18 @@ public final class SAML2SettingsAction extends Action {
             if (StringUtils.isNotEmpty(responseText)) {
                 settings = new JSONObject(responseText);
                 final SAML2Settings oldSettings = saml2SettingsService.getSettings(siteKey);
-                final Boolean enabled = getSettingOrDefault(settings, SAML2Constants.ENABLED,
-                        (oldSettings != null && oldSettings.getEnabled()));
-                final String identityProviderPath = getSettingOrDefault(settings, SAML2Constants.IDENTITY_PROVIDER_URL,
-                        (oldSettings != null ? oldSettings.getIdentityProviderPath() : ""));
-                final String relyingPartyIdentifier = getSettingOrDefault(settings, SAML2Constants.RELYING_PARTY_IDENTIFIER,
-                        (oldSettings != null ? oldSettings.getRelyingPartyIdentifier() : ""));
-                final String incomingTargetUrl = getSettingOrDefault(settings, SAML2Constants.INCOMING_TARGET_URL,
-                        (oldSettings != null ? oldSettings.getIncomingTargetUrl() : ""));
-                final String spMetaDataLocation = getSettingOrDefault(settings, SAML2Constants.SP_META_DATA_LOCATION,
-                        (oldSettings != null ? oldSettings.getSpMetaDataLocation() : ""));
-                final String keyStoreLocation = getSettingOrDefault(settings, SAML2Constants.KEY_STORE_LOCATION,
-                        (oldSettings != null ? oldSettings.getKeyStoreLocation() : ""));
-                final String keyStorePass = getSettingOrDefault(settings, SAML2Constants.KEY_STORE_PASS,
-                        (oldSettings != null ? oldSettings.getKeyStorePass() : ""));
-                final String privateKeyPass = getSettingOrDefault(settings, SAML2Constants.PRIVATE_KEY_PASS,
-                        (oldSettings != null ? oldSettings.getPrivateKeyPass() : ""));
-                final String postLoginPath = getSettingOrDefault(settings, SAML2Constants.SETTINGS_SAML2_POST_LOGIN_PATH,
-                        (oldSettings != null ? oldSettings.getPostLoginPath() : ""));
-                final Double maximumAuthenticationLifetime = getSettingOrDefaultDouble(settings, SAML2Constants.SETTINGS_SAML2_MAXIMUM_AUTHENTICATION_LIFETIME,
-                        (oldSettings != null ? oldSettings.getMaximumAuthenticationLifetime() : new Double(0)));
+                final boolean enabled = getSettingOrDefault(settings, SAML2Constants.ENABLED, (oldSettings != null && oldSettings.getEnabled()));
+                final String identityProviderPath = getSettingOrDefault(settings, SAML2Constants.IDENTITY_PROVIDER_URL, (oldSettings != null ? oldSettings.getIdentityProviderPath() : ""));
+                final String relyingPartyIdentifier = getSettingOrDefault(settings, SAML2Constants.RELYING_PARTY_IDENTIFIER, (oldSettings != null ? oldSettings.getRelyingPartyIdentifier() : ""));
+                final String incomingTargetUrl = getSettingOrDefault(settings, SAML2Constants.INCOMING_TARGET_URL, (oldSettings != null ? oldSettings.getIncomingTargetUrl() : ""));
+                final String spMetaDataLocation = getSettingOrDefault(settings, SAML2Constants.SP_META_DATA_LOCATION, (oldSettings != null ? oldSettings.getSpMetaDataLocation() : ""));
+                final String keyStoreLocation = getSettingOrDefault(settings, SAML2Constants.KEY_STORE_LOCATION, (oldSettings != null ? oldSettings.getKeyStoreLocation() : ""));
+                final String keyStorePass = getSettingOrDefault(settings, SAML2Constants.KEY_STORE_PASS, (oldSettings != null ? oldSettings.getKeyStorePass() : ""));
+                final String privateKeyPass = getSettingOrDefault(settings, SAML2Constants.PRIVATE_KEY_PASS, (oldSettings != null ? oldSettings.getPrivateKeyPass() : ""));
+                final String postLoginPath = getSettingOrDefault(settings, SAML2Constants.SETTINGS_SAML2_POST_LOGIN_PATH, (oldSettings != null ? oldSettings.getPostLoginPath() : ""));
+                final Double maximumAuthenticationLifetime = getSettingOrDefaultDouble(settings, SAML2Constants.SETTINGS_SAML2_MAXIMUM_AUTHENTICATION_LIFETIME, (oldSettings != null ? oldSettings.getMaximumAuthenticationLifetime() : 0));
                 if (enabled) {
-                    serverSettings = saml2SettingsService.setSAML2Settings(siteKey,
-                            identityProviderPath, relyingPartyIdentifier, incomingTargetUrl,
-                            spMetaDataLocation, keyStoreLocation, keyStorePass, privateKeyPass, postLoginPath, maximumAuthenticationLifetime);
+                    serverSettings = saml2SettingsService.setSAML2Settings(siteKey, identityProviderPath, relyingPartyIdentifier, incomingTargetUrl, spMetaDataLocation, keyStoreLocation, keyStorePass, privateKeyPass, postLoginPath, maximumAuthenticationLifetime);
                 } else {
                     serverSettings = null;
                 }
@@ -86,8 +71,8 @@ public final class SAML2SettingsAction extends Action {
             return new ActionResult(HttpServletResponse.SC_OK, null, resp);
         } catch (Exception e) {
             JSONObject error = new JSONObject();
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("error while saving settings", e);
+            if (logger.isDebugEnabled()) {
+                logger.debug("error while saving settings", e);
             }
             error.put("error", e.getMessage());
             error.put("type", e.getClass().getSimpleName());
@@ -95,15 +80,11 @@ public final class SAML2SettingsAction extends Action {
         }
     }
 
-    private <T> T getSettingOrDefault(final JSONObject settings,
-            final String propertyName,
-            final T defaultValue) throws JSONException {
+    private <T> T getSettingOrDefault(final JSONObject settings, final String propertyName, final T defaultValue) throws JSONException {
         return settings.has(propertyName) ? (T) settings.get(propertyName) : defaultValue;
     }
 
-    private Double getSettingOrDefaultDouble(final JSONObject settings,
-            final String propertyName,
-            final Double defaultValue) throws JSONException {
+    private Double getSettingOrDefaultDouble(final JSONObject settings, final String propertyName, final Double defaultValue) throws JSONException {
         return settings.has(propertyName) ? settings.getDouble(propertyName) : defaultValue;
     }
 
