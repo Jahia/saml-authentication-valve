@@ -1,6 +1,7 @@
 package org.jahia.modules.saml2.admin;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.jackrabbit.value.BinaryImpl;
 import org.jahia.api.Constants;
 import org.jahia.modules.saml2.SAML2Constants;
 import org.jahia.modules.saml2.SAML2Util;
@@ -12,6 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public final class SAML2Settings {
 
@@ -20,15 +24,14 @@ public final class SAML2Settings {
     private final String siteKey;
     private final SAML2Util util;
     private boolean enabled;
-    private String identityProviderPath;
+    private File identityProviderMetadata;
     private String incomingTargetUrl;
-    private String keyStoreLocation;
+    private File keyStore;
     private String keyStorePass;
     private String postLoginPath;
     private String privateKeyPass;
     private String relyingPartyIdentifier;
-    private String spMetaDataLocation;
-    private Double maximumAuthenticationLifetime;
+    private Long maximumAuthenticationLifetime;
 
     public SAML2Settings(final String siteKey, SAML2Util util) {
         this.siteKey = siteKey;
@@ -42,7 +45,7 @@ public final class SAML2Settings {
             // store settings
             JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
                 public Boolean doInJCR(final JCRSessionWrapper session) throws RepositoryException {
-                    final JCRNodeWrapper settingsNode = session.getNode(SITES + siteKey + "/" + SAML2Constants.SETTINGS_NODE_NAME);
+                    final JCRNodeWrapper settingsNode = session.getNode(getNodePath());
                     settingsNode.remove();
                     session.save();
                     return Boolean.TRUE;
@@ -58,8 +61,8 @@ public final class SAML2Settings {
             // read default settings
             return JCRTemplate.getInstance().doExecuteWithSystemSessionAsUser(null, Constants.EDIT_WORKSPACE, null, new JCRCallback<Boolean>() {
                 public Boolean doInJCR(final JCRSessionWrapper session) throws RepositoryException {
-                    if (session.nodeExists(SITES + siteKey) && session.nodeExists(SITES + siteKey + "/" + SAML2Constants.SETTINGS_NODE_NAME)) {
-                        load(session.getNode(SITES + siteKey + "/" + SAML2Constants.SETTINGS_NODE_NAME));
+                    if (session.nodeExists(SITES + siteKey) && session.nodeExists(getNodePath())) {
+                        load(session.getNode(getNodePath()));
                         return Boolean.TRUE;
                     }
                     return Boolean.FALSE;
@@ -71,21 +74,16 @@ public final class SAML2Settings {
         return false;
     }
 
+    public String getNodePath() {
+        return SITES + siteKey + "/" + SAML2Constants.SETTINGS_NODE_NAME;
+    }
+
     private void load(JCRNodeWrapper settingsNode) throws RepositoryException {
-        if (settingsNode.hasProperty(SAML2Constants.SETTINGS_SAML2_IDENTITY_PROVIDER_URL)) {
-            identityProviderPath = settingsNode.getProperty(SAML2Constants.SETTINGS_SAML2_IDENTITY_PROVIDER_URL).getString();
-        }
         if (settingsNode.hasProperty(SAML2Constants.SETTINGS_SAML2_RELYING_PARTY_IDENTIFIER)) {
             relyingPartyIdentifier = settingsNode.getProperty(SAML2Constants.SETTINGS_SAML2_RELYING_PARTY_IDENTIFIER).getString();
         }
         if (settingsNode.hasProperty(SAML2Constants.SETTINGS_SAML2_INCOMMING_TARGET_URL)) {
             incomingTargetUrl = settingsNode.getProperty(SAML2Constants.SETTINGS_SAML2_INCOMMING_TARGET_URL).getString();
-        }
-        if (settingsNode.hasProperty(SAML2Constants.SETTINGS_SAML2_SP_META_DATA_LOCATION)) {
-            spMetaDataLocation = settingsNode.getProperty(SAML2Constants.SETTINGS_SAML2_SP_META_DATA_LOCATION).getString();
-        }
-        if (settingsNode.hasProperty(SAML2Constants.SETTINGS_SAML2_KEY_STORE_LOCATION)) {
-            keyStoreLocation = settingsNode.getProperty(SAML2Constants.SETTINGS_SAML2_KEY_STORE_LOCATION).getString();
         }
         if (settingsNode.hasProperty(SAML2Constants.SETTINGS_SAML2_PRIVATE_KEY_PASS)) {
             privateKeyPass = settingsNode.getProperty(SAML2Constants.SETTINGS_SAML2_PRIVATE_KEY_PASS).getString();
@@ -97,9 +95,9 @@ public final class SAML2Settings {
             postLoginPath = settingsNode.getProperty(SAML2Constants.SETTINGS_SAML2_POST_LOGIN_PATH).getString();
         }
         if (settingsNode.hasProperty(SAML2Constants.SETTINGS_SAML2_MAXIMUM_AUTHENTICATION_LIFETIME)) {
-            maximumAuthenticationLifetime = settingsNode.getProperty(SAML2Constants.SETTINGS_SAML2_MAXIMUM_AUTHENTICATION_LIFETIME).getDouble();
+            maximumAuthenticationLifetime = settingsNode.getProperty(SAML2Constants.SETTINGS_SAML2_MAXIMUM_AUTHENTICATION_LIFETIME).getLong();
         }
-    }
+     }
 
     public void store() {
         try {
@@ -107,17 +105,16 @@ public final class SAML2Settings {
             JCRTemplate.getInstance().doExecuteWithSystemSessionAsUser(null, Constants.EDIT_WORKSPACE, null, new JCRCallback<Boolean>() {
                 public Boolean doInJCR(final JCRSessionWrapper session) throws RepositoryException {
                     final JCRNodeWrapper settingsNode;
-                    if (session.nodeExists(SITES + siteKey + "/" + SAML2Constants.SETTINGS_NODE_NAME)) {
-                        settingsNode = session.getNode(SITES + siteKey + "/" + SAML2Constants.SETTINGS_NODE_NAME);
+                    if (session.nodeExists(getNodePath())) {
+                        settingsNode = session.getNode(getNodePath());
                     } else {
                         settingsNode = session.getNode(SITES + siteKey).addNode(SAML2Constants.SETTINGS_NODE_NAME, SAML2Constants.SETTINGS_NODE_TYPE);
                     }
 
-                    boolean doSave = setProperty(settingsNode, SAML2Constants.SETTINGS_SAML2_IDENTITY_PROVIDER_URL, getIdentityProviderPath());
+                    boolean doSave = setFile(settingsNode, SAML2Constants.SETTINGS_SAML2_IDENTITY_PROVIDER_METADATA, getIdentityProviderMetadata());
                     doSave |= setProperty(settingsNode, SAML2Constants.SETTINGS_SAML2_RELYING_PARTY_IDENTIFIER, getRelyingPartyIdentifier());
                     doSave |= setProperty(settingsNode, SAML2Constants.SETTINGS_SAML2_INCOMMING_TARGET_URL, getIncomingTargetUrl());
-                    doSave |= setProperty(settingsNode, SAML2Constants.SETTINGS_SAML2_SP_META_DATA_LOCATION, getSpMetaDataLocation());
-                    doSave |= setProperty(settingsNode, SAML2Constants.SETTINGS_SAML2_KEY_STORE_LOCATION, getKeyStoreLocation());
+                    doSave |= setFile(settingsNode, SAML2Constants.SETTINGS_SAML2_KEY_STORE, getKeyStore());
                     doSave |= setProperty(settingsNode, SAML2Constants.SETTINGS_SAML2_KEY_STORE_PASS, getKeyStorePass());
                     doSave |= setProperty(settingsNode, SAML2Constants.SETTINGS_SAML2_PRIVATE_KEY_PASS, getPrivateKeyPass());
                     doSave |= setProperty(settingsNode, SAML2Constants.SETTINGS_SAML2_POST_LOGIN_PATH, getPostLoginPath());
@@ -135,6 +132,18 @@ public final class SAML2Settings {
         util.resetClient(siteKey);
     }
 
+    private boolean setFile(final JCRNodeWrapper node, final String propertyName, final File value) throws RepositoryException {
+        if (value != null) {
+            try {
+                node.setProperty(propertyName, new BinaryImpl(new FileInputStream(value)));
+                return true;
+            } catch (IOException e) {
+                logger.error("Cannot save file", e);
+            }
+        }
+        return false;
+    }
+
     private boolean setProperty(final JCRNodeWrapper node, final String propertyName, final String value) throws RepositoryException {
         if ((!node.hasProperty(propertyName) && StringUtils.isNotEmpty(value)) || (node.hasProperty(propertyName) && !StringUtils.equals(node.getProperty(propertyName).getString(), value))) {
             if (StringUtils.isEmpty(value)) {
@@ -147,12 +156,12 @@ public final class SAML2Settings {
         return false;
     }
 
-    public String getIdentityProviderPath() {
-        return identityProviderPath;
+    public File getIdentityProviderMetadata() {
+        return identityProviderMetadata;
     }
 
-    public void setIdentityProviderPath(final String identityProviderPath) {
-        this.identityProviderPath = identityProviderPath;
+    public void setIdentityProviderMetadata(final File identityProviderMetadata) {
+        this.identityProviderMetadata = identityProviderMetadata;
     }
 
     public String getRelyingPartyIdentifier() {
@@ -171,20 +180,12 @@ public final class SAML2Settings {
         this.incomingTargetUrl = incomingTargetUrl;
     }
 
-    public String getSpMetaDataLocation() {
-        return spMetaDataLocation;
+    public File getKeyStore() {
+        return keyStore;
     }
 
-    public void setSpMetaDataLocation(final String spMetaDataLocation) {
-        this.spMetaDataLocation = spMetaDataLocation;
-    }
-
-    public String getKeyStoreLocation() {
-        return keyStoreLocation;
-    }
-
-    public void setKeyStoreLocation(final String keyStoreLocation) {
-        this.keyStoreLocation = keyStoreLocation;
+    public void setKeyStore(final File keyStore) {
+        this.keyStore = keyStore;
     }
 
     public String getKeyStorePass() {
@@ -219,11 +220,15 @@ public final class SAML2Settings {
         this.postLoginPath = postLoginPath;
     }
 
-    public Double getMaximumAuthenticationLifetime() {
+    public Long getMaximumAuthenticationLifetime() {
         return maximumAuthenticationLifetime;
     }
 
-    public void setMaximumAuthenticationLifetime(Double maximumAuthenticationLifetime) {
+    public void setMaximumAuthenticationLifetime(Long maximumAuthenticationLifetime) {
         this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
+    }
+
+    public String getSiteKey() {
+        return siteKey;
     }
 }

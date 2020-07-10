@@ -9,15 +9,20 @@ import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
+import org.jahia.utils.ClassLoaderUtils;
+import org.opensaml.core.config.InitializationService;
 import org.pac4j.saml.client.SAML2ClientConfiguration;
 import org.pac4j.saml.crypto.KeyStoreCredentialProvider;
 import org.pac4j.saml.metadata.SAML2MetadataGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
 public final class MetadataAction extends Action {
+    private static final Logger logger = LoggerFactory.getLogger(MetadataAction.class);
 
     private SAML2SettingsService saml2SettingsService;
     private SAML2Util util;
@@ -27,7 +32,7 @@ public final class MetadataAction extends Action {
         if (renderContext.getSite() == null) {
             return ActionResult.OK;
         }
-        util.initialize(() -> {
+        return ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
             final String siteKey = renderContext.getSite().getSiteKey();
             final SAML2Settings saml2Settings = saml2SettingsService.getSettings(siteKey);
 
@@ -38,10 +43,14 @@ public final class MetadataAction extends Action {
             saml2MetadataGenerator.setAssertionConsumerServiceUrl(util.getAssertionConsumerServiceUrl(req, saml2Settings.getIncomingTargetUrl()));
             saml2MetadataGenerator.setCredentialProvider(keyStoreCredentialProvider);
 
-            renderContext.getResponse().getWriter().append(saml2MetadataGenerator.getMetadata(saml2MetadataGenerator.buildEntityDescriptor()));
-
+            try {
+                renderContext.getResponse().getWriter().append(saml2MetadataGenerator.getMetadata(saml2MetadataGenerator.buildEntityDescriptor()));
+            } catch (Exception e) {
+                logger.error("Error when getting metadata",e);
+                return ActionResult.INTERNAL_ERROR;
+            }
+            return ActionResult.OK;
         });
-        return ActionResult.OK;
     }
 
     public void setSaml2SettingsService(SAML2SettingsService saml2SettingsService) {

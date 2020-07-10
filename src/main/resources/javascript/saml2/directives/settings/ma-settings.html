@@ -24,30 +24,17 @@
         <md-checkbox ng-model="settings.enabled" aria-label="" ng-click="enable()">
           <span message-key="saml2nt_settings.saml2_enabled"></span>
         </md-checkbox>
-        <md-input-container class="md-block" flex>
-          <label message-key="saml2nt_settings.saml2_maximumAuthenticationLifetime"></label>
-          <input ng-model="settings.maximumAuthenticationLifetime">
-        </md-input-container>
-        <md-input-container class="md-block" flex>
-          <label message-key="saml2nt_settings.saml2_identityProviderPath"></label>
-          <input ng-model="settings.identityProviderPath">
-        </md-input-container>
-        <md-input-container class="md-block" flex>
-          <label message-key="saml2nt_settings.saml2_spMetaDataLocation"></label>
-          <input ng-model="settings.spMetaDataLocation">
+        <md-input-container class="md-block md-input-has-placeholder" flex>
+          <label message-key="saml2nt_settings.saml2_identityProviderMetadata"></label>
+          <input onchange="angular.element(this).scope().fileNameChanged(this)" name="identityProviderMetadata" type="file">
         </md-input-container>
         <md-input-container class="md-block" flex>
           <label message-key="saml2nt_settings.saml2_relyingPartyIdentifier"></label>
           <input ng-model="settings.relyingPartyIdentifier">
         </md-input-container>
-        <md-input-container class="md-block" flex>
-          <label message-key="saml2nt_settings.saml2_incomingTargetUrl"></label>
-          <input ng-model="settings.incomingTargetUrl">
-        </md-input-container>
-
-        <md-input-container class="md-block" flex>
-          <label message-key="saml2nt_settings.saml2_keyStoreLocation"></label>
-          <input ng-model="settings.keyStoreLocation">
+        <md-input-container class="md-block md-input-has-placeholder" flex>
+          <label message-key="saml2nt_settings.saml2_keyStore"></label>
+          <input onchange="angular.element(this).scope().fileNameChanged(this)" name="keyStore" type="file">
         </md-input-container>
         <md-input-container class="md-block" flex>
           <label message-key="saml2nt_settings.saml2_keyStorePass"></label>
@@ -58,8 +45,16 @@
           <input ng-model="settings.privateKeyPass">
         </md-input-container>
         <md-input-container class="md-block" flex>
-          <label message-key="saml2nt_settings.loginSuccessPath"></label>
+          <label message-key="saml2nt_settings.saml2_incomingTargetUrl"></label>
+          <input ng-model="settings.incomingTargetUrl">
+        </md-input-container>
+        <md-input-container class="md-block" flex>
+          <label message-key="saml2nt_settings.saml2_loginSuccessPath"></label>
           <input ng-model="settings.loginSuccessPath">
+        </md-input-container>
+        <md-input-container class="md-block" flex>
+          <label message-key="saml2nt_settings.saml2_maximumAuthenticationLifetime"></label>
+          <input ng-model="settings.maximumAuthenticationLifetime">
         </md-input-container>
       </md-card-content>
     </md-card>

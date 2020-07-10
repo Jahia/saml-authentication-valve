@@ -1,17 +1,16 @@
 package org.jahia.modules.saml2;
 
+import org.jahia.services.content.JCRSessionFactory;
+import org.jahia.services.content.JCRSessionWrapper;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+
+import javax.jcr.RepositoryException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import javax.jcr.RepositoryException;
-import org.jahia.services.content.JCRCallback;
-import org.jahia.services.content.JCRNodeWrapper;
-import org.jahia.services.content.JCRSessionWrapper;
-import org.jahia.services.content.JCRTemplate;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 
 public class JCRResource implements Resource {
 
@@ -36,11 +35,7 @@ public class JCRResource implements Resource {
     @Override
     public boolean exists() {
         try {
-            return JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
-                public Boolean doInJCR(final JCRSessionWrapper session) throws RepositoryException {
-                    return session.getNode(path) != null;
-                }
-            });
+            return getSession().itemExists(path);
         } catch (RepositoryException ex) {
             logger.error("Impossible to check if the node exists", ex);
         }
@@ -50,18 +45,7 @@ public class JCRResource implements Resource {
     @Override
     public String getFilename() {
         try {
-            return JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<String>() {
-                public String doInJCR(final JCRSessionWrapper session) throws RepositoryException {
-                    final JCRNodeWrapper node = session.getNode(path);
-                    final String filename;
-                    if (node == null) {
-                        throw new IllegalStateException(String.format("Impossible to get filename from %s", path));
-                    } else {
-                        filename = node.getName();
-                    }
-                    return filename;
-                }
-            });
+            return getSession().getItem(path).getName();
         } catch (RepositoryException ex) {
             logger.error("Impossible to get filename", ex);
         }
@@ -71,19 +55,15 @@ public class JCRResource implements Resource {
     @Override
     public InputStream getInputStream() throws IOException {
         try {
-            return JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<InputStream>() {
-                public InputStream doInJCR(final JCRSessionWrapper session) throws RepositoryException {
-                    final JCRNodeWrapper node = session.getNode(path);
-                    if (node.isFile()) {
-                        return node.getFileContent().downloadFile();
-                    }
-                    throw new IllegalStateException(String.format("Impossible to get InputStream from %s", path));
-                }
-            });
+            return getSession().getProperty(path).getBinary().getStream();
         } catch (RepositoryException ex) {
-            logger.error("Impossible to check if the node exists", ex);
+            logger.error("Impossible to read the node", ex);
         }
         throw new IllegalStateException(String.format("Impossible to get InputStream from %s", path));
+    }
+
+    private JCRSessionWrapper getSession() throws RepositoryException {
+        return JCRSessionFactory.getInstance().getCurrentSystemSession(null, null, null);
     }
 
     @Override

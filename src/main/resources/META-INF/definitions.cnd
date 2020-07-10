@@ -8,15 +8,14 @@
 [jnt:samlLogin] > jnt:content, jmix:basicContent
 
 [saml2nt:settings] > nt:base, jmix:unversionedBasemetadata
- - saml2:identityProviderPath (string) nofulltext
+ - saml2:identityProviderMetadata (string) nofulltext
  - saml2:relyingPartyIdentifier (string) nofulltext
  - saml2:incomingTargetUrl (string) nofulltext
- - saml2:spMetaDataLocation (string) nofulltext
- - saml2:keyStoreLocation (string) nofulltext
+ - saml2:keyStore (binary) nofulltext
  - saml2:keyStorePass (string) nofulltext
  - saml2:privateKeyPass (string) nofulltext
- - loginSuccessPath (string) nofulltext
- - maximumAuthenticationLifetime (double)
+ - saml2:loginSuccessPath (string) nofulltext
+ - saml2:maximumAuthenticationLifetime (long)
 
 [saml2nt:manageSettings] > jnt:content, jmix:siteComponent, mix:title, jmix:studioOnly
 

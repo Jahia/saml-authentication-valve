@@ -72,23 +72,15 @@ public final class SAML2SettingsService implements InitializingBean, JahiaModule
         });
     }
 
-    public SAML2Settings setSAML2Settings(final String siteKey, final String identityProviderPath, final String relyingPartyIdentifier, final String incomingTargetUrl, final String spMetaDataLocation, final String keyStoreLocation, final String keyStorePass, final String privateKeyPass, final String postLoginPath, final Double maximumAuthentifcationLifetime) throws IOException {
-        final SAML2Settings settings = new SAML2Settings(siteKey, util);
-        settings.setIdentityProviderPath(identityProviderPath);
-        settings.setRelyingPartyIdentifier(relyingPartyIdentifier);
-        settings.setIncomingTargetUrl(incomingTargetUrl);
-        settings.setSpMetaDataLocation(spMetaDataLocation);
-        settings.setKeyStoreLocation(keyStoreLocation);
-        settings.setKeyStorePass(keyStorePass);
-        settings.setPrivateKeyPass(privateKeyPass);
-        settings.setPostLoginPath(postLoginPath);
-        settings.setMaximumAuthenticationLifetime(maximumAuthentifcationLifetime);
+    public SAML2Settings createSAML2Settings(final String siteKey) throws IOException {
+        return new SAML2Settings(siteKey, util);
+    }
 
+    public void saveSAML2Settings(SAML2Settings settings) throws IOException {
         // refresh and save settings
         settings.store();
 
-        settingsBySiteKeyMap.put(siteKey, settings);
-        return settings;
+        settingsBySiteKeyMap.put(settings.getSiteKey(), settings);
     }
 
     public void removeServerSettings(String siteKey) {
