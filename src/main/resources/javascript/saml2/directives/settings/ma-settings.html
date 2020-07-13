@@ -1,6 +1,6 @@
 <md-toolbar>
     <div class="md-toolbar-tools">
-        <h2 message-key="saml2nt_settings"></h2>
+        <h2 message-key="angular.saml2.directives.settings.ma-settings.subtitle.saml2Setting"></h2>
         <span flex></span>
         <md-button class="md-icon-button" aria-label="Favorite" ng-click="save()">
             <md-icon aria-label="accessibility"
@@ -20,39 +20,39 @@
     </md-card-title>
     <md-card-content>
         <md-checkbox ng-model="settings.enabled" aria-label="" ng-click="enable()">
-            <span message-key="saml2nt_settings.saml2_enabled"></span>
+            <span message-key="angular.saml2.directives.settings.ma-settings.enabled"></span>
         </md-checkbox>
         <md-input-container class="md-block md-input-has-placeholder" flex>
-            <label message-key="saml2nt_settings.saml2_identityProviderMetadata"></label>
+            <label message-key="angular.saml2.directives.settings.ma-settings.identityProviderMetadata"></label>
             <input onchange="angular.element(this).scope().fileNameChanged(this)" name="identityProviderMetadata"
                    type="file">
         </md-input-container>
         <md-input-container class="md-block" flex>
-            <label message-key="saml2nt_settings.saml2_relyingPartyIdentifier"></label>
+            <label message-key="angular.saml2.directives.settings.ma-settings.relyingPartyIdentifier"></label>
             <input ng-model="settings.relyingPartyIdentifier">
         </md-input-container>
         <md-input-container class="md-block md-input-has-placeholder" flex>
-            <label message-key="saml2nt_settings.saml2_keyStore"></label>
+            <label message-key="angular.saml2.directives.settings.ma-settings.keyStore"></label>
             <input onchange="angular.element(this).scope().fileNameChanged(this)" name="keyStore" type="file">
         </md-input-container>
         <md-input-container class="md-block" flex>
-            <label message-key="saml2nt_settings.saml2_keyStorePass"></label>
+            <label message-key="angular.saml2.directives.settings.ma-settings.keyStorePass"></label>
             <input ng-model="settings.keyStorePass">
         </md-input-container>
         <md-input-container class="md-block" flex>
-            <label message-key="saml2nt_settings.saml2_privateKeyPass"></label>
+            <label message-key="angular.saml2.directives.settings.ma-settings.privateKeyPass"></label>
             <input ng-model="settings.privateKeyPass">
         </md-input-container>
         <md-input-container class="md-block" flex>
-            <label message-key="saml2nt_settings.saml2_incomingTargetUrl"></label>
+            <label message-key="angular.saml2.directives.settings.ma-settings.incomingTargetUrl"></label>
             <input ng-model="settings.incomingTargetUrl">
         </md-input-container>
         <md-input-container class="md-block" flex>
-            <label message-key="saml2nt_settings.saml2_postLoginPath"></label>
+            <label message-key="angular.saml2.directives.settings.ma-settings.postLoginPath"></label>
             <input ng-model="settings.postLoginPath">
         </md-input-container>
         <md-input-container class="md-block" flex>
-            <label message-key="saml2nt_settings.saml2_maximumAuthenticationLifetime"></label>
+            <label message-key="angular.saml2.directives.settings.ma-settings.maximumAuthenticationLifetime"></label>
             <input ng-model="settings.maximumAuthenticationLifetime">
         </md-input-container>
     </md-card-content>
