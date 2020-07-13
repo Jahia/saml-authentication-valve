@@ -17,7 +17,6 @@ public final class SAML2Settings {
     private Long maximumAuthenticationLifetime;
 
     public void init() {
-        System.out.println("register: "+ siteKey);
         saml2SettingsService.registerServerSettings(this);
         this.previousSiteKey = siteKey;
     }
