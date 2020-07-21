@@ -25,6 +25,7 @@ public final class SAML2Settings {
         saml2SettingsService.removeServerSettings(getSiteKey());
     }
 
+    @SuppressWarnings("java:S1172")
     public void update(Map<String, Object> map) {
         if (previousSiteKey != null) {
             saml2SettingsService.removeServerSettings(previousSiteKey);

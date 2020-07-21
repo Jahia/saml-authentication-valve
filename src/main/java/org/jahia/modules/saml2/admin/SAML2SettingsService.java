@@ -9,8 +9,6 @@ import org.jahia.settings.SettingsBean;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import java.io.BufferedWriter;
@@ -20,7 +18,6 @@ import java.util.*;
 
 public final class SAML2SettingsService implements JahiaModuleAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(SAML2SettingsService.class);
     private static final SAML2SettingsService INSTANCE = new SAML2SettingsService();
     private Map<String, SAML2Settings> settingsBySiteKeyMap = new HashMap<>();
     private String resourceBundleName;
@@ -53,7 +50,7 @@ public final class SAML2SettingsService implements JahiaModuleAware {
         Configuration configuration = findConfiguration(settings.getSiteKey());
 
         if (configuration.getProperties() == null) {
-            Dictionary<String, Object> properties = new Hashtable<>();
+            @SuppressWarnings("java:S1149") Dictionary<String, Object> properties = new Hashtable<>();
             String file = SettingsBean.getInstance().getJahiaVarDiskPath() + "/karaf/etc/org.jahia.modules.saml2-" + settings.getSiteKey() + ".cfg";
             properties.put("felix.fileinstall.filename", "file:" + file);
 
