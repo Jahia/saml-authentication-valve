@@ -1,36 +1,30 @@
 package org.jahia.modules.saml2.admin;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import javax.jcr.RepositoryException;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.data.templates.JahiaTemplatesPackage;
 import org.jahia.modules.saml2.SAML2Constants;
 import org.jahia.modules.saml2.SAML2Util;
-import org.jahia.services.content.JCRCallback;
-import org.jahia.services.content.JCRSessionWrapper;
-import org.jahia.services.content.JCRTemplate;
-import org.jahia.services.content.decorator.JCRSiteNode;
-import org.jahia.services.sites.JahiaSitesService;
 import org.jahia.services.templates.JahiaModuleAware;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
+import org.jahia.settings.SettingsBean;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.springframework.core.io.Resource;
 
-public final class SAML2SettingsService implements InitializingBean, JahiaModuleAware {
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SAML2SettingsService.class);
+public final class SAML2SettingsService implements JahiaModuleAware {
+
     private static final SAML2SettingsService INSTANCE = new SAML2SettingsService();
     private Map<String, SAML2Settings> settingsBySiteKeyMap = new HashMap<>();
     private String resourceBundleName;
     private JahiaTemplatesPackage module;
     private Set<String> supportedLocales = Collections.emptySet();
-    private SAML2Util util;           
+    private SAML2Util util;
+    private ConfigurationAdmin configurationAdmin;
 
     private SAML2SettingsService() {
         super();
@@ -40,75 +34,83 @@ public final class SAML2SettingsService implements InitializingBean, JahiaModule
         return INSTANCE;
     }
 
-    public void loadSettings(final String siteKey) throws RepositoryException {
-        JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Object>() {
-
-            @Override
-            public Object doInJCR(final JCRSessionWrapper session) throws RepositoryException {
-                //clean up
-                if (siteKey == null) {
-                    settingsBySiteKeyMap.clear();
-                    for (final JCRSiteNode siteNode : JahiaSitesService.getInstance().getSitesNodeList(session)) {
-                        loadSettings(siteNode);
-                    }
-                } else {
-                    settingsBySiteKeyMap.remove(siteKey);
-                    if (session.nodeExists("/sites/" + siteKey)) {
-                        loadSettings(JahiaSitesService.getInstance().getSiteByKey(siteKey, session));
-                    }
-                }
-                return null;
-            }
-
-            private void loadSettings(final JCRSiteNode siteNode) throws RepositoryException {
-                boolean loaded;
-                try {
-                    final SAML2Settings settings = new SAML2Settings(siteNode.getSiteKey(), util);
-                    loaded = settings.load();
-                    if (loaded) {
-                        settingsBySiteKeyMap.put(siteNode.getSiteKey(), settings);
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Error while loading settings from "
-                            + siteNode.getPath() + "/"
-                            + SAML2Constants.SETTINGS_NODE_NAME, e);
-                }
-            }
-        });
+    public void registerServerSettings(SAML2Settings settings) {
+        settingsBySiteKeyMap.put(settings.getSiteKey(), settings);
     }
 
-    public SAML2Settings setSAML2Settings(final String siteKey,
-            final String identityProviderPath,
-            final String relyingPartyIdentifier,
-            final String incomingTargetUrl,
-            final String spMetaDataLocation,
-            final String keyStoreLocation,
-            final String keyStorePass,
-            final String privateKeyPass,
-            final String postLoginPath,
-            final Double maximumAuthentifcationLifetime) throws IOException {
-        final SAML2Settings settings = new SAML2Settings(siteKey, util);
-        settings.setIdentityProviderPath(identityProviderPath);
-        settings.setRelyingPartyIdentifier(relyingPartyIdentifier);
-        settings.setIncomingTargetUrl(incomingTargetUrl);
-        settings.setSpMetaDataLocation(spMetaDataLocation);
-        settings.setKeyStoreLocation(keyStoreLocation);
-        settings.setKeyStorePass(keyStorePass);
-        settings.setPrivateKeyPass(privateKeyPass);
-        settings.setPostLoginPath(postLoginPath);
-        settings.setMaximumAuthenticationLifetime(maximumAuthentifcationLifetime);
-
-        // refresh and save settings
-        settings.store();
-
-        settingsBySiteKeyMap.put(siteKey, settings);
+    public SAML2Settings createSAML2Settings(final String siteKey) throws IOException {
+        SAML2Settings settings = new SAML2Settings();
+        settings.setSiteKey(siteKey);
+        settings.setSaml2SettingsService(this);
         return settings;
+    }
+
+    public void saveSAML2Settings(SAML2Settings settings) throws IOException {
+        // refresh and save settings
+        Configuration configuration = findConfiguration(settings.getSiteKey());
+
+        if (configuration.getProperties() == null) {
+            @SuppressWarnings("java:S1149") Dictionary<String, Object> properties = new Hashtable<>();
+            String file = SettingsBean.getInstance().getJahiaVarDiskPath() + "/karaf/etc/org.jahia.modules.saml2-" + settings.getSiteKey() + ".cfg";
+            properties.put("felix.fileinstall.filename", "file:" + file);
+
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+                bw.write("# SAML Configuration file - autogenerated");
+                bw.newLine();
+                setProperties(settings, properties, bw);
+                configuration.update(properties);
+            }
+        } else {
+            Dictionary<String, Object> properties = configuration.getProperties();
+            setProperties(settings, properties, null);
+            configuration.update(properties);
+        }
+    }
+
+    private void setProperties(SAML2Settings settings, Dictionary<String, Object> properties, BufferedWriter writer) throws IOException {
+        setProperty(properties, writer, SAML2Constants.SITEKEY, settings.getSiteKey());
+        setProperty(properties, writer, SAML2Constants.ENABLED, Boolean.toString(settings.getEnabled()));
+        setProperty(properties, writer, SAML2Constants.IDENTITY_PROVIDER_METADATA, settings.getIdentityProviderMetadata());
+        setProperty(properties, writer, SAML2Constants.RELYING_PARTY_IDENTIFIER, settings.getRelyingPartyIdentifier());
+        setProperty(properties, writer, SAML2Constants.KEY_STORE, settings.getKeyStore());
+        setProperty(properties, writer, SAML2Constants.KEY_STORE_PASS, settings.getKeyStorePass());
+        setProperty(properties, writer, SAML2Constants.PRIVATE_KEY_PASS, settings.getPrivateKeyPass());
+        setProperty(properties, writer, SAML2Constants.INCOMING_TARGET_URL, settings.getIncomingTargetUrl());
+        setProperty(properties, writer, SAML2Constants.POST_LOGIN_PATH, settings.getPostLoginPath());
+        setProperty(properties, writer, SAML2Constants.MAXIMUM_AUTHENTICATION_LIFETIME, Long.toString(settings.getMaximumAuthenticationLifetime()));
+    }
+
+    private void setProperty(Dictionary<String, Object> properties, BufferedWriter writer, String key, String value) throws IOException {
+        if (value != null) {
+            properties.put(key, value);
+            if (writer != null) {
+                writer.write(key + " = " + value);
+                writer.newLine();
+            }
+        }
+    }
+
+
+    private Configuration findConfiguration(String siteKey) throws IOException {
+        try {
+            Configuration[] configurations = configurationAdmin.listConfigurations("(service.factoryPid=org.jahia.modules.saml2)");
+            for (Configuration configuration : configurations) {
+                if (siteKey.equals(configuration.getProperties().get(SAML2Constants.SITEKEY))) {
+                    return configuration;
+                }
+            }
+        } catch (InvalidSyntaxException e) {
+            // not possible
+        }
+        Configuration configuration = configurationAdmin.createFactoryConfiguration("org.jahia.modules.saml2");
+
+        return configuration;
     }
 
     public void removeServerSettings(String siteKey) {
         if (settingsBySiteKeyMap.containsKey(siteKey)) {
-            settingsBySiteKeyMap.get(siteKey).remove();
             settingsBySiteKeyMap.remove(siteKey);
+            util.resetClient(siteKey);
         }
     }
 
@@ -148,9 +150,8 @@ public final class SAML2SettingsService implements InitializingBean, JahiaModule
         return resourceBundleName;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        loadSettings(null);
+    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
+        this.configurationAdmin = configurationAdmin;
     }
 
     public void setUtil(SAML2Util util) {
