@@ -6,7 +6,7 @@ This community module (not supported by Jahia) is meant to activate SAML on one 
 
 Create a keystore: 
 ```sh
-keytool -genkeypair -alias jahiakeystorealias -keypass changeit_privatekey -keystore sp.jks -storepass changeit_keystore -keyalg RSA -keysize 2048 -validity 3650
+keytool -genkeypair -alias jahiakeystorealias -keypass changeit -keystore sp.jks -storepass changeit -keyalg RSA -keysize 2048 -validity 3650
 ```
 
 #### :warning: Important Input Step :warning:
@@ -40,7 +40,7 @@ The maximum age of the authentication on the IdP. Older
 - Relying Party Identifier: `test.jahia.com`
 - Incoming Target Url: `/home.samlCallback.do`
 - Password of the Private Key: `sp.jks`
-- Key Store Pass: `changeit_keystore`
-- Private Key Pass: `changeit_privatekey`
+- Key Store Pass: `changeit`
+- Private Key Pass: `changeit`
 - Redirect path after successful login: `/home.html`
 - Maximum authentication lifetime: `20736000`
