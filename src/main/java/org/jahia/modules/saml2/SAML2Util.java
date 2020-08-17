@@ -11,6 +11,8 @@ import org.springframework.core.io.FileSystemResource;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Base64;
 import java.util.HashMap;
 
@@ -19,14 +21,17 @@ public final class SAML2Util {
     private final HashMap<String, SAML2Client> clients = new HashMap<>();
 
     public String getAssertionConsumerServiceUrl(final HttpServletRequest request, final String incoming) {
-        final StringBuilder url = new StringBuilder();
         String serverName = request.getHeader("X-Forwarded-Server");
         if (StringUtils.isEmpty(serverName)) {
             serverName = request.getServerName();
         }
-        url.append(request.getScheme()).append("://").append(serverName).append(request.getContextPath()).append(incoming);
 
-        return url.toString();
+        try {
+            URL url = new URL(request.getScheme(), serverName, request.getLocalPort(), request.getContextPath() + incoming);
+            return url.toString();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
