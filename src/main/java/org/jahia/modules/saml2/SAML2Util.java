@@ -11,6 +11,7 @@ import org.springframework.core.io.FileSystemResource;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Base64;
@@ -92,6 +93,12 @@ public final class SAML2Util {
      * @param request
      */
     private SAML2Client initSAMLClient(SAML2Settings saml2Settings, HttpServletRequest request) {
+        String spMetaDataLocation = SettingsBean.getInstance().getJahiaVarDiskPath() + "/saml/SAMLSPMetadata."+saml2Settings.getSiteKey()+".xml";
+        final File spMetadataFile = new File(spMetaDataLocation);
+        if (spMetadataFile.exists()) {
+            spMetadataFile.delete();
+        }
+
         final SAML2Client client = new SAML2Client(getSAML2ClientConfiguration(saml2Settings));
         client.setCallbackUrl(getAssertionConsumerServiceUrl(request, saml2Settings.getIncomingTargetUrl()));
         return client;
