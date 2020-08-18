@@ -5,7 +5,7 @@
 <saml2nt = 'http://www.jahia.org/saml2/nt/1.0'>
 <saml2 = 'http://www.jahia.org/saml2/1.0'>
 
-[jnt:samlLogin] > jnt:content, jmix:basicContent
+[jnt:samlLogin] > jnt:content, jmix:basicContent, mix:title
 
 [saml2nt:manageSettings] > jnt:content, jmix:siteComponent, mix:title, jmix:studioOnly
 

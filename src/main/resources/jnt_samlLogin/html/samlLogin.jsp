@@ -17,7 +17,8 @@
 <%--@elvariable id="renderContext" type="org.jahia.services.render.RenderContext"--%>
 <%--@elvariable id="currentResource" type="org.jahia.services.render.Resource"--%>
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
-<ui:loginArea>
-  <input type="hidden" name="authenticationService" value="SAML"/>
-  <input type="submit"/>
-</ui:loginArea>
+<c:if test="${not renderContext.loggedIn}">
+    <form action="${renderContext.mainResource.node.name}.connectToSaml.do">
+        <input type="submit" value="${currentNode.displayableName}">
+    </form>
+</c:if>
