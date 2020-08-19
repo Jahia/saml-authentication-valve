@@ -51,10 +51,15 @@ public final class SAML2SettingsAction extends Action {
                 resp.put(SAML2Constants.ENABLED, serverSettings.getEnabled());
                 resp.put(SAML2Constants.RELYING_PARTY_IDENTIFIER, serverSettings.getRelyingPartyIdentifier());
                 resp.put(SAML2Constants.INCOMING_TARGET_URL, serverSettings.getIncomingTargetUrl());
+                resp.put(SAML2Constants.KEY_STORE_ALIAS, serverSettings.getKeyStoreAlias());
                 resp.put(SAML2Constants.KEY_STORE_PASS, serverSettings.getKeyStorePass());
                 resp.put(SAML2Constants.MAXIMUM_AUTHENTICATION_LIFETIME, serverSettings.getMaximumAuthenticationLifetime());
                 resp.put(SAML2Constants.PRIVATE_KEY_PASS, serverSettings.getPrivateKeyPass());
                 resp.put(SAML2Constants.POST_LOGIN_PATH, serverSettings.getPostLoginPath());
+                resp.put(SAML2Constants.FORCE_AUTH, serverSettings.isForceAuth());
+                resp.put(SAML2Constants.PASSIVE, serverSettings.isPassive());
+                resp.put(SAML2Constants.REQUIRES_SIGNED_ASSERTIONS, serverSettings.isRequireSignedAssertions());
+                resp.put(SAML2Constants.SIGN_AUTH_REQUEST, serverSettings.isSignAuthnRequest());
                 resp.put(SAML2Constants.MAPPER_NAME, serverSettings.getMapperName());
             }
             resp.put("availableMappers", getMapperNames());
@@ -98,10 +103,15 @@ public final class SAML2SettingsAction extends Action {
         } else if (oldSettings != null) {
             serverSettings.setKeyStore(oldSettings.getKeyStore());
         }
+        serverSettings.setKeyStoreAlias(getSettingOrDefault(parameters, SAML2Constants.KEY_STORE_ALIAS, (oldSettings != null ? oldSettings.getKeyStoreAlias() : "")));
         serverSettings.setKeyStorePass(getSettingOrDefault(parameters, SAML2Constants.KEY_STORE_PASS, (oldSettings != null ? oldSettings.getKeyStorePass() : "")));
         serverSettings.setPrivateKeyPass(getSettingOrDefault(parameters, SAML2Constants.PRIVATE_KEY_PASS, (oldSettings != null ? oldSettings.getPrivateKeyPass() : "")));
-        serverSettings.setPostLoginPath(getSettingOrDefault(parameters, SAML2Constants.POST_LOGIN_PATH, (oldSettings != null ? oldSettings.getPostLoginPath() : "")));
+        serverSettings.setPostLoginPath(getSettingOrDefault(parameters, SAML2Constants.POST_LOGIN_PATH, (oldSettings != null ? oldSettings.getPostLoginPath() : "/")));
         serverSettings.setMaximumAuthenticationLifetime(Long.parseLong(getSettingOrDefault(parameters, SAML2Constants.MAXIMUM_AUTHENTICATION_LIFETIME, Long.toString(oldSettings != null ? oldSettings.getMaximumAuthenticationLifetime() : 0))));
+        serverSettings.setForceAuth(Boolean.parseBoolean(getSettingOrDefault(parameters, SAML2Constants.FORCE_AUTH, Boolean.toString(oldSettings != null && oldSettings.isForceAuth()))));
+        serverSettings.setPassive(Boolean.parseBoolean(getSettingOrDefault(parameters, SAML2Constants.PASSIVE, Boolean.toString(oldSettings != null && oldSettings.isPassive()))));
+        serverSettings.setRequireSignedAssertions(Boolean.parseBoolean(getSettingOrDefault(parameters, SAML2Constants.REQUIRES_SIGNED_ASSERTIONS, Boolean.toString(oldSettings != null && oldSettings.isRequireSignedAssertions()))));
+        serverSettings.setSignAuthnRequest(Boolean.parseBoolean(getSettingOrDefault(parameters, SAML2Constants.SIGN_AUTH_REQUEST, Boolean.toString(oldSettings == null || oldSettings.isSignAuthnRequest()))));
         serverSettings.setMapperName(getSettingOrDefault(parameters, SAML2Constants.MAPPER_NAME, (oldSettings != null ? oldSettings.getMapperName() : "")));
         saml2SettingsService.saveSAML2Settings(serverSettings);
         return serverSettings;

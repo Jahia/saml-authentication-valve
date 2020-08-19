@@ -237,22 +237,6 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>jahia-maven-plugin</artifactId>
-                <groupId>org.jahia.server</groupId>
-                <executions>
-                    <execution>
-                        <id>i18n2js</id>
-                        <goals>
-                            <goal>javascript-dictionary</goal>
-                        </goals>
-                        <configuration>
-                            <dictionaryName>saml2i18n</dictionaryName>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>

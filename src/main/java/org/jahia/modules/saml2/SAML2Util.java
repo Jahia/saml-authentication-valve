@@ -1,7 +1,6 @@
 package org.jahia.modules.saml2;
 
 import org.apache.commons.lang.StringUtils;
-import org.jahia.exceptions.JahiaRuntimeException;
 import org.jahia.modules.saml2.admin.SAML2Settings;
 import org.jahia.modules.saml2.admin.SAML2SettingsService;
 import org.jahia.settings.SettingsBean;
@@ -57,9 +56,11 @@ public final class SAML2Util {
 
     public String getCookieValue(final HttpServletRequest request, final String name) {
         final Cookie[] cookies = request.getCookies();
-        for (final Cookie cookie : cookies) {
-            if (cookie.getName().equals(name)) {
-                return cookie.getValue();
+        if (cookies != null) {
+            for (final Cookie cookie : cookies) {
+                if (cookie.getName().equals(name)) {
+                    return cookie.getValue();
+                }
             }
         }
         return null;
@@ -80,9 +81,16 @@ public final class SAML2Util {
         saml2ClientConfiguration.setIdentityProviderMetadataResource(new ByteArrayResource(Base64.getDecoder().decode(saml2Settings.getIdentityProviderMetadata())));
         saml2ClientConfiguration.setServiceProviderEntityId(saml2Settings.getRelyingPartyIdentifier());
         saml2ClientConfiguration.setKeystoreResource(new ByteArrayResource(Base64.getDecoder().decode(saml2Settings.getKeyStore())));
+        if (StringUtils.isNotEmpty(saml2Settings.getKeyStoreAlias())) {
+            saml2ClientConfiguration.setKeystoreAlias(saml2Settings.getKeyStoreAlias());
+        }
         saml2ClientConfiguration.setKeystorePassword(saml2Settings.getKeyStorePass());
         saml2ClientConfiguration.setPrivateKeyPassword(saml2Settings.getPrivateKeyPass());
         saml2ClientConfiguration.setServiceProviderMetadataResource(new FileSystemResource(SettingsBean.getInstance().getJahiaVarDiskPath() + "/saml/SAMLSPMetadata."+saml2Settings.getSiteKey()+".xml"));
+        saml2ClientConfiguration.setForceAuth(saml2Settings.isForceAuth());
+        saml2ClientConfiguration.setPassive(saml2Settings.isPassive());
+        saml2ClientConfiguration.setAuthnRequestSigned(saml2Settings.isSignAuthnRequest());
+        saml2ClientConfiguration.setWantsAssertionsSigned(saml2Settings.isRequireSignedAssertions());
 
         return saml2ClientConfiguration;
     }

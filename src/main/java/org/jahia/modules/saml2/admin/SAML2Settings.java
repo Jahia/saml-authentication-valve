@@ -10,11 +10,16 @@ public final class SAML2Settings {
     private String identityProviderMetadata;
     private String incomingTargetUrl;
     private String keyStore;
+    private String keyStoreAlias;
     private String keyStorePass;
-    private String postLoginPath;
+    private String postLoginPath = "/";
     private String privateKeyPass;
     private String relyingPartyIdentifier;
     private Long maximumAuthenticationLifetime;
+    private boolean forceAuth;
+    private boolean passive;
+    private boolean signAuthnRequest = true;
+    private boolean requireSignedAssertions;
     private String mapperName;
 
     public void init() {
@@ -74,6 +79,14 @@ public final class SAML2Settings {
         this.keyStore = keyStore;
     }
 
+    public String getKeyStoreAlias() {
+        return keyStoreAlias;
+    }
+
+    public void setKeyStoreAlias(String keyStoreAlias) {
+        this.keyStoreAlias = keyStoreAlias;
+    }
+
     public String getKeyStorePass() {
         return keyStorePass;
     }
@@ -114,8 +127,36 @@ public final class SAML2Settings {
         this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
     }
 
-    public void setSaml2SettingsService(SAML2SettingsService saml2SettingsService) {
-        this.saml2SettingsService = saml2SettingsService;
+    public boolean isForceAuth() {
+        return forceAuth;
+    }
+
+    public void setForceAuth(boolean forceAuth) {
+        this.forceAuth = forceAuth;
+    }
+
+    public boolean isPassive() {
+        return passive;
+    }
+
+    public void setPassive(boolean passive) {
+        this.passive = passive;
+    }
+
+    public boolean isSignAuthnRequest() {
+        return signAuthnRequest;
+    }
+
+    public void setSignAuthnRequest(boolean signAuthnRequest) {
+        this.signAuthnRequest = signAuthnRequest;
+    }
+
+    public boolean isRequireSignedAssertions() {
+        return requireSignedAssertions;
+    }
+
+    public void setRequireSignedAssertions(boolean requireSignedAssertions) {
+        this.requireSignedAssertions = requireSignedAssertions;
     }
 
     public String getMapperName() {
@@ -125,5 +166,10 @@ public final class SAML2Settings {
     public void setMapperName(String mapperName) {
         this.mapperName = mapperName;
     }
+
+    public void setSaml2SettingsService(SAML2SettingsService saml2SettingsService) {
+        this.saml2SettingsService = saml2SettingsService;
+    }
+
 }
 

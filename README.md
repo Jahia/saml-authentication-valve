@@ -25,14 +25,26 @@ The value is arbitrary.
 #### Incoming Target Url
 This is the URL when the Idp will return the SAML response. Its default value is /home.samlCallback.do
 
-#### Keystore, Password of the Keystore and Password of the Private Key
+#### Keystore, Alias, Password of the Keystore and Password of the Private Key
 Those value must match the one defined when creating the server key and certificate.
 
 #### Redirect after successful login
 This is the DX relative ULR where the user will be redirect after successfully authentication. (For example /home.html)
 
 #### Maximum authentication lifetime
-The maximum age of the authentication on the IdP. Older 
+The maximum age of the authentication on the IdP. User will be asked to reauthenticate if the session on the IdP is older than the specified time. 
+
+#### Force authentication
+If set, authentication will be asked everytime even if the user has already a session on the IdP.
+
+#### Passive
+The user will transparently log in, without any interaction. User will be authenticated only if the IdP is able to do it without asking the user.
+
+#### Sign authentication request
+Sign the request sent to the IdP.
+
+#### Requires signed assertions
+Will only accept signed assertions from the IdP.
 
 #### User mapper
 How to map the user data (can create a user in JCR or LDAP)
@@ -45,6 +57,6 @@ How to map the user data (can create a user in JCR or LDAP)
 - Password of the Private Key: `sp.jks`
 - Key Store Pass: `changeit`
 - Private Key Pass: `changeit`
-- Redirect path after successful login: `/home.html`
+- Redirect path after successful login: `/`
 - Maximum authentication lifetime: `20736000`
 - User mapper : `jcrOauthProvider`
