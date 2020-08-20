@@ -46,6 +46,9 @@ Sign the request sent to the IdP.
 #### Requires signed assertions
 Will only accept signed assertions from the IdP.
 
+#### Binding type
+SAML binding type used to communicate iwth IdP.
+
 #### User mapper
 How to map the user data (can create a user in JCR or LDAP)
 
@@ -54,9 +57,9 @@ How to map the user data (can create a user in JCR or LDAP)
 - Identity Provider MetaData :`GoogleIDPMetadata-jahia.com.xml`
 - Relying Party Identifier: `test.jahia.com`
 - Incoming Target Url: `/home.samlCallback.do`
-- Password of the Private Key: `sp.jks`
+- Keystore: `sp.jks`
 - Key Store Pass: `changeit`
 - Private Key Pass: `changeit`
 - Redirect path after successful login: `/`
-- Maximum authentication lifetime: `20736000`
+- Maximum authentication lifetime: `2073600`
 - User mapper : `jcrOauthProvider`
