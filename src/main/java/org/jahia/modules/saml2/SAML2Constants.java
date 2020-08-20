@@ -17,6 +17,7 @@ public final class SAML2Constants {
     public static final String FORCE_AUTH = "forceAuth";
     public static final String PASSIVE = "passive";
     public static final String SIGN_AUTH_REQUEST = "signAuthnRequest";
+    public static final String BINDING_TYPE = "bindingType";
     public static final String REQUIRES_SIGNED_ASSERTIONS = "requireSignedAssertions";
 
     public static final String SITE = "site";

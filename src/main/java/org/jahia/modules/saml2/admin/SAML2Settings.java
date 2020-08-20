@@ -1,5 +1,7 @@
 package org.jahia.modules.saml2.admin;
 
+import org.opensaml.saml.common.xml.SAMLConstants;
+
 import java.util.Map;
 
 public final class SAML2Settings {
@@ -10,16 +12,17 @@ public final class SAML2Settings {
     private String identityProviderMetadata;
     private String incomingTargetUrl = "/home.samlCallback.do";
     private String keyStore;
-    private String keyStoreAlias;
-    private String keyStorePass;
+    private String keyStoreAlias = "saml2clientconfiguration";
+    private String keyStorePass = "changeit";
+    private String privateKeyPass = "changeit";
     private String postLoginPath = "/";
-    private String privateKeyPass;
     private String relyingPartyIdentifier;
-    private Long maximumAuthenticationLifetime = 20736000L;
+    private Long maximumAuthenticationLifetime = 86400L;
     private boolean forceAuth = false;
     private boolean passive = false;
     private boolean signAuthnRequest = true;
     private boolean requireSignedAssertions = false;
+    private String bindingType = SAMLConstants.SAML2_POST_BINDING_URI;
     private String mapperName;
 
     public void init() {
@@ -157,6 +160,14 @@ public final class SAML2Settings {
 
     public void setRequireSignedAssertions(boolean requireSignedAssertions) {
         this.requireSignedAssertions = requireSignedAssertions;
+    }
+
+    public String getBindingType() {
+        return bindingType;
+    }
+
+    public void setBindingType(String bindingType) {
+        this.bindingType = bindingType;
     }
 
     public String getMapperName() {

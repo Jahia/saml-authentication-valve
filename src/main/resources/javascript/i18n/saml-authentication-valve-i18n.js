@@ -1,4 +1,5 @@
 var saml2i18n = {
+    "angular.saml2.directives.settings.ma-settings.bindingType": "Binding type",
     "angular.saml2.directives.settings.ma-settings.enabled": "Enabled",
     "angular.saml2.directives.settings.ma-settings.forceAuth": "Force authentication",
     "angular.saml2.directives.settings.ma-settings.identityProviderMetadata": "Identity Provider MetaData",
@@ -7,7 +8,7 @@ var saml2i18n = {
     "angular.saml2.directives.settings.ma-settings.keyStoreAlias": "Keystore alias",
     "angular.saml2.directives.settings.ma-settings.keyStorePass": "Password of the Keystore",
     "angular.saml2.directives.settings.ma-settings.mapperName": "User mapper",
-    "angular.saml2.directives.settings.ma-settings.maximumAuthenticationLifetime": "Maximum authentication lifetime",
+    "angular.saml2.directives.settings.ma-settings.maximumAuthenticationLifetime": "Maximum authentication lifetime (in seconds)",
     "angular.saml2.directives.settings.ma-settings.message.settingsSaved": "SAML2 Settings Saved",
     "angular.saml2.directives.settings.ma-settings.openmetadata": "Open service provider metadata",
     "angular.saml2.directives.settings.ma-settings.passive": "Passive authentication",

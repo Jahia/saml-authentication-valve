@@ -6,7 +6,6 @@ import org.jahia.modules.saml2.admin.SAML2SettingsService;
 import org.jahia.settings.SettingsBean;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.client.SAML2ClientConfiguration;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 
 import javax.servlet.http.Cookie;
@@ -14,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Base64;
 import java.util.HashMap;
 
 public final class SAML2Util {
@@ -78,23 +76,20 @@ public final class SAML2Util {
         final SAML2ClientConfiguration saml2ClientConfiguration = new SAML2ClientConfiguration();
 
         saml2ClientConfiguration.setMaximumAuthenticationLifetime(saml2Settings.getMaximumAuthenticationLifetime().intValue());
-        saml2ClientConfiguration.setIdentityProviderMetadataResource(new ByteArrayResource(Base64.getDecoder().decode(saml2Settings.getIdentityProviderMetadata())));
+        saml2ClientConfiguration.setIdentityProviderMetadataResource(new FileSystemResource(getSamlFileName(saml2Settings.getSiteKey(), "idp-metadata.xml")));
         saml2ClientConfiguration.setServiceProviderEntityId(saml2Settings.getRelyingPartyIdentifier());
-        if (saml2Settings.getKeyStore() != null) {
-            saml2ClientConfiguration.setKeystoreResource(new ByteArrayResource(Base64.getDecoder().decode(saml2Settings.getKeyStore())));
-        } else {
-            saml2ClientConfiguration.setKeystoreResource(new FileSystemResource(SettingsBean.getInstance().getJahiaVarDiskPath() + "/saml/keystore."+saml2Settings.getSiteKey()+".jks"));
-        }
+        saml2ClientConfiguration.setKeystoreResource(new FileSystemResource(getSamlFileName(saml2Settings.getSiteKey(), "keystore.jks")));
         if (StringUtils.isNotEmpty(saml2Settings.getKeyStoreAlias())) {
             saml2ClientConfiguration.setKeystoreAlias(saml2Settings.getKeyStoreAlias());
         }
         saml2ClientConfiguration.setKeystorePassword(saml2Settings.getKeyStorePass());
         saml2ClientConfiguration.setPrivateKeyPassword(saml2Settings.getPrivateKeyPass());
-        saml2ClientConfiguration.setServiceProviderMetadataResource(new FileSystemResource(SettingsBean.getInstance().getJahiaVarDiskPath() + "/saml/SAMLSPMetadata."+saml2Settings.getSiteKey()+".xml"));
+        saml2ClientConfiguration.setServiceProviderMetadataResource(new FileSystemResource(getSamlFileName(saml2Settings.getSiteKey(), "sp-metadata.xml")));
         saml2ClientConfiguration.setForceAuth(saml2Settings.isForceAuth());
         saml2ClientConfiguration.setPassive(saml2Settings.isPassive());
         saml2ClientConfiguration.setAuthnRequestSigned(saml2Settings.isSignAuthnRequest());
         saml2ClientConfiguration.setWantsAssertionsSigned(saml2Settings.isRequireSignedAssertions());
+        saml2ClientConfiguration.setDestinationBindingType(saml2Settings.getBindingType());
 
         return saml2ClientConfiguration;
     }
@@ -106,7 +101,7 @@ public final class SAML2Util {
      * @param request
      */
     private SAML2Client initSAMLClient(SAML2Settings saml2Settings, HttpServletRequest request) {
-        String spMetaDataLocation = SettingsBean.getInstance().getJahiaVarDiskPath() + "/saml/SAMLSPMetadata."+saml2Settings.getSiteKey()+".xml";
+        String spMetaDataLocation = getSamlFileName(saml2Settings.getSiteKey(), "sp-metadata.xml");
         final File spMetadataFile = new File(spMetaDataLocation);
         if (spMetadataFile.exists()) {
             spMetadataFile.delete();
@@ -115,5 +110,9 @@ public final class SAML2Util {
         final SAML2Client client = new SAML2Client(getSAML2ClientConfiguration(saml2Settings));
         client.setCallbackUrl(getAssertionConsumerServiceUrl(request, saml2Settings.getIncomingTargetUrl()));
         return client;
+    }
+
+    public static String getSamlFileName(String siteKey, String filename) {
+        return SettingsBean.getInstance().getJahiaVarDiskPath() + "/saml/" + siteKey + "." + filename;
     }
 }
