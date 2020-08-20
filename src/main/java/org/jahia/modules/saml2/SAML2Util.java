@@ -80,7 +80,11 @@ public final class SAML2Util {
         saml2ClientConfiguration.setMaximumAuthenticationLifetime(saml2Settings.getMaximumAuthenticationLifetime().intValue());
         saml2ClientConfiguration.setIdentityProviderMetadataResource(new ByteArrayResource(Base64.getDecoder().decode(saml2Settings.getIdentityProviderMetadata())));
         saml2ClientConfiguration.setServiceProviderEntityId(saml2Settings.getRelyingPartyIdentifier());
-        saml2ClientConfiguration.setKeystoreResource(new ByteArrayResource(Base64.getDecoder().decode(saml2Settings.getKeyStore())));
+        if (saml2Settings.getKeyStore() != null) {
+            saml2ClientConfiguration.setKeystoreResource(new ByteArrayResource(Base64.getDecoder().decode(saml2Settings.getKeyStore())));
+        } else {
+            saml2ClientConfiguration.setKeystoreResource(new FileSystemResource(SettingsBean.getInstance().getJahiaVarDiskPath() + "/saml/keystore."+saml2Settings.getSiteKey()+".jks"));
+        }
         if (StringUtils.isNotEmpty(saml2Settings.getKeyStoreAlias())) {
             saml2ClientConfiguration.setKeystoreAlias(saml2Settings.getKeyStoreAlias());
         }

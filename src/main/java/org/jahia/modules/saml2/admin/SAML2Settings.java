@@ -6,20 +6,20 @@ public final class SAML2Settings {
     private String previousSiteKey;
     private String siteKey;
     private SAML2SettingsService saml2SettingsService;
-    private boolean enabled;
+    private boolean enabled = false;
     private String identityProviderMetadata;
-    private String incomingTargetUrl;
+    private String incomingTargetUrl = "/home.samlCallback.do";
     private String keyStore;
     private String keyStoreAlias;
     private String keyStorePass;
     private String postLoginPath = "/";
     private String privateKeyPass;
     private String relyingPartyIdentifier;
-    private Long maximumAuthenticationLifetime;
-    private boolean forceAuth;
-    private boolean passive;
+    private Long maximumAuthenticationLifetime = 20736000L;
+    private boolean forceAuth = false;
+    private boolean passive = false;
     private boolean signAuthnRequest = true;
-    private boolean requireSignedAssertions;
+    private boolean requireSignedAssertions = false;
     private String mapperName;
 
     public void init() {

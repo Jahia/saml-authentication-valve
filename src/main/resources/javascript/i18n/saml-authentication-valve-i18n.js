@@ -3,7 +3,7 @@ var saml2i18n = {
     "angular.saml2.directives.settings.ma-settings.forceAuth": "Force authentication",
     "angular.saml2.directives.settings.ma-settings.identityProviderMetadata": "Identity Provider MetaData",
     "angular.saml2.directives.settings.ma-settings.incomingTargetUrl": "Incoming Target Url",
-    "angular.saml2.directives.settings.ma-settings.keyStore": "Keystore",
+    "angular.saml2.directives.settings.ma-settings.keyStore": "Keystore (leave blank to auto-generate)",
     "angular.saml2.directives.settings.ma-settings.keyStoreAlias": "Keystore alias",
     "angular.saml2.directives.settings.ma-settings.keyStorePass": "Password of the Keystore",
     "angular.saml2.directives.settings.ma-settings.mapperName": "User mapper",

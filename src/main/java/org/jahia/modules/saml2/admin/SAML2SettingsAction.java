@@ -22,9 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class SAML2SettingsAction extends Action {
@@ -35,13 +35,12 @@ public final class SAML2SettingsAction extends Action {
     @Override
     public ActionResult doExecute(final HttpServletRequest request, final RenderContext renderContext, final Resource resource, final JCRSessionWrapper session, Map<String, List<String>> parameters, final URLResolver urlResolver) throws Exception {
         try {
-            FileUpload fup = (FileUpload) request.getAttribute("fileUpload");
             final SAML2Settings serverSettings;
             final String siteKey = renderContext.getSite().getSiteKey();
             // if payload has content, it means an update.
             if (parameters.get(SAML2Constants.ENABLED) != null) {
                 final SAML2Settings oldSettings = saml2SettingsService.getSettings(siteKey);
-                serverSettings = saveSettings(parameters, fup, siteKey, oldSettings);
+                serverSettings = saveSettings(parameters, (FileUpload) request.getAttribute("fileUpload"), siteKey, oldSettings);
             } else {
                 serverSettings = saml2SettingsService.getSettings(siteKey);
             }
@@ -89,36 +88,38 @@ public final class SAML2SettingsAction extends Action {
 
     private SAML2Settings saveSettings(Map<String, List<String>> parameters, FileUpload fup, String siteKey, SAML2Settings oldSettings) throws IOException {
         SAML2Settings serverSettings;
-        serverSettings = saml2SettingsService.createSAML2Settings(siteKey);
-        serverSettings.setEnabled(Boolean.parseBoolean(getSettingOrDefault(parameters, SAML2Constants.ENABLED, Boolean.toString(oldSettings != null && oldSettings.getEnabled()))));
-        if (fup.getFileItems().containsKey(SAML2Constants.IDENTITY_PROVIDER_METADATA)) {
-            serverSettings.setIdentityProviderMetadata(Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(fup.getFileItems().get(SAML2Constants.IDENTITY_PROVIDER_METADATA).getStoreLocation())));
-        } else if (oldSettings != null) {
-            serverSettings.setIdentityProviderMetadata(oldSettings.getIdentityProviderMetadata());
-        }
-        serverSettings.setRelyingPartyIdentifier(getSettingOrDefault(parameters, SAML2Constants.RELYING_PARTY_IDENTIFIER, (oldSettings != null ? oldSettings.getRelyingPartyIdentifier() : "")));
-        serverSettings.setIncomingTargetUrl(getSettingOrDefault(parameters, SAML2Constants.INCOMING_TARGET_URL, (oldSettings != null ? oldSettings.getIncomingTargetUrl() : "")));
-        if (fup.getFileItems().containsKey(SAML2Constants.KEY_STORE)) {
-            serverSettings.setKeyStore(Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(fup.getFileItems().get(SAML2Constants.KEY_STORE).getStoreLocation())));
-        } else if (oldSettings != null) {
-            serverSettings.setKeyStore(oldSettings.getKeyStore());
-        }
-        serverSettings.setKeyStoreAlias(getSettingOrDefault(parameters, SAML2Constants.KEY_STORE_ALIAS, (oldSettings != null ? oldSettings.getKeyStoreAlias() : "")));
-        serverSettings.setKeyStorePass(getSettingOrDefault(parameters, SAML2Constants.KEY_STORE_PASS, (oldSettings != null ? oldSettings.getKeyStorePass() : "")));
-        serverSettings.setPrivateKeyPass(getSettingOrDefault(parameters, SAML2Constants.PRIVATE_KEY_PASS, (oldSettings != null ? oldSettings.getPrivateKeyPass() : "")));
-        serverSettings.setPostLoginPath(getSettingOrDefault(parameters, SAML2Constants.POST_LOGIN_PATH, (oldSettings != null ? oldSettings.getPostLoginPath() : "/")));
-        serverSettings.setMaximumAuthenticationLifetime(Long.parseLong(getSettingOrDefault(parameters, SAML2Constants.MAXIMUM_AUTHENTICATION_LIFETIME, Long.toString(oldSettings != null ? oldSettings.getMaximumAuthenticationLifetime() : 0))));
-        serverSettings.setForceAuth(Boolean.parseBoolean(getSettingOrDefault(parameters, SAML2Constants.FORCE_AUTH, Boolean.toString(oldSettings != null && oldSettings.isForceAuth()))));
-        serverSettings.setPassive(Boolean.parseBoolean(getSettingOrDefault(parameters, SAML2Constants.PASSIVE, Boolean.toString(oldSettings != null && oldSettings.isPassive()))));
-        serverSettings.setRequireSignedAssertions(Boolean.parseBoolean(getSettingOrDefault(parameters, SAML2Constants.REQUIRES_SIGNED_ASSERTIONS, Boolean.toString(oldSettings != null && oldSettings.isRequireSignedAssertions()))));
-        serverSettings.setSignAuthnRequest(Boolean.parseBoolean(getSettingOrDefault(parameters, SAML2Constants.SIGN_AUTH_REQUEST, Boolean.toString(oldSettings == null || oldSettings.isSignAuthnRequest()))));
-        serverSettings.setMapperName(getSettingOrDefault(parameters, SAML2Constants.MAPPER_NAME, (oldSettings != null ? oldSettings.getMapperName() : "")));
+        serverSettings = oldSettings != null ? oldSettings : saml2SettingsService.createSAML2Settings(siteKey);
+        setProperty(parameters, SAML2Constants.ENABLED, s -> serverSettings.setEnabled(Boolean.parseBoolean(s)));
+        setFile(fup, SAML2Constants.IDENTITY_PROVIDER_METADATA, serverSettings::setIdentityProviderMetadata);
+        setProperty(parameters, SAML2Constants.RELYING_PARTY_IDENTIFIER, serverSettings::setRelyingPartyIdentifier);
+        setProperty(parameters, SAML2Constants.INCOMING_TARGET_URL, serverSettings::setIncomingTargetUrl);
+        setFile(fup, SAML2Constants.KEY_STORE, serverSettings::setKeyStore);
+        setProperty(parameters, SAML2Constants.KEY_STORE_ALIAS, serverSettings::setKeyStoreAlias);
+        setProperty(parameters, SAML2Constants.KEY_STORE_PASS, serverSettings::setKeyStorePass);
+        setProperty(parameters, SAML2Constants.PRIVATE_KEY_PASS, serverSettings::setPrivateKeyPass);
+        setProperty(parameters, SAML2Constants.POST_LOGIN_PATH, serverSettings::setPostLoginPath);
+        setProperty(parameters, SAML2Constants.MAXIMUM_AUTHENTICATION_LIFETIME, s -> serverSettings.setMaximumAuthenticationLifetime(Long.parseLong(s)));
+        setProperty(parameters, SAML2Constants.FORCE_AUTH, s -> serverSettings.setForceAuth(Boolean.parseBoolean(s)));
+        setProperty(parameters, SAML2Constants.PASSIVE, s -> serverSettings.setPassive(Boolean.parseBoolean(s)));
+        setProperty(parameters, SAML2Constants.REQUIRES_SIGNED_ASSERTIONS, s -> serverSettings.setRequireSignedAssertions(Boolean.parseBoolean(s)));
+        setProperty(parameters, SAML2Constants.SIGN_AUTH_REQUEST, s -> serverSettings.setSignAuthnRequest(Boolean.parseBoolean(s)));
+        setProperty(parameters, SAML2Constants.MAPPER_NAME, serverSettings::setMapperName);
         saml2SettingsService.saveSAML2Settings(serverSettings);
         return serverSettings;
     }
 
-    private String getSettingOrDefault(final Map<String, List<String>> settings, final String propertyName, final String defaultValue) {
-        return settings.getOrDefault(propertyName, Collections.singletonList(defaultValue)).iterator().next();
+    private void setProperty(final Map<String, List<String>> settings, final String propertyName, Consumer<String> c) {
+        if (settings.containsKey(propertyName)) {
+            String s = settings.get(propertyName).iterator().next();
+            c.accept(s);
+        }
+    }
+
+    private void setFile(final FileUpload fup, final String propertyName, Consumer<String> c) throws IOException {
+        if (fup.getFileItems().containsKey(propertyName)) {
+            String s = Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(fup.getFileItems().get(propertyName).getStoreLocation()));
+            c.accept(s);
+        }
     }
 
     public void setSaml2SettingsService(final SAML2SettingsService saml2SettingsService) {
