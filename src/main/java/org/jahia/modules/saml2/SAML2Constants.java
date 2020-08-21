@@ -7,6 +7,7 @@ public final class SAML2Constants {
     public static final String IDENTITY_PROVIDER_METADATA = "identityProviderMetadata";
     public static final String INCOMING_TARGET_URL = "incomingTargetUrl";
     public static final String KEY_STORE = "keyStore";
+    public static final String KEY_STORE_TYPE = "keyStoreType";
     public static final String KEY_STORE_ALIAS = "keyStoreAlias";
     public static final String KEY_STORE_PASS = "keyStorePass";
     public static final String PRIVATE_KEY_PASS = "privateKeyPass";

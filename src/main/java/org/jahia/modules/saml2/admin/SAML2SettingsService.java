@@ -75,6 +75,7 @@ public final class SAML2SettingsService implements JahiaModuleAware {
         setProperty(properties, writer, SAML2Constants.IDENTITY_PROVIDER_METADATA, settings.getIdentityProviderMetadata());
         setProperty(properties, writer, SAML2Constants.RELYING_PARTY_IDENTIFIER, settings.getRelyingPartyIdentifier());
         setProperty(properties, writer, SAML2Constants.KEY_STORE, settings.getKeyStore());
+        setProperty(properties, writer, SAML2Constants.KEY_STORE_TYPE, settings.getKeyStoreType());
         setProperty(properties, writer, SAML2Constants.KEY_STORE_ALIAS, settings.getKeyStoreAlias());
         setProperty(properties, writer, SAML2Constants.KEY_STORE_PASS, settings.getKeyStorePass());
         setProperty(properties, writer, SAML2Constants.PRIVATE_KEY_PASS, settings.getPrivateKeyPass());

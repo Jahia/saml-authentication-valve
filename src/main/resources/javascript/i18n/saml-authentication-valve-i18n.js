@@ -5,6 +5,7 @@ var saml2i18n = {
     "angular.saml2.directives.settings.ma-settings.identityProviderMetadata": "Identity Provider MetaData",
     "angular.saml2.directives.settings.ma-settings.incomingTargetUrl": "Incoming Target Url",
     "angular.saml2.directives.settings.ma-settings.keyStore": "Keystore (leave blank to auto-generate)",
+    "angular.saml2.directives.settings.ma-settings.keyStoreType": "Keystore type",
     "angular.saml2.directives.settings.ma-settings.keyStoreAlias": "Keystore alias",
     "angular.saml2.directives.settings.ma-settings.keyStorePass": "Password of the Keystore",
     "angular.saml2.directives.settings.ma-settings.mapperName": "User mapper",

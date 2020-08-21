@@ -36,6 +36,14 @@
             <input onchange="angular.element(this).scope().fileNameChanged(this)" name="keyStore" type="file">
         </md-input-container>
         <md-input-container class="md-block" flex>
+            <label message-key="angular.saml2.directives.settings.ma-settings.keyStoreType"></label>
+            <md-select ng-model="settings.keyStoreType">
+                <md-option ng-repeat="(key, value) in settings.availableKeyStoreTypes" ng-value="key">
+                    {{ value }}
+                </md-option>
+            </md-select>
+        </md-input-container>
+        <md-input-container class="md-block" flex>
             <label message-key="angular.saml2.directives.settings.ma-settings.keyStoreAlias"></label>
             <input ng-model="settings.keyStoreAlias">
         </md-input-container>

@@ -15,6 +15,7 @@ public final class SAML2Settings {
     private String incomingTargetUrl = "/home.samlCallback.do";
     private String keyStore;
     private File keyStoreFile;
+    private String keyStoreType = "JKS";
     private String keyStoreAlias = "saml2clientconfiguration";
     private String keyStorePass = "changeit";
     private String privateKeyPass = "changeit";
@@ -99,6 +100,17 @@ public final class SAML2Settings {
 
     public void setKeyStoreFile(File keyStoreFile) {
         this.keyStoreFile = keyStoreFile;
+    }
+
+    public String getKeyStoreType() {
+        return keyStoreType;
+    }
+
+    public void setKeyStoreType(String keyStoreType) {
+        if (!keyStoreType.equals(this.keyStoreType)) {
+            keyStore = null;
+        }
+        this.keyStoreType = keyStoreType;
     }
 
     public String getKeyStoreAlias() {

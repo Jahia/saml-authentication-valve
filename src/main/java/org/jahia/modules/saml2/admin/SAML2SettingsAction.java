@@ -33,6 +33,7 @@ public final class SAML2SettingsAction extends Action {
 
     private static final Logger logger = LoggerFactory.getLogger(SAML2SettingsAction.class);
     private final Map<String, String> bindings;
+    private final Map<String, String> keyStoreTypes;
     private SAML2SettingsService saml2SettingsService;
 
     public SAML2SettingsAction() {
@@ -43,6 +44,12 @@ public final class SAML2SettingsAction extends Action {
         bindings.put(SAMLConstants.SAML2_SOAP11_BINDING_URI, "SOAP");
         bindings.put(SAMLConstants.SAML2_PAOS_BINDING_URI, "PAOS");
         bindings.put(SAMLConstants.SAML2_POST_SIMPLE_SIGN_BINDING_URI, "POST-SimpleSign");
+
+        keyStoreTypes = new HashMap<>();
+        keyStoreTypes.put("JKS", "JKS");
+        keyStoreTypes.put("JCEKS", "JCEKS");
+        keyStoreTypes.put("PKCS12", "PKCS12");
+        keyStoreTypes.put("PKCS12S2", "PKCS12S2");
     }
 
     @Override
@@ -65,6 +72,7 @@ public final class SAML2SettingsAction extends Action {
             resp.put(SAML2Constants.ENABLED, serverSettings.getEnabled());
             resp.put(SAML2Constants.RELYING_PARTY_IDENTIFIER, serverSettings.getRelyingPartyIdentifier());
             resp.put(SAML2Constants.INCOMING_TARGET_URL, serverSettings.getIncomingTargetUrl());
+            resp.put(SAML2Constants.KEY_STORE_TYPE, serverSettings.getKeyStoreType());
             resp.put(SAML2Constants.KEY_STORE_ALIAS, serverSettings.getKeyStoreAlias());
             resp.put(SAML2Constants.KEY_STORE_PASS, serverSettings.getKeyStorePass());
             resp.put(SAML2Constants.MAXIMUM_AUTHENTICATION_LIFETIME, serverSettings.getMaximumAuthenticationLifetime());
@@ -77,7 +85,8 @@ public final class SAML2SettingsAction extends Action {
             resp.put(SAML2Constants.BINDING_TYPE, serverSettings.getBindingType());
             resp.put(SAML2Constants.MAPPER_NAME, serverSettings.getMapperName());
             resp.put("availableMappers", getMapperNames());
-            resp.put("availableBindings", getBindings());
+            resp.put("availableBindings", bindings);
+            resp.put("availableKeyStoreTypes", keyStoreTypes);
 
             return new ActionResult(HttpServletResponse.SC_OK, null, resp);
         } catch (Exception e) {
@@ -99,10 +108,6 @@ public final class SAML2SettingsAction extends Action {
         }
     }
 
-    public Map<String, String> getBindings() {
-        return bindings;
-    }
-
     private SAML2Settings saveSettings(Map<String, List<String>> parameters, FileUpload fup, String siteKey, SAML2Settings oldSettings) throws IOException {
         SAML2Settings serverSettings;
         serverSettings = oldSettings != null ? oldSettings : saml2SettingsService.createSAML2Settings(siteKey);
@@ -111,6 +116,7 @@ public final class SAML2SettingsAction extends Action {
         setProperty(parameters, SAML2Constants.RELYING_PARTY_IDENTIFIER, serverSettings::setRelyingPartyIdentifier);
         setProperty(parameters, SAML2Constants.INCOMING_TARGET_URL, serverSettings::setIncomingTargetUrl);
         setFile(fup, SAML2Constants.KEY_STORE, serverSettings::setKeyStoreFile);
+        setProperty(parameters, SAML2Constants.KEY_STORE_TYPE, serverSettings::setKeyStoreType);
         setProperty(parameters, SAML2Constants.KEY_STORE_ALIAS, serverSettings::setKeyStoreAlias);
         setProperty(parameters, SAML2Constants.KEY_STORE_PASS, serverSettings::setKeyStorePass);
         setProperty(parameters, SAML2Constants.PRIVATE_KEY_PASS, serverSettings::setPrivateKeyPass);

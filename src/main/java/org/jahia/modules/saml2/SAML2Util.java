@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyStore;
 import java.util.Base64;
 import java.util.HashMap;
 
@@ -87,6 +88,7 @@ public final class SAML2Util {
         if (saml2Settings.getKeyStore() != null) {
             saml2ClientConfiguration.setKeystoreResource(new ByteArrayResource(Base64.getDecoder().decode(saml2Settings.getKeyStore())));
         }
+        saml2ClientConfiguration.setKeystoreType(saml2Settings.getKeyStoreType());
         if (StringUtils.isNotEmpty(saml2Settings.getKeyStoreAlias())) {
             saml2ClientConfiguration.setKeystoreAlias(saml2Settings.getKeyStoreAlias());
         }
