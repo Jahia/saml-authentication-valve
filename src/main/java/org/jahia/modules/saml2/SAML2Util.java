@@ -147,7 +147,7 @@ public final class SAML2Util {
             return null;
         });
         String s = Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(samlFileName));
-        samlFileName.delete();
+//        samlFileName.delete();
         return s;
 
     }

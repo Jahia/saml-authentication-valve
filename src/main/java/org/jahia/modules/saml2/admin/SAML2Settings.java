@@ -27,7 +27,7 @@ public final class SAML2Settings {
     private boolean signAuthnRequest = true;
     private boolean requireSignedAssertions = false;
     private String bindingType = SAMLConstants.SAML2_POST_BINDING_URI;
-    private String mapperName;
+    private String mapperName = "default";
 
     public void init() {
         saml2SettingsService.registerServerSettings(this);

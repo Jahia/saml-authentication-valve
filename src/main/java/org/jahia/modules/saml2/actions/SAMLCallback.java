@@ -3,6 +3,7 @@ package org.jahia.modules.saml2.actions;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
+import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthService;
 import org.jahia.modules.saml2.SAML2Util;
 import org.jahia.modules.saml2.admin.SAML2Settings;
@@ -25,8 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants.PROPERTY_VALUE;
-import static org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants.PROPERTY_VALUE_TYPE;
+import static org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants.*;
 
 public class SAMLCallback extends Action {
     private static final String REDIRECT = "redirect";
@@ -61,6 +61,7 @@ public class SAMLCallback extends Action {
      */
     private Map<String, Object> getMapperResult(SAML2Profile saml2Profile) {
         Map<String, Object> properties = new HashMap<>();
+        properties.put(JahiaOAuthConstants.SSO_LOGIN, saml2Profile.getId());
         properties.put(JCRConstants.USER_PROPERTY_EMAIL, getValue(saml2Profile.getEmail(), "email"));
         if (saml2Profile.getFamilyName() != null) {
             properties.put(JCRConstants.USER_PROPERTY_LASTNAME, getValue(saml2Profile.getFamilyName(), "string"));

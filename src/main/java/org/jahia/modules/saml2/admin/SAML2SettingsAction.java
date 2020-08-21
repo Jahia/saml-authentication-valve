@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -37,7 +38,7 @@ public final class SAML2SettingsAction extends Action {
     private SAML2SettingsService saml2SettingsService;
 
     public SAML2SettingsAction() {
-        bindings = new HashMap<>();
+        bindings = new LinkedHashMap<>();
         bindings.put(SAMLConstants.SAML2_POST_BINDING_URI, "POST");
         bindings.put(SAMLConstants.SAML2_REDIRECT_BINDING_URI, "Redirect");
         bindings.put(SAMLConstants.SAML2_ARTIFACT_BINDING_URI, "Artifact");
@@ -45,7 +46,7 @@ public final class SAML2SettingsAction extends Action {
         bindings.put(SAMLConstants.SAML2_PAOS_BINDING_URI, "PAOS");
         bindings.put(SAMLConstants.SAML2_POST_SIMPLE_SIGN_BINDING_URI, "POST-SimpleSign");
 
-        keyStoreTypes = new HashMap<>();
+        keyStoreTypes = new LinkedHashMap<>();
         keyStoreTypes.put("JKS", "JKS");
         keyStoreTypes.put("JCEKS", "JCEKS");
         keyStoreTypes.put("PKCS12", "PKCS12");
@@ -102,7 +103,10 @@ public final class SAML2SettingsAction extends Action {
 
     public Map<String, String> getMapperNames() {
         try {
-            return FrameworkService.getBundleContext().getServiceReferences(MapperService.class, null).stream().filter(ref -> ref.getProperty(JahiaOAuthConstants.MAPPER_SERVICE_NAME) != null).map(ref -> (String) ref.getProperty(JahiaOAuthConstants.MAPPER_SERVICE_NAME)).collect(Collectors.toMap(Function.identity(), Function.identity()));
+            Map<String, String> mappers = new LinkedHashMap<>();
+            mappers.put("default", "SAML ID");
+            mappers.putAll(FrameworkService.getBundleContext().getServiceReferences(MapperService.class, null).stream().filter(ref -> ref.getProperty(JahiaOAuthConstants.MAPPER_SERVICE_NAME) != null).map(ref -> (String) ref.getProperty(JahiaOAuthConstants.MAPPER_SERVICE_NAME)).collect(Collectors.toMap(Function.identity(), Function.identity())));
+            return mappers;
         } catch (InvalidSyntaxException e) {
             throw new JahiaRuntimeException(e);
         }
