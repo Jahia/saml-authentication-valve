@@ -72,7 +72,7 @@ public class SAMLCallback extends Action {
         return properties;
     }
 
-    private Map<String,Object> getValue(String value, String type) {
+    private Map<String, Object> getValue(String value, String type) {
         Map<String, Object> m = new HashMap<>();
         m.put(PROPERTY_VALUE, value);
         m.put(PROPERTY_VALUE_TYPE, type);

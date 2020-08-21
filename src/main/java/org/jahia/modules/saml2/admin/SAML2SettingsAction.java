@@ -1,13 +1,11 @@
 package org.jahia.modules.saml2.admin;
 
-import org.apache.commons.io.FileUtils;
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
 import org.jahia.exceptions.JahiaRuntimeException;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
 import org.jahia.modules.jahiaoauth.service.MapperService;
 import org.jahia.modules.saml2.SAML2Constants;
-import org.jahia.modules.saml2.SAML2Util;
 import org.jahia.osgi.FrameworkService;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.render.RenderContext;
@@ -34,8 +32,8 @@ import java.util.stream.Collectors;
 public final class SAML2SettingsAction extends Action {
 
     private static final Logger logger = LoggerFactory.getLogger(SAML2SettingsAction.class);
-    private SAML2SettingsService saml2SettingsService;
     private final Map<String, String> bindings;
+    private SAML2SettingsService saml2SettingsService;
 
     public SAML2SettingsAction() {
         bindings = new HashMap<>();
@@ -101,7 +99,7 @@ public final class SAML2SettingsAction extends Action {
         }
     }
 
-    public Map<String,String> getBindings() {
+    public Map<String, String> getBindings() {
         return bindings;
     }
 
@@ -109,10 +107,10 @@ public final class SAML2SettingsAction extends Action {
         SAML2Settings serverSettings;
         serverSettings = oldSettings != null ? oldSettings : saml2SettingsService.createSAML2Settings(siteKey);
         setProperty(parameters, SAML2Constants.ENABLED, s -> serverSettings.setEnabled(Boolean.parseBoolean(s)));
-        setFile(fup, SAML2Constants.IDENTITY_PROVIDER_METADATA, SAML2Util.getSamlFileName(siteKey, "idp-metadata.xml"));
+        setFile(fup, SAML2Constants.IDENTITY_PROVIDER_METADATA, serverSettings::setIdentityProviderMetadataFile);
         setProperty(parameters, SAML2Constants.RELYING_PARTY_IDENTIFIER, serverSettings::setRelyingPartyIdentifier);
         setProperty(parameters, SAML2Constants.INCOMING_TARGET_URL, serverSettings::setIncomingTargetUrl);
-        setFile(fup, SAML2Constants.KEY_STORE, SAML2Util.getSamlFileName(siteKey, "keystore.jks"));
+        setFile(fup, SAML2Constants.KEY_STORE, serverSettings::setKeyStoreFile);
         setProperty(parameters, SAML2Constants.KEY_STORE_ALIAS, serverSettings::setKeyStoreAlias);
         setProperty(parameters, SAML2Constants.KEY_STORE_PASS, serverSettings::setKeyStorePass);
         setProperty(parameters, SAML2Constants.PRIVATE_KEY_PASS, serverSettings::setPrivateKeyPass);
@@ -135,9 +133,10 @@ public final class SAML2SettingsAction extends Action {
         }
     }
 
-    private void setFile(final FileUpload fup, final String propertyName, String filename) throws IOException {
+    private void setFile(final FileUpload fup, final String propertyName, Consumer<File> c) throws IOException {
         if (fup.getFileItems().containsKey(propertyName)) {
-            FileUtils.copyFile(fup.getFileItems().get(propertyName).getStoreLocation(), new File(filename));
+            File s = fup.getFileItems().get(propertyName).getStoreLocation();
+            c.accept(s);
         }
     }
 

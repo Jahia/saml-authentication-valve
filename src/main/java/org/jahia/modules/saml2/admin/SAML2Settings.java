@@ -2,6 +2,7 @@ package org.jahia.modules.saml2.admin;
 
 import org.opensaml.saml.common.xml.SAMLConstants;
 
+import java.io.File;
 import java.util.Map;
 
 public final class SAML2Settings {
@@ -10,8 +11,10 @@ public final class SAML2Settings {
     private SAML2SettingsService saml2SettingsService;
     private boolean enabled = false;
     private String identityProviderMetadata;
+    private File identityProviderMetadataFile;
     private String incomingTargetUrl = "/home.samlCallback.do";
     private String keyStore;
+    private File keyStoreFile;
     private String keyStoreAlias = "saml2clientconfiguration";
     private String keyStorePass = "changeit";
     private String privateKeyPass = "changeit";
@@ -58,6 +61,14 @@ public final class SAML2Settings {
         this.identityProviderMetadata = identityProviderMetadata;
     }
 
+    public File getIdentityProviderMetadataFile() {
+        return identityProviderMetadataFile;
+    }
+
+    public void setIdentityProviderMetadataFile(File identityProviderMetadataFile) {
+        this.identityProviderMetadataFile = identityProviderMetadataFile;
+    }
+
     public String getRelyingPartyIdentifier() {
         return relyingPartyIdentifier;
     }
@@ -80,6 +91,14 @@ public final class SAML2Settings {
 
     public void setKeyStore(final String keyStore) {
         this.keyStore = keyStore;
+    }
+
+    public File getKeyStoreFile() {
+        return keyStoreFile;
+    }
+
+    public void setKeyStoreFile(File keyStoreFile) {
+        this.keyStoreFile = keyStoreFile;
     }
 
     public String getKeyStoreAlias() {

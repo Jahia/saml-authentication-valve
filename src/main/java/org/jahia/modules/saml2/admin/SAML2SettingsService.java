@@ -46,6 +46,8 @@ public final class SAML2SettingsService implements JahiaModuleAware {
     }
 
     public void saveSAML2Settings(SAML2Settings settings) throws IOException {
+        util.validateSettings(settings);
+
         // refresh and save settings
         Configuration configuration = findConfiguration(settings.getSiteKey());
 
