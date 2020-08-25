@@ -46,6 +46,8 @@ public final class SAML2SettingsService implements JahiaModuleAware {
     }
 
     public void saveSAML2Settings(SAML2Settings settings) throws IOException {
+        util.validateSettings(settings);
+
         // refresh and save settings
         Configuration configuration = findConfiguration(settings.getSiteKey());
 
@@ -73,11 +75,18 @@ public final class SAML2SettingsService implements JahiaModuleAware {
         setProperty(properties, writer, SAML2Constants.IDENTITY_PROVIDER_METADATA, settings.getIdentityProviderMetadata());
         setProperty(properties, writer, SAML2Constants.RELYING_PARTY_IDENTIFIER, settings.getRelyingPartyIdentifier());
         setProperty(properties, writer, SAML2Constants.KEY_STORE, settings.getKeyStore());
+        setProperty(properties, writer, SAML2Constants.KEY_STORE_TYPE, settings.getKeyStoreType());
+        setProperty(properties, writer, SAML2Constants.KEY_STORE_ALIAS, settings.getKeyStoreAlias());
         setProperty(properties, writer, SAML2Constants.KEY_STORE_PASS, settings.getKeyStorePass());
         setProperty(properties, writer, SAML2Constants.PRIVATE_KEY_PASS, settings.getPrivateKeyPass());
         setProperty(properties, writer, SAML2Constants.INCOMING_TARGET_URL, settings.getIncomingTargetUrl());
         setProperty(properties, writer, SAML2Constants.POST_LOGIN_PATH, settings.getPostLoginPath());
         setProperty(properties, writer, SAML2Constants.MAXIMUM_AUTHENTICATION_LIFETIME, Long.toString(settings.getMaximumAuthenticationLifetime()));
+        setProperty(properties, writer, SAML2Constants.FORCE_AUTH, Boolean.toString(settings.isForceAuth()));
+        setProperty(properties, writer, SAML2Constants.PASSIVE, Boolean.toString(settings.isPassive()));
+        setProperty(properties, writer, SAML2Constants.REQUIRES_SIGNED_ASSERTIONS, Boolean.toString(settings.isRequireSignedAssertions()));
+        setProperty(properties, writer, SAML2Constants.SIGN_AUTH_REQUEST, Boolean.toString(settings.isSignAuthnRequest()));
+        setProperty(properties, writer, SAML2Constants.BINDING_TYPE, settings.getBindingType());
     }
 
     private void setProperty(Dictionary<String, Object> properties, BufferedWriter writer, String key, String value) throws IOException {

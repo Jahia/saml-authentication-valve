@@ -1,9 +1,12 @@
 package org.jahia.modules.saml2;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.modules.saml2.admin.SAML2Settings;
 import org.jahia.modules.saml2.admin.SAML2SettingsService;
 import org.jahia.settings.SettingsBean;
+import org.jahia.utils.ClassLoaderUtils;
+import org.opensaml.core.config.InitializationService;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.client.SAML2ClientConfiguration;
 import org.springframework.core.io.ByteArrayResource;
@@ -12,8 +15,10 @@ import org.springframework.core.io.FileSystemResource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyStore;
 import java.util.Base64;
 import java.util.HashMap;
 
@@ -56,9 +61,11 @@ public final class SAML2Util {
 
     public String getCookieValue(final HttpServletRequest request, final String name) {
         final Cookie[] cookies = request.getCookies();
-        for (final Cookie cookie : cookies) {
-            if (cookie.getName().equals(name)) {
-                return cookie.getValue();
+        if (cookies != null) {
+            for (final Cookie cookie : cookies) {
+                if (cookie.getName().equals(name)) {
+                    return cookie.getValue();
+                }
             }
         }
         return null;
@@ -78,10 +85,21 @@ public final class SAML2Util {
         saml2ClientConfiguration.setMaximumAuthenticationLifetime(saml2Settings.getMaximumAuthenticationLifetime().intValue());
         saml2ClientConfiguration.setIdentityProviderMetadataResource(new ByteArrayResource(Base64.getDecoder().decode(saml2Settings.getIdentityProviderMetadata())));
         saml2ClientConfiguration.setServiceProviderEntityId(saml2Settings.getRelyingPartyIdentifier());
-        saml2ClientConfiguration.setKeystoreResource(new ByteArrayResource(Base64.getDecoder().decode(saml2Settings.getKeyStore())));
+        if (saml2Settings.getKeyStore() != null) {
+            saml2ClientConfiguration.setKeystoreResource(new ByteArrayResource(Base64.getDecoder().decode(saml2Settings.getKeyStore())));
+        }
+        saml2ClientConfiguration.setKeystoreType(saml2Settings.getKeyStoreType());
+        if (StringUtils.isNotEmpty(saml2Settings.getKeyStoreAlias())) {
+            saml2ClientConfiguration.setKeystoreAlias(saml2Settings.getKeyStoreAlias());
+        }
         saml2ClientConfiguration.setKeystorePassword(saml2Settings.getKeyStorePass());
         saml2ClientConfiguration.setPrivateKeyPassword(saml2Settings.getPrivateKeyPass());
-        saml2ClientConfiguration.setServiceProviderMetadataResource(new FileSystemResource(SettingsBean.getInstance().getJahiaVarDiskPath() + "/saml/SAMLSPMetadata."+saml2Settings.getSiteKey()+".xml"));
+        saml2ClientConfiguration.setServiceProviderMetadataResource(new FileSystemResource(getSamlFileName(saml2Settings.getSiteKey(), "sp-metadata.xml")));
+        saml2ClientConfiguration.setForceAuth(saml2Settings.isForceAuth());
+        saml2ClientConfiguration.setPassive(saml2Settings.isPassive());
+        saml2ClientConfiguration.setAuthnRequestSigned(saml2Settings.isSignAuthnRequest());
+        saml2ClientConfiguration.setWantsAssertionsSigned(saml2Settings.isRequireSignedAssertions());
+        saml2ClientConfiguration.setDestinationBindingType(saml2Settings.getBindingType());
 
         return saml2ClientConfiguration;
     }
@@ -93,7 +111,7 @@ public final class SAML2Util {
      * @param request
      */
     private SAML2Client initSAMLClient(SAML2Settings saml2Settings, HttpServletRequest request) {
-        String spMetaDataLocation = SettingsBean.getInstance().getJahiaVarDiskPath() + "/saml/SAMLSPMetadata."+saml2Settings.getSiteKey()+".xml";
+        String spMetaDataLocation = getSamlFileName(saml2Settings.getSiteKey(), "sp-metadata.xml");
         final File spMetadataFile = new File(spMetaDataLocation);
         if (spMetadataFile.exists()) {
             spMetadataFile.delete();
@@ -102,5 +120,39 @@ public final class SAML2Util {
         final SAML2Client client = new SAML2Client(getSAML2ClientConfiguration(saml2Settings));
         client.setCallbackUrl(getAssertionConsumerServiceUrl(request, saml2Settings.getIncomingTargetUrl()));
         return client;
+    }
+
+    public void validateSettings(SAML2Settings settings) throws IOException {
+        if (settings.getIdentityProviderMetadataFile() != null) {
+            settings.setIdentityProviderMetadata(Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(settings.getIdentityProviderMetadataFile())));
+            settings.setIdentityProviderMetadataFile(null);
+        }
+
+        if (settings.getKeyStoreFile() != null) {
+            settings.setKeyStore(Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(settings.getKeyStoreFile())));
+            settings.setKeyStoreFile(null);
+        } else if (settings.getKeyStore() == null) {
+            settings.setKeyStore(generateKeyStore(settings));
+        }
+    }
+
+    private String generateKeyStore(SAML2Settings settings) throws IOException {
+        File samlFileName = new File(getSamlFileName(settings.getSiteKey(), "keystore.jks"));
+        ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
+            SAML2ClientConfiguration saml2ClientConfiguration = getSAML2ClientConfiguration(settings);
+            saml2ClientConfiguration.setKeystoreResource(new FileSystemResource(samlFileName));
+            final SAML2Client client = new SAML2Client(saml2ClientConfiguration);
+            client.setCallbackUrl("/");
+            client.init();
+            return null;
+        });
+        String s = Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(samlFileName));
+        samlFileName.delete();
+        return s;
+
+    }
+
+    private String getSamlFileName(String siteKey, String filename) {
+        return SettingsBean.getInstance().getJahiaVarDiskPath() + "/saml/" + siteKey + "." + filename;
     }
 }

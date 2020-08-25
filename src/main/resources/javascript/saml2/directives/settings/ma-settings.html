@@ -36,6 +36,18 @@
             <input onchange="angular.element(this).scope().fileNameChanged(this)" name="keyStore" type="file">
         </md-input-container>
         <md-input-container class="md-block" flex>
+            <label message-key="angular.saml2.directives.settings.ma-settings.keyStoreType"></label>
+            <md-select ng-model="settings.keyStoreType">
+                <md-option ng-repeat="(key, value) in settings.availableKeyStoreTypes" ng-value="key">
+                    {{ value }}
+                </md-option>
+            </md-select>
+        </md-input-container>
+        <md-input-container class="md-block" flex>
+            <label message-key="angular.saml2.directives.settings.ma-settings.keyStoreAlias"></label>
+            <input ng-model="settings.keyStoreAlias">
+        </md-input-container>
+        <md-input-container class="md-block" flex>
             <label message-key="angular.saml2.directives.settings.ma-settings.keyStorePass"></label>
             <input ng-model="settings.keyStorePass">
         </md-input-container>
@@ -54,6 +66,30 @@
         <md-input-container class="md-block" flex>
             <label message-key="angular.saml2.directives.settings.ma-settings.maximumAuthenticationLifetime"></label>
             <input ng-model="settings.maximumAuthenticationLifetime">
+        </md-input-container>
+        <md-input-container class="md-block" flex>
+        <md-checkbox ng-model="settings.forceAuth" ng-disabled="settings.passive" aria-label="" ng-click="enable()">
+            <span message-key="angular.saml2.directives.settings.ma-settings.forceAuth"></span>
+        </md-checkbox>
+        <md-checkbox ng-model="settings.passive" ng-disabled="settings.forceAuth" aria-label="" ng-click="enable()">
+            <span message-key="angular.saml2.directives.settings.ma-settings.passive"></span>
+        </md-checkbox>
+        </md-input-container>
+        <md-input-container flex>
+            <md-checkbox ng-model="settings.signAuthnRequest" aria-label="" ng-click="enable()">
+                <span message-key="angular.saml2.directives.settings.ma-settings.signAuthnRequest"></span>
+            </md-checkbox>
+            <md-checkbox ng-model="settings.requireSignedAssertions" aria-label="" ng-click="enable()">
+                <span message-key="angular.saml2.directives.settings.ma-settings.requireSignedAssertions"></span>
+            </md-checkbox>
+        </md-input-container>
+        <md-input-container class="md-block" flex>
+            <label message-key="angular.saml2.directives.settings.ma-settings.bindingType"></label>
+            <md-select ng-model="settings.bindingType">
+                <md-option ng-repeat="(key, value) in settings.availableBindings" ng-value="key">
+                    {{ value }}
+                </md-option>
+            </md-select>
         </md-input-container>
     </md-card-content>
 </md-card>

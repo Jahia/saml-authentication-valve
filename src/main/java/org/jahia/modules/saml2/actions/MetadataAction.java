@@ -46,7 +46,7 @@ public final class MetadataAction extends Action {
             try {
                 renderContext.getResponse().getWriter().append(saml2MetadataGenerator.getMetadata(saml2MetadataGenerator.buildEntityDescriptor()));
             } catch (Exception e) {
-                logger.error("Error when getting metadata",e);
+                logger.error("Error when getting metadata", e);
                 return ActionResult.INTERNAL_ERROR;
             }
             return ActionResult.OK;
