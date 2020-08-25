@@ -8,7 +8,9 @@ import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
 import org.jahia.tools.files.FileUpload;
+import org.jahia.utils.ClassLoaderUtils;
 import org.json.JSONObject;
+import org.opensaml.core.config.InitializationService;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +55,9 @@ public final class SAML2SettingsAction extends Action {
             // if payload has content, it means an update.
             if (parameters.get(SAML2Constants.ENABLED) != null) {
                 final SAML2Settings oldSettings = saml2SettingsService.getSettings(siteKey);
-                serverSettings = saveSettings(parameters, (FileUpload) request.getAttribute("fileUpload"), siteKey, oldSettings);
+                serverSettings = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(),() ->
+                    saveSettings(parameters, (FileUpload) request.getAttribute("fileUpload"), siteKey, oldSettings)
+                );
             } else {
                 serverSettings = saml2SettingsService.getSettings(siteKey);
                 if (serverSettings == null) {
@@ -85,32 +89,43 @@ public final class SAML2SettingsAction extends Action {
             if (logger.isDebugEnabled()) {
                 logger.debug("error while saving settings", e);
             }
-            error.put("error", e.getMessage());
+            if (e.getMessage() != null) {
+                error.put("error", e.getMessage());
+                if (e.getCause() != null && e.getCause().getMessage() != null) {
+                    error.put("error", e.getMessage() + " - " + e.getCause().getMessage());
+                }
+            } else {
+                error.put("error", "Error when saving");
+            }
             error.put("type", e.getClass().getSimpleName());
             return new ActionResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null, error);
         }
     }
 
-    private SAML2Settings saveSettings(Map<String, List<String>> parameters, FileUpload fup, String siteKey, SAML2Settings oldSettings) throws IOException {
+    private SAML2Settings saveSettings(Map<String, List<String>> parameters, FileUpload fup, String siteKey, SAML2Settings oldSettings) {
         SAML2Settings serverSettings;
-        serverSettings = oldSettings != null ? oldSettings : saml2SettingsService.createSAML2Settings(siteKey);
-        setProperty(parameters, SAML2Constants.ENABLED, s -> serverSettings.setEnabled(Boolean.parseBoolean(s)));
-        setFile(fup, SAML2Constants.IDENTITY_PROVIDER_METADATA, serverSettings::setIdentityProviderMetadataFile);
-        setProperty(parameters, SAML2Constants.RELYING_PARTY_IDENTIFIER, serverSettings::setRelyingPartyIdentifier);
-        setProperty(parameters, SAML2Constants.INCOMING_TARGET_URL, serverSettings::setIncomingTargetUrl);
-        setFile(fup, SAML2Constants.KEY_STORE, serverSettings::setKeyStoreFile);
-        setProperty(parameters, SAML2Constants.KEY_STORE_TYPE, serverSettings::setKeyStoreType);
-        setProperty(parameters, SAML2Constants.KEY_STORE_ALIAS, serverSettings::setKeyStoreAlias);
-        setProperty(parameters, SAML2Constants.KEY_STORE_PASS, serverSettings::setKeyStorePass);
-        setProperty(parameters, SAML2Constants.PRIVATE_KEY_PASS, serverSettings::setPrivateKeyPass);
-        setProperty(parameters, SAML2Constants.POST_LOGIN_PATH, serverSettings::setPostLoginPath);
-        setProperty(parameters, SAML2Constants.MAXIMUM_AUTHENTICATION_LIFETIME, s -> serverSettings.setMaximumAuthenticationLifetime(Long.parseLong(s)));
-        setProperty(parameters, SAML2Constants.FORCE_AUTH, s -> serverSettings.setForceAuth(Boolean.parseBoolean(s)));
-        setProperty(parameters, SAML2Constants.PASSIVE, s -> serverSettings.setPassive(Boolean.parseBoolean(s)));
-        setProperty(parameters, SAML2Constants.REQUIRES_SIGNED_ASSERTIONS, s -> serverSettings.setRequireSignedAssertions(Boolean.parseBoolean(s)));
-        setProperty(parameters, SAML2Constants.SIGN_AUTH_REQUEST, s -> serverSettings.setSignAuthnRequest(Boolean.parseBoolean(s)));
-        setProperty(parameters, SAML2Constants.BINDING_TYPE, serverSettings::setBindingType);
-        saml2SettingsService.saveSAML2Settings(serverSettings);
+        try {
+            serverSettings = oldSettings != null ? oldSettings : saml2SettingsService.createSAML2Settings(siteKey);
+            setProperty(parameters, SAML2Constants.ENABLED, s -> serverSettings.setEnabled(Boolean.parseBoolean(s)));
+            setFile(fup, SAML2Constants.IDENTITY_PROVIDER_METADATA, serverSettings::setIdentityProviderMetadataFile);
+            setProperty(parameters, SAML2Constants.RELYING_PARTY_IDENTIFIER, serverSettings::setRelyingPartyIdentifier);
+            setProperty(parameters, SAML2Constants.INCOMING_TARGET_URL, serverSettings::setIncomingTargetUrl);
+            setFile(fup, SAML2Constants.KEY_STORE, serverSettings::setKeyStoreFile);
+            setProperty(parameters, SAML2Constants.KEY_STORE_TYPE, serverSettings::setKeyStoreType);
+            setProperty(parameters, SAML2Constants.KEY_STORE_ALIAS, serverSettings::setKeyStoreAlias);
+            setProperty(parameters, SAML2Constants.KEY_STORE_PASS, serverSettings::setKeyStorePass);
+            setProperty(parameters, SAML2Constants.PRIVATE_KEY_PASS, serverSettings::setPrivateKeyPass);
+            setProperty(parameters, SAML2Constants.POST_LOGIN_PATH, serverSettings::setPostLoginPath);
+            setProperty(parameters, SAML2Constants.MAXIMUM_AUTHENTICATION_LIFETIME, s -> serverSettings.setMaximumAuthenticationLifetime(Long.parseLong(s)));
+            setProperty(parameters, SAML2Constants.FORCE_AUTH, s -> serverSettings.setForceAuth(Boolean.parseBoolean(s)));
+            setProperty(parameters, SAML2Constants.PASSIVE, s -> serverSettings.setPassive(Boolean.parseBoolean(s)));
+            setProperty(parameters, SAML2Constants.REQUIRES_SIGNED_ASSERTIONS, s -> serverSettings.setRequireSignedAssertions(Boolean.parseBoolean(s)));
+            setProperty(parameters, SAML2Constants.SIGN_AUTH_REQUEST, s -> serverSettings.setSignAuthnRequest(Boolean.parseBoolean(s)));
+            setProperty(parameters, SAML2Constants.BINDING_TYPE, serverSettings::setBindingType);
+            saml2SettingsService.saveSAML2Settings(serverSettings);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return serverSettings;
     }
 
