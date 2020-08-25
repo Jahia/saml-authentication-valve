@@ -29,10 +29,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants.*;
+import static org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants.PROPERTY_VALUE;
+import static org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants.PROPERTY_VALUE_TYPE;
 
 public class SAMLCallback extends Action {
-    private static final Logger logger = LoggerFactory.getLogger(ConnectToSAML.class);
+    private static final Logger logger = LoggerFactory.getLogger(SAMLCallback.class);
     private static final String REDIRECT = "redirect";
 
     private SAML2SettingsService saml2SettingsService;
