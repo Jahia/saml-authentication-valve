@@ -127,6 +127,7 @@ public final class SAML2Util {
         try {
             client.init();
         } catch (NullPointerException e) {
+            // Check if we have an NPE in DOMMetadataResolver, meaning we get an unknown XML element
             if (e.getStackTrace().length > 0 && e.getStackTrace()[0].getClassName().equals("org.opensaml.saml.metadata.resolver.impl.DOMMetadataResolver")) {
                 throw new TechnicalException("Error parsing idp Metadata - Invalid XML file", e);
             }
