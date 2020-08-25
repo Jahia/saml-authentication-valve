@@ -5,8 +5,6 @@ import org.apache.commons.lang.StringUtils;
 import org.jahia.modules.saml2.admin.SAML2Settings;
 import org.jahia.modules.saml2.admin.SAML2SettingsService;
 import org.jahia.settings.SettingsBean;
-import org.jahia.utils.ClassLoaderUtils;
-import org.opensaml.core.config.InitializationService;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.client.SAML2ClientConfiguration;
@@ -121,7 +119,7 @@ public final class SAML2Util {
                 spMetadataFile.delete();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new TechnicalException("Cannot udpate SP Metadata file", e);
         }
 
         final SAML2Client client = new SAML2Client(saml2ClientConfiguration);
