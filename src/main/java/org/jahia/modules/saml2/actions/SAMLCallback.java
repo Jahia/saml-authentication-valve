@@ -18,7 +18,10 @@ import org.opensaml.core.config.InitializationService;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.credentials.SAML2Credentials;
+import org.pac4j.saml.exceptions.SAMLException;
 import org.pac4j.saml.profile.SAML2Profile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +32,7 @@ import java.util.Map;
 import static org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants.*;
 
 public class SAMLCallback extends Action {
+    private static final Logger logger = LoggerFactory.getLogger(ConnectToSAML.class);
     private static final String REDIRECT = "redirect";
 
     private SAML2SettingsService saml2SettingsService;
@@ -39,19 +43,23 @@ public class SAMLCallback extends Action {
     @Override
     public ActionResult doExecute(HttpServletRequest httpServletRequest, RenderContext renderContext, Resource resource, JCRSessionWrapper jcrSessionWrapper, Map<String, List<String>> map, URLResolver urlResolver) throws Exception {
         String siteKey = renderContext.getSite().getSiteKey();
-        ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
-            final SAML2Client client = util.getSAML2Client(saml2SettingsService, httpServletRequest, siteKey);
-            final J2EContext webContext = new J2EContext(httpServletRequest, renderContext.getResponse());
-            final SAML2Credentials saml2Credentials = client.getCredentials(webContext);
-            final SAML2Profile saml2Profile = client.getUserProfile(saml2Credentials, webContext);
+        try {
+            ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
+                final SAML2Client client = util.getSAML2Client(saml2SettingsService, httpServletRequest, siteKey);
+                final J2EContext webContext = new J2EContext(httpServletRequest, renderContext.getResponse());
+                final SAML2Credentials saml2Credentials = client.getCredentials(webContext);
+                final SAML2Profile saml2Profile = client.getUserProfile(saml2Credentials, webContext);
 
-            SAML2Settings settings = saml2SettingsService.getSettings(siteKey);
+                SAML2Settings settings = saml2SettingsService.getSettings(siteKey);
 
-            Map<String, Object> properties = getMapperResult(saml2Profile);
-            jahiaOAuthService.executeMapper(httpServletRequest.getSession().getId(), settings.getMapperName(), properties);
+                Map<String, Object> properties = getMapperResult(saml2Profile);
+                jahiaOAuthService.executeMapper(httpServletRequest.getSession().getId(), settings.getMapperName(), properties);
 
-            return true;
-        });
+                return true;
+            });
+        } catch (SAMLException e) {
+            logger.warn("Cannot log in user : {}", e.getMessage());
+        }
         String url = retrieveRedirectUrl(httpServletRequest, siteKey);
         return new ActionResult(HttpServletResponse.SC_OK, url, true, null);
     }

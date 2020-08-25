@@ -7,6 +7,7 @@ import org.jahia.modules.saml2.admin.SAML2SettingsService;
 import org.jahia.settings.SettingsBean;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
+import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.client.SAML2ClientConfiguration;
 import org.springframework.core.io.ByteArrayResource;
@@ -18,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.KeyStore;
 import java.util.Base64;
 import java.util.HashMap;
 
@@ -111,16 +111,33 @@ public final class SAML2Util {
      * @param request
      */
     private SAML2Client initSAMLClient(SAML2Settings saml2Settings, HttpServletRequest request) {
-        String spMetaDataLocation = getSamlFileName(saml2Settings.getSiteKey(), "sp-metadata.xml");
-        final File spMetadataFile = new File(spMetaDataLocation);
-        if (spMetadataFile.exists()) {
-            spMetadataFile.delete();
+        return initSAMLClient(getSAML2ClientConfiguration(saml2Settings), getAssertionConsumerServiceUrl(request, saml2Settings.getIncomingTargetUrl()));
+    }
+
+    private SAML2Client initSAMLClient(SAML2ClientConfiguration saml2ClientConfiguration, String callbackUrl) {
+        try {
+            final File spMetadataFile = saml2ClientConfiguration.getServiceProviderMetadataResource().getFile();
+            if (spMetadataFile.exists()) {
+                spMetadataFile.delete();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        final SAML2Client client = new SAML2Client(getSAML2ClientConfiguration(saml2Settings));
-        client.setCallbackUrl(getAssertionConsumerServiceUrl(request, saml2Settings.getIncomingTargetUrl()));
+        final SAML2Client client = new SAML2Client(saml2ClientConfiguration);
+        client.setCallbackUrl(callbackUrl);
+        try {
+            client.init();
+        } catch (NullPointerException e) {
+            if (e.getStackTrace().length > 0 && e.getStackTrace()[0].getClassName().equals("org.opensaml.saml.metadata.resolver.impl.DOMMetadataResolver")) {
+                throw new TechnicalException("Error parsing idp Metadata - Invalid XML file", e);
+            }
+            throw e;
+        }
         return client;
     }
+
+
 
     public void validateSettings(SAML2Settings settings) throws IOException {
         if (settings.getIdentityProviderMetadataFile() != null) {
@@ -134,18 +151,15 @@ public final class SAML2Util {
         } else if (settings.getKeyStore() == null) {
             settings.setKeyStore(generateKeyStore(settings));
         }
+
+        initSAMLClient(getSAML2ClientConfiguration(settings), "/");
     }
 
     private String generateKeyStore(SAML2Settings settings) throws IOException {
         File samlFileName = new File(getSamlFileName(settings.getSiteKey(), "keystore.jks"));
-        ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
-            SAML2ClientConfiguration saml2ClientConfiguration = getSAML2ClientConfiguration(settings);
-            saml2ClientConfiguration.setKeystoreResource(new FileSystemResource(samlFileName));
-            final SAML2Client client = new SAML2Client(saml2ClientConfiguration);
-            client.setCallbackUrl("/");
-            client.init();
-            return null;
-        });
+        SAML2ClientConfiguration saml2ClientConfiguration = getSAML2ClientConfiguration(settings);
+        saml2ClientConfiguration.setKeystoreResource(new FileSystemResource(samlFileName));
+        initSAMLClient(saml2ClientConfiguration, "/");
         String s = Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(samlFileName));
         samlFileName.delete();
         return s;
