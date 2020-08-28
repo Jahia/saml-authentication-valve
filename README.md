@@ -13,7 +13,7 @@ SAML Authentication Valve
 
 ## Presentation
 
-This community module (not supported by Jahia) is meant to activate SAML on one or multiples Jahia websites.
+This module is meant to activate SAML on one or multiples Jahia websites.
 
 ## Installation
 
