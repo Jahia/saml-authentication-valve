@@ -28,6 +28,7 @@ public final class SAML2Settings {
     private boolean requireSignedAssertions = false;
     private String bindingType = SAMLConstants.SAML2_POST_BINDING_URI;
     private String mapperName = "default";
+    private String mapperIdField = "";
 
     public void init() {
         saml2SettingsService.registerServerSettings(this);
@@ -207,6 +208,14 @@ public final class SAML2Settings {
 
     public void setMapperName(String mapperName) {
         this.mapperName = mapperName;
+    }
+
+    public String getMapperIdField() {
+        return mapperIdField;
+    }
+
+    public void setMapperIdField(String mapperIdField) {
+        this.mapperIdField = mapperIdField;
     }
 
     public void setSaml2SettingsService(SAML2SettingsService saml2SettingsService) {

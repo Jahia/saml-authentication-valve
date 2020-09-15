@@ -14,6 +14,7 @@ public final class SAML2Constants {
     public static final String RELYING_PARTY_IDENTIFIER = "relyingPartyIdentifier";
     public static final String POST_LOGIN_PATH = "postLoginPath";
     public static final String MAPPER_NAME = "mapperName";
+    public static final String MAPPER_ID_FIELD = "mapperIdField";
     public static final String MAXIMUM_AUTHENTICATION_LIFETIME = "maximumAuthenticationLifetime";
     public static final String FORCE_AUTH = "forceAuth";
     public static final String PASSIVE = "passive";
