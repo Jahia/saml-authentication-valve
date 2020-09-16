@@ -80,6 +80,7 @@ public final class SAML2SettingsAction extends Action {
             resp.put(SAML2Constants.REQUIRES_SIGNED_ASSERTIONS, serverSettings.isRequireSignedAssertions());
             resp.put(SAML2Constants.SIGN_AUTH_REQUEST, serverSettings.isSignAuthnRequest());
             resp.put(SAML2Constants.BINDING_TYPE, serverSettings.getBindingType());
+            resp.put(SAML2Constants.MAPPER_ID_FIELD, serverSettings.getMapperIdField());
             resp.put("availableBindings", bindings);
             resp.put("availableKeyStoreTypes", keyStoreTypes);
 
@@ -122,6 +123,7 @@ public final class SAML2SettingsAction extends Action {
             setProperty(parameters, SAML2Constants.REQUIRES_SIGNED_ASSERTIONS, s -> serverSettings.setRequireSignedAssertions(Boolean.parseBoolean(s)));
             setProperty(parameters, SAML2Constants.SIGN_AUTH_REQUEST, s -> serverSettings.setSignAuthnRequest(Boolean.parseBoolean(s)));
             setProperty(parameters, SAML2Constants.BINDING_TYPE, serverSettings::setBindingType);
+            setProperty(parameters, SAML2Constants.MAPPER_ID_FIELD, serverSettings::setMapperIdField);
             saml2SettingsService.saveSAML2Settings(serverSettings);
         } catch (IOException e) {
             throw new RuntimeException(e);

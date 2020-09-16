@@ -34,6 +34,7 @@ import java.util.*;
 public class SAMLCallback extends Action {
     private static final Logger logger = LoggerFactory.getLogger(SAMLCallback.class);
     private static final String REDIRECT = "redirect";
+    private static final String SSO_LOGIN = "ssoLoginId";
 
     private SAML2SettingsService saml2SettingsService;
     private JahiaUserManagerService jahiaUserManagerService;
@@ -63,14 +64,14 @@ public class SAMLCallback extends Action {
     }
 
     private void executeMapper(HttpServletRequest httpServletRequest, RenderContext renderContext, String siteKey, Map<String, Object> properties) {
-        final String email = (String) properties.get(JCRConstants.USER_PROPERTY_EMAIL);
-        logger.debug("email of SAML Profile: {}", email);
+        final String id = (String) properties.get(SSO_LOGIN);
+        logger.debug("id of SAML Profile: {}", id);
 
         try {
-            if (StringUtils.isNotEmpty(email)) {
+            if (StringUtils.isNotEmpty(id)) {
                 JahiaUser jahiaUser = processSSOUserInJcr(properties, siteKey);
                 if (jahiaUser.isAccountLocked()) {
-                    logger.info("Login failed. Account is locked for user {}", email);
+                    logger.info("Login failed. Account is locked for user {}", id);
                     return;
                 }
                 httpServletRequest.getSession().setAttribute(Constants.SESSION_USER, jahiaUser);
@@ -88,7 +89,7 @@ public class SAMLCallback extends Action {
     private JahiaUser processSSOUserInJcr(Map<String, Object> mapperResult, String siteKey) throws RepositoryException {
         JCRSessionWrapper session = JCRSessionFactory.getInstance().getCurrentSystemSession(null, null, null);
         JCRUserNode ssoUserNode;
-        final String userId = (String) mapperResult.get(JCRConstants.USER_PROPERTY_EMAIL);
+        final String userId = (String) mapperResult.get(SSO_LOGIN);
 
         if (jahiaUserManagerService.userExists(userId, siteKey)) {
             ssoUserNode = jahiaUserManagerService.lookupUser(userId, siteKey, session);
@@ -114,6 +115,7 @@ public class SAMLCallback extends Action {
      */
     private Map<String, Object> getMapperResult(SAML2Profile saml2Profile) {
         Map<String, Object> properties = new HashMap<>();
+        properties.put(SSO_LOGIN, saml2Profile.getId());
         properties.put(JCRConstants.USER_PROPERTY_EMAIL, saml2Profile.getEmail());
         properties.put(JCRConstants.USER_PROPERTY_LASTNAME, saml2Profile.getFamilyName());
         properties.put(JCRConstants.USER_PROPERTY_FIRSTNAME, saml2Profile.getFirstName());

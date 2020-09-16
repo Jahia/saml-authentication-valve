@@ -1,6 +1,7 @@
 package org.jahia.modules.saml2.admin;
 
 import org.opensaml.saml.common.xml.SAMLConstants;
+import org.pac4j.core.profile.definition.CommonProfileDefinition;
 
 import java.io.File;
 import java.util.Map;
@@ -27,6 +28,7 @@ public final class SAML2Settings {
     private boolean signAuthnRequest = true;
     private boolean requireSignedAssertions = false;
     private String bindingType = SAMLConstants.SAML2_POST_BINDING_URI;
+    private String mapperIdField = CommonProfileDefinition.EMAIL;
 
     public void init() {
         saml2SettingsService.registerServerSettings(this);
@@ -198,6 +200,14 @@ public final class SAML2Settings {
 
     public void setBindingType(String bindingType) {
         this.bindingType = bindingType;
+    }
+
+    public String getMapperIdField() {
+        return mapperIdField;
+    }
+
+    public void setMapperIdField(String mapperIdField) {
+        this.mapperIdField = mapperIdField;
     }
 
     public void setSaml2SettingsService(SAML2SettingsService saml2SettingsService) {

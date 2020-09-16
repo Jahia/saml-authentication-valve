@@ -98,6 +98,7 @@ public final class SAML2Util {
         saml2ClientConfiguration.setAuthnRequestSigned(saml2Settings.isSignAuthnRequest());
         saml2ClientConfiguration.setWantsAssertionsSigned(saml2Settings.isRequireSignedAssertions());
         saml2ClientConfiguration.setDestinationBindingType(saml2Settings.getBindingType());
+        saml2ClientConfiguration.setAttributeAsId(saml2Settings.getMapperIdField());
 
         return saml2ClientConfiguration;
     }
@@ -156,6 +157,7 @@ public final class SAML2Util {
 
     private String generateKeyStore(SAML2Settings settings) throws IOException {
         File samlFileName = new File(getSamlFileName(settings.getSiteKey(), "keystore.jks"));
+        samlFileName.getParentFile().mkdirs();
         SAML2ClientConfiguration saml2ClientConfiguration = getSAML2ClientConfiguration(settings);
         saml2ClientConfiguration.setKeystoreResource(new FileSystemResource(samlFileName));
         initSAMLClient(saml2ClientConfiguration, "/");

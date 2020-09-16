@@ -87,6 +87,7 @@ public final class SAML2SettingsService implements JahiaModuleAware {
         setProperty(properties, writer, SAML2Constants.REQUIRES_SIGNED_ASSERTIONS, Boolean.toString(settings.isRequireSignedAssertions()));
         setProperty(properties, writer, SAML2Constants.SIGN_AUTH_REQUEST, Boolean.toString(settings.isSignAuthnRequest()));
         setProperty(properties, writer, SAML2Constants.BINDING_TYPE, settings.getBindingType());
+        setProperty(properties, writer, SAML2Constants.MAPPER_ID_FIELD, settings.getMapperIdField());
     }
 
     private void setProperty(Dictionary<String, Object> properties, BufferedWriter writer, String key, String value) throws IOException {

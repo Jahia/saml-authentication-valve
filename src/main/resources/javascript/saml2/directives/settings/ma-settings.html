@@ -91,5 +91,9 @@
                 </md-option>
             </md-select>
         </md-input-container>
+        <md-input-container class="md-block" flex ng-if="settings.mapperName == 'default'">
+            <label message-key="angular.saml2.directives.settings.ma-settings.mapperIdField"></label>
+            <input ng-model="settings.mapperIdField">
+        </md-input-container>
     </md-card-content>
 </md-card>
