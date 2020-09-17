@@ -3,8 +3,8 @@ package org.jahia.modules.saml2.admin;
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
 import org.jahia.exceptions.JahiaRuntimeException;
-import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
-import org.jahia.modules.jahiaoauth.service.MapperService;
+import org.jahia.modules.jahiaauth.service.JahiaAuthConstants;
+import org.jahia.modules.jahiaauth.service.Mapper;
 import org.jahia.modules.saml2.SAML2Constants;
 import org.jahia.osgi.FrameworkService;
 import org.jahia.services.content.JCRSessionWrapper;
@@ -116,7 +116,7 @@ public final class SAML2SettingsAction extends Action {
         try {
             Map<String, String> mappers = new LinkedHashMap<>();
             mappers.put("default", "SAML ID");
-            mappers.putAll(FrameworkService.getBundleContext().getServiceReferences(MapperService.class, null).stream().filter(ref -> ref.getProperty(JahiaOAuthConstants.MAPPER_SERVICE_NAME) != null).map(ref -> (String) ref.getProperty(JahiaOAuthConstants.MAPPER_SERVICE_NAME)).collect(Collectors.toMap(Function.identity(), Function.identity())));
+            mappers.putAll(FrameworkService.getBundleContext().getServiceReferences(Mapper.class, null).stream().filter(ref -> ref.getProperty(JahiaAuthConstants.MAPPER_SERVICE_NAME) != null).map(ref -> (String) ref.getProperty(JahiaAuthConstants.MAPPER_SERVICE_NAME)).collect(Collectors.toMap(Function.identity(), Function.identity())));
             return mappers;
         } catch (InvalidSyntaxException e) {
             throw new JahiaRuntimeException(e);

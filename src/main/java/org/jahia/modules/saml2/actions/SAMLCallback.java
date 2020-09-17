@@ -3,8 +3,11 @@ package org.jahia.modules.saml2.actions;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
-import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
-import org.jahia.modules.jahiaoauth.service.JahiaOAuthService;
+import org.jahia.modules.jahiaauth.service.MapperConfig;
+import org.jahia.modules.jahiaauth.service.Mapping;
+import org.jahia.modules.jahiaauth.service.JahiaAuthConstants;
+import org.jahia.modules.jahiaauth.service.JahiaAuthException;
+import org.jahia.modules.jahiaauth.service.JahiaAuthMapperService;
 import org.jahia.modules.saml2.SAML2Util;
 import org.jahia.modules.saml2.admin.SAML2Settings;
 import org.jahia.modules.saml2.admin.SAML2SettingsService;
@@ -16,6 +19,7 @@ import org.jahia.services.render.URLResolver;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
 import org.pac4j.core.context.J2EContext;
+import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.credentials.SAML2Credentials;
 import org.pac4j.saml.exceptions.SAMLException;
@@ -25,12 +29,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants.PROPERTY_VALUE;
-import static org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants.PROPERTY_VALUE_TYPE;
+import static org.jahia.modules.jahiaauth.service.JahiaAuthConstants.PROPERTY_VALUE;
+import static org.jahia.modules.jahiaauth.service.JahiaAuthConstants.PROPERTY_VALUE_TYPE;
 
 public class SAMLCallback extends Action {
     private static final Logger logger = LoggerFactory.getLogger(SAMLCallback.class);
@@ -39,7 +44,7 @@ public class SAMLCallback extends Action {
     private SAML2SettingsService saml2SettingsService;
     private SAML2Util util;
 
-    private JahiaOAuthService jahiaOAuthService;
+    private JahiaAuthMapperService jahiaAuthMapperService;
 
     @Override
     public ActionResult doExecute(HttpServletRequest httpServletRequest, RenderContext renderContext, Resource resource, JCRSessionWrapper jcrSessionWrapper, Map<String, List<String>> map, URLResolver urlResolver) throws Exception {
@@ -54,7 +59,20 @@ public class SAMLCallback extends Action {
                 SAML2Settings settings = saml2SettingsService.getSettings(siteKey);
 
                 Map<String, Object> properties = getMapperResult(saml2Profile);
-                jahiaOAuthService.executeMapper(httpServletRequest.getSession().getId(), settings.getMapperName(), properties);
+
+                try {
+                    MapperConfig mapperConfig = new MapperConfig(settings.getMapperName());
+                    mapperConfig.setMappings(Arrays.asList(
+                            new Mapping("id", JahiaAuthConstants.SSO_LOGIN),
+                            new Mapping(CommonProfileDefinition.EMAIL, JCRConstants.USER_PROPERTY_EMAIL),
+                            new Mapping(CommonProfileDefinition.FAMILY_NAME, JCRConstants.USER_PROPERTY_LASTNAME),
+                            new Mapping(CommonProfileDefinition.FIRST_NAME, JCRConstants.USER_PROPERTY_FIRSTNAME)
+                    ));
+
+                    jahiaAuthMapperService.executeMapper(httpServletRequest.getSession().getId(), mapperConfig, properties);
+                } catch (JahiaAuthException e) {
+                    return false;
+                }
 
                 return true;
             });
@@ -69,16 +87,8 @@ public class SAMLCallback extends Action {
      * properties for new user.
      */
     private Map<String, Object> getMapperResult(SAML2Profile saml2Profile) {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(JahiaOAuthConstants.SSO_LOGIN, saml2Profile.getId());
-        properties.put(JCRConstants.USER_PROPERTY_EMAIL, getValue(saml2Profile.getEmail(), "email"));
-        if (saml2Profile.getFamilyName() != null) {
-            properties.put(JCRConstants.USER_PROPERTY_LASTNAME, getValue(saml2Profile.getFamilyName(), "string"));
-        }
-        if (saml2Profile.getFirstName() != null) {
-            properties.put(JCRConstants.USER_PROPERTY_FIRSTNAME, getValue(saml2Profile.getFirstName(), "string"));
-        }
-
+        Map<String, Object> properties = new HashMap<>(saml2Profile.getAttributes());
+        properties.put("id", saml2Profile.getId());
         return properties;
     }
 
@@ -108,8 +118,8 @@ public class SAMLCallback extends Action {
         return redirection + "?site=" + siteKey;
     }
 
-    public void setJahiaOAuthService(JahiaOAuthService jahiaOAuthService) {
-        this.jahiaOAuthService = jahiaOAuthService;
+    public void setJahiaAuthMapperService(JahiaAuthMapperService jahiaAuthMapperService) {
+        this.jahiaAuthMapperService = jahiaAuthMapperService;
     }
 
     public void setSaml2SettingsService(SAML2SettingsService saml2SettingsService) {
