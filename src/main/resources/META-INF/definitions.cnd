@@ -7,6 +7,4 @@
 
 [jnt:samlLogin] > jnt:content, jmix:basicContent, mix:title
 
-[saml2nt:manageSettings] > jnt:content, jmix:siteComponent, mix:title, jmix:studioOnly
-
 [saml2nt:samlAuthView] > jnt:content, jmix:authConnectorSettingView

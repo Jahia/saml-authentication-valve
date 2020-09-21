@@ -111,8 +111,8 @@
                     vm.incomingTargetUrl = data.incomingTargetUrl;
                     vm.postLoginPath = data.postLoginPath;
                     vm.maximumAuthenticationLifetime = data.maximumAuthenticationLifetime;
-                    vm.forceAuth = data.forceAuth;
-                    vm.passive = data.passive;
+                    vm.forceAuth = data.forceAuth === 'true';
+                    vm.passive = data.passive === 'true';
                     vm.signAuthnRequest = data.signAuthnRequest;
                     vm.requireSignedAssertions = data.requireSignedAssertions;
                     vm.bindingType = data.bindingType;
