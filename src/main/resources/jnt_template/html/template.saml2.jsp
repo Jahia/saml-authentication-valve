@@ -62,7 +62,7 @@
   <template:addResources>
     <script type="text/javascript">
       (function(){
-        angular.module('jahia.saml2')
+        angular.module('JahiaOAuthApp')
             .constant('maContextInfos', {
               i18nLabels: saml2i18n,
               moduleBase: "${url.context}${url.currentModule}",
@@ -71,6 +71,7 @@
               sitePath:"${renderContext.site.path}",
               siteIdentifier:"${renderContext.site.identifier}",
               settingsActionUrl: "${url.context}${url.basePreview}${renderContext.site.path}.saml2Settings.do",
+              manageMappersActionUrl: "${url.context}${url.basePreview}${renderContext.site.path}.saml2ManageMappers.do",
               serverContext: "${url.context}",
               hasSettings: ${saml2HasSettings},
               generateId: function() {
@@ -87,7 +88,7 @@
     </script>
   </template:addResources>
 </head>
-<body ng-app="jahia.saml2" class="ma-saml2-app">
+<body ng-app="JahiaOAuthApp" class="ma-saml2-app">
   <template:area path="pagecontent"/>
 </body>
 </html>

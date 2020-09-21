@@ -13,14 +13,14 @@
         <property name="name" value="connectToSaml"/>
         <property name="requireAuthenticatedUser" value="false"/>
         <property name="requiredMethods" value="GET"/>
-        <property name="saml2SettingsService" ref="saml2SettingsService"/>
+        <property name="settingsService" ref="settingsService"/>
         <property name="util" ref="saml2Util"/>
     </bean>
 
     <bean class="org.jahia.modules.saml2.actions.SAMLCallback">
         <property name="name" value="samlCallback"/>
         <property name="requireAuthenticatedUser" value="false"/>
-        <property name="saml2SettingsService" ref="saml2SettingsService"/>
+        <property name="settingsService" ref="settingsService"/>
         <property name="jahiaAuthMapperService" ref="jahiaAuthMapperService"/>
         <property name="util" ref="saml2Util"/>
     </bean>
@@ -30,39 +30,21 @@
         <property name="requireAuthenticatedUser" value="true"/>
         <property name="requiredMethods" value="GET,POST"/>
         <property name="requiredPermission" value="canSetupSaml2"/>
-        <property name="saml2SettingsService" ref="saml2SettingsService"/>
+        <property name="settingsService" ref="settingsService"/>
         <property name="util" ref="saml2Util"/>
     </bean>
 
-    <bean id="saml2SettingsService" class="org.jahia.modules.saml2.admin.SAML2SettingsService"
-          factory-method="getInstance">
-        <property name="configurationAdmin" ref="configurationAdmin"/>
+    <bean id="samlConnectorImpl" class="org.jahia.modules.saml2.SamlConnector">
         <property name="util" ref="saml2Util"/>
     </bean>
 
-    <bean class="org.jahia.modules.saml2.admin.SAML2SettingsFilter">
-        <property name="description" value="Injects saml2 context info in admin UI"/>
-        <property name="applyOnModes" value="settings,edit,preview"/>
-        <property name="priority" value="2"/>
-        <property name="applyOnTemplates" value="saml2"/>
-        <property name="saml2SettingsService" ref="saml2SettingsService"/>
-    </bean>
-
-    <bean id="saml2SettingsAction" class="org.jahia.modules.saml2.admin.SAML2SettingsAction">
-        <property name="name" value="saml2Settings"/>
-        <property name="requiredPermission" value="canSetupSaml2"/>
-        <property name="requiredMethods" value="GET,POST"/>
-        <property name="saml2SettingsService" ref="saml2SettingsService"/>
-    </bean>
-
-    <compendium:managed-service-factory factory-pid="org.jahia.modules.saml2" interface="org.jahia.modules.saml2.admin.SAML2Settings" autowire-on-update="true" update-method="update">
-        <bean class="org.jahia.modules.saml2.admin.SAML2Settings" init-method="init" destroy-method="destroy">
-            <property name="saml2SettingsService" ref="saml2SettingsService"/>
-        </bean>
-    </compendium:managed-service-factory>
-
-    <osgi:reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+    <osgi:service ref="samlConnectorImpl" interface="org.jahia.modules.jahiaauth.service.ConnectorService">
+        <osgi:service-properties>
+            <entry key="connectorServiceName" value="Saml"/>
+        </osgi:service-properties>
+    </osgi:service>
 
     <osgi:reference id="jahiaAuthMapperService" interface="org.jahia.modules.jahiaauth.service.JahiaAuthMapperService" availability="mandatory"/>
+    <osgi:reference id="settingsService" interface="org.jahia.modules.jahiaauth.service.SettingsService" availability="mandatory"/>
 
 </beans>

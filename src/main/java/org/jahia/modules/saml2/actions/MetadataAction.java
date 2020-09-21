@@ -2,9 +2,10 @@ package org.jahia.modules.saml2.actions;
 
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
+import org.jahia.modules.jahiaauth.service.ConnectorConfig;
+import org.jahia.modules.jahiaauth.service.SettingsService;
+import org.jahia.modules.saml2.SAML2Constants;
 import org.jahia.modules.saml2.SAML2Util;
-import org.jahia.modules.saml2.admin.SAML2Settings;
-import org.jahia.modules.saml2.admin.SAML2SettingsService;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
@@ -24,7 +25,7 @@ import java.util.Map;
 public final class MetadataAction extends Action {
     private static final Logger logger = LoggerFactory.getLogger(MetadataAction.class);
 
-    private SAML2SettingsService saml2SettingsService;
+    private SettingsService settingsService;
     private SAML2Util util;
 
     @Override
@@ -34,13 +35,13 @@ public final class MetadataAction extends Action {
         }
         return ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
             final String siteKey = renderContext.getSite().getSiteKey();
-            final SAML2Settings saml2Settings = saml2SettingsService.getSettings(siteKey);
+            final ConnectorConfig saml2Settings = settingsService.getConnectorConfig(siteKey, "Saml");
 
             final SAML2ClientConfiguration saml2ClientConfiguration = util.getSAML2ClientConfiguration(saml2Settings);
             final KeyStoreCredentialProvider keyStoreCredentialProvider = new KeyStoreCredentialProvider(saml2ClientConfiguration);
             final SAML2MetadataGenerator saml2MetadataGenerator = new SAML2MetadataGenerator(null);
-            saml2MetadataGenerator.setEntityId(saml2Settings.getRelyingPartyIdentifier());
-            saml2MetadataGenerator.setAssertionConsumerServiceUrl(util.getAssertionConsumerServiceUrl(req, saml2Settings.getIncomingTargetUrl()));
+            saml2MetadataGenerator.setEntityId(saml2Settings.getProperty(SAML2Constants.RELYING_PARTY_IDENTIFIER));
+            saml2MetadataGenerator.setAssertionConsumerServiceUrl(util.getAssertionConsumerServiceUrl(req, saml2Settings.getProperty(SAML2Constants.INCOMING_TARGET_URL)));
             saml2MetadataGenerator.setCredentialProvider(keyStoreCredentialProvider);
 
             try {
@@ -53,8 +54,8 @@ public final class MetadataAction extends Action {
         });
     }
 
-    public void setSaml2SettingsService(SAML2SettingsService saml2SettingsService) {
-        this.saml2SettingsService = saml2SettingsService;
+    public void setSettingsService(SettingsService settingsService) {
+        this.settingsService = settingsService;
     }
 
     public void setUtil(SAML2Util util) {

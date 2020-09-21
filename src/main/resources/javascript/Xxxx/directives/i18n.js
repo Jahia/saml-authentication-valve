@@ -1,4 +1,4 @@
-angular.module('jahia.saml2')
+angular.module('JahiaOAuthApp')
     .service('i18nService', ["maContextInfos", function (maContextInfos) {
         this.message = function (key) {
             if (maContextInfos.i18nLabels && maContextInfos.i18nLabels[key]) {
@@ -25,6 +25,13 @@ angular.module('jahia.saml2')
                 return this.message(key);
             }
         };
+
+        this.addKey = function (newI18nMap) {
+            angular.forEach(newI18nMap, function (value, key) {
+                maContextInfos.i18nLabels[key] = value;
+            });
+        }
+
     }])
 
     .directive("messageKey", function (i18nService) {

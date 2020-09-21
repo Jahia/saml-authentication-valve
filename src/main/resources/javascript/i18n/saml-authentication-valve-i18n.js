@@ -1,5 +1,7 @@
 var saml2i18n = {
     "angular.saml2.directives.settings.ma-settings.bindingType": "Binding type",
+    "angular.saml2.directives.settings.ma-settings.toggleSettings": "Toggle settings",
+    "angular.saml2.directives.settings.ma-settings.activate": "Activate",
     "angular.saml2.directives.settings.ma-settings.enabled": "Enabled",
     "angular.saml2.directives.settings.ma-settings.forceAuth": "Force authentication",
     "angular.saml2.directives.settings.ma-settings.identityProviderMetadata": "Identity Provider MetaData",
@@ -12,6 +14,7 @@ var saml2i18n = {
     "angular.saml2.directives.settings.ma-settings.mapperIdField": "Field to use for user identifier",
     "angular.saml2.directives.settings.ma-settings.maximumAuthenticationLifetime": "Maximum authentication lifetime (in seconds)",
     "angular.saml2.directives.settings.ma-settings.message.settingsSaved": "SAML2 Settings Saved",
+    "angular.saml2.directives.settings.ma-settings.message.error": "Error when saving",
     "angular.saml2.directives.settings.ma-settings.openmetadata": "Open service provider metadata",
     "angular.saml2.directives.settings.ma-settings.passive": "Passive authentication",
     "angular.saml2.directives.settings.ma-settings.postLoginPath": "Redirect path after successful login",
@@ -27,5 +30,18 @@ var saml2i18n = {
     "angular.saml2.directives.settings.ma-settings.validate.message.maximumAuthenticationLifetime": "Please enter the maximum authentication lifetime",
     "angular.saml2.directives.settings.ma-settings.validate.message.postLoginPath": "Please enter Post Login Path.",
     "angular.saml2.directives.settings.ma-settings.validate.message.privateKeyPass": "Please enter private key password.",
-    "angular.saml2.directives.settings.ma-settings.validate.message.relyingPartyIdentifier": "Please enter relying party identifier."
+    "angular.saml2.directives.settings.ma-settings.validate.message.relyingPartyIdentifier": "Please enter relying party identifier.",
+    "angular.saml2.directives.settings.ma-settings.save": "Save",
+    "angular.saml2.directives.settings.ma-settings.mappers": "Mappers",
+    "Saml.label.display_name":"Display Name",
+    "Saml.label.family_name":"Last name",
+    "Saml.label.first_name":"First name",
+    "Saml.label.email":"Email",
+    "Saml.label.gender":"Gender",
+    "Saml.label.locale":"Locale",
+    "Saml.label.location":"Location",
+    "Saml.label.picture_url":"Picture URL",
+    "Saml.label.profile_url":"Profile URL",
+    "Saml.label.username":"Username",
+    "Saml.title": "SAML Connector"
 };

@@ -2,9 +2,9 @@ package org.jahia.modules.saml2.actions;
 
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
+import org.jahia.modules.jahiaauth.service.SettingsService;
 import org.jahia.modules.saml2.SAML2Constants;
 import org.jahia.modules.saml2.SAML2Util;
-import org.jahia.modules.saml2.admin.SAML2SettingsService;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
@@ -29,7 +29,7 @@ public class ConnectToSAML extends Action {
 
     private static final String REDIRECT = "redirect";
 
-    private SAML2SettingsService saml2SettingsService;
+    private SettingsService settingsService;
     private SAML2Util util;
 
     @Override
@@ -50,7 +50,7 @@ public class ConnectToSAML extends Action {
             if (siteParam != null) {
                 response.addCookie(new Cookie(siteKey, siteParam.replaceAll("\n\r", "")));
             }
-            final SAML2Client client = util.getSAML2Client(saml2SettingsService, request, siteKey);
+            final SAML2Client client = util.getSAML2Client(settingsService, request, siteKey);
             final J2EContext webContext = new J2EContext(request, response);
             final HttpAction action = client.redirect(webContext);
             try {
@@ -63,8 +63,8 @@ public class ConnectToSAML extends Action {
         });
     }
 
-    public void setSaml2SettingsService(SAML2SettingsService saml2SettingsService) {
-        this.saml2SettingsService = saml2SettingsService;
+    public void setSettingsService(SettingsService saml2SettingsService) {
+        this.settingsService = saml2SettingsService;
     }
 
     public void setUtil(SAML2Util util) {
