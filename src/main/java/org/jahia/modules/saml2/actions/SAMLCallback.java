@@ -93,11 +93,16 @@ public class SAMLCallback extends Action {
 
         if (jahiaUserManagerService.userExists(userId, siteKey)) {
             ssoUserNode = jahiaUserManagerService.lookupUser(userId, siteKey, session);
-            JCRNodeWrapper jcrNodeWrapper = ssoUserNode.getDecoratedNode();
-            boolean isUpdated = updateUserProperties(jcrNodeWrapper, mapperResult);
-            //saving session if any property is updated for user.
-            if (isUpdated) {
-                session.save();
+            if (ssoUserNode == null) {
+                ssoUserNode = jahiaUserManagerService.lookupUser(userId, null, session);
+            }
+            if (ssoUserNode.getProviderName().equals("default")) {
+                JCRNodeWrapper jcrNodeWrapper = ssoUserNode.getDecoratedNode();
+                boolean isUpdated = updateUserProperties(jcrNodeWrapper, mapperResult);
+                //saving session if any property is updated for user.
+                if (isUpdated) {
+                    session.save();
+                }
             }
         } else {
             Properties properties = new Properties();
