@@ -140,15 +140,15 @@
         </form>
 
         <md-card-actions layout="row" layout-align="end center">
-            <md-button class="md-accent" message-key="angular.saml2.directives.settings.ma-settings.openmetadata"
+            <md-button class="md-accent" data-sel-role="metadata" message-key="angular.saml2.directives.settings.ma-settings.openmetadata"
                        ng-click="saml.metadata()"
                        ng-show="saml.connectorHasSettings">
             </md-button>
-            <md-button class="md-accent" message-key="angular.saml2.directives.settings.ma-settings.mappers"
+            <md-button class="md-accent" data-sel-role="mappers" message-key="angular.saml2.directives.settings.ma-settings.mappers"
                        ng-click="saml.goToMappers()"
                        ng-show="saml.connectorHasSettings">
             </md-button>
-            <md-button class="md-accent" message-key="angular.saml2.directives.settings.ma-settings.save"
+            <md-button class="md-accent" data-sel-role="save" message-key="angular.saml2.directives.settings.ma-settings.save"
                        ng-click="saml.saveSettings()">
             </md-button>
         </md-card-actions>

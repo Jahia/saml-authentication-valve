@@ -3,9 +3,9 @@
 
     angular.module('JahiaOAuthApp').controller('SamlController', SamlController);
 
-    SamlController.$inject = ['$location', 'settingsService', 'helperService', 'i18nService'];
+    SamlController.$inject = ['$location', 'settingsService', 'helperService', 'i18nService', 'jahiaContext'];
 
-    function SamlController($location, settingsService, helperService, i18nService) {
+    function SamlController($location, settingsService, helperService, i18nService, jahiaContext) {
         var vm = this;
 
         // Variables
@@ -35,7 +35,7 @@
             "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign": "POST-SimpleSign"
         }
 
-        init();
+        init(jahiaContext);
 
         function saveSettings() {
             // Value can't be empty
@@ -96,7 +96,7 @@
             window.open(maContextInfos.siteKey + ".saml2Metadata.do")
         }
 
-        function init() {
+        function init(jahiaContext) {
             i18nService.addKey(saml2i18n);
 
             settingsService.getConnectorData('Saml', ['enabled', 'relyingPartyIdentifier', 'keyStoreType', 'keyStoreAlias', 'keyStorePass', 'privateKeyPass', 'incomingTargetUrl', 'postLoginPath', 'maximumAuthenticationLifetime', 'forceAuth', 'passive', 'signAuthnRequest', 'requireSignedAssertions', 'bindingType']).success(function (data) {
@@ -119,6 +119,14 @@
                 } else {
                     vm.connectorHasSettings = false;
                     vm.enabled = false;
+                    vm.keyStoreType = "JKS";
+                    vm.keyStoreAlias = "saml2clientconfiguration";
+                    vm.keyStorePass = "changeit";
+                    vm.privateKeyPass = "changeit";
+                    vm.incomingTargetUrl = jahiaContext.sitePath + "/home.samlCallback.do";
+                    vm.postLoginPath = jahiaContext.sitePath + "/home.html";
+                    vm.maximumAuthenticationLifetime = 86400;
+                    vm.bindingType = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
                 }
             }).error(function (data) {
                 helperService.errorToast(i18nService.message('joant_samlOAuthView.message.label') + ' ' + data.error);
