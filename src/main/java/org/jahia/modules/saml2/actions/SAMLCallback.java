@@ -73,8 +73,17 @@ public class SAMLCallback extends Action {
      * properties for new user.
      */
     private Map<String, Object> getMapperResult(SAML2Profile saml2Profile) {
-        Map<String, Object> properties = new HashMap<>(saml2Profile.getAttributes());
-        properties.put("id", saml2Profile.getId());
+        Map<String, Object> properties = new HashMap<>();
+        for (Map.Entry<String, Object> entry : saml2Profile.getAttributes().entrySet()) {
+            if (entry.getValue() instanceof List) {
+                final List<?> l = (List<?>) entry.getValue();
+                if (l.size() > 0) {
+                    properties.put(entry.getKey(), l.get(0));
+                }
+            } else {
+                properties.put(entry.getKey(), entry.getValue());
+            }
+        }
         return properties;
     }
 
