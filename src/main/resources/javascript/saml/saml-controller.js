@@ -10,8 +10,6 @@
 
         // Variables
         vm.expandedCard = false;
-        vm.callbackUrls = [];
-        vm.callbackUrl = '';
 
         // Functions
         vm.saveSettings = saveSettings;
@@ -116,6 +114,7 @@
                     vm.signAuthnRequest = data.signAuthnRequest;
                     vm.requireSignedAssertions = data.requireSignedAssertions;
                     vm.bindingType = data.bindingType;
+                    vm.expandedCard = true;
                 } else {
                     vm.connectorHasSettings = false;
                     vm.enabled = false;
