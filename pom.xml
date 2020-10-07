@@ -35,8 +35,10 @@
 
 
     <scm>
-        <connection>scm:dummy:uri</connection>
-        <developerConnection>scm:dummy:uri</developerConnection>
+        <connection>scm:git:git@github.com:Jahia/jahia-authentication.git</connection>
+        <developerConnection>scm:git:git@github.com:Jahia/jahia-authentication.git</developerConnection>
+        <url>scm:git:git@github.com:Jahia/jahia-authentication.git</url>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencies>
