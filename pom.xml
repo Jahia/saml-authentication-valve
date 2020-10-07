@@ -38,7 +38,7 @@
         <connection>scm:git:git@github.com:Jahia/jahia-authentication.git</connection>
         <developerConnection>scm:git:git@github.com:Jahia/jahia-authentication.git</developerConnection>
         <url>scm:git:git@github.com:Jahia/jahia-authentication.git</url>
-        <tag>HEAD</tag>
+        <tag>1_x</tag>
     </scm>
 
     <dependencies>
