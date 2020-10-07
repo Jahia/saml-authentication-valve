@@ -28,7 +28,7 @@
         <apachehttp.version>4.5.5</apachehttp.version>
         <bouncycastle.version>1.53</bouncycastle.version>
         <java-support.version>7.1.1</java-support.version>
-        <jahia-module-signature>MC0CFH751+3c+S0iNIw3exA7kpnkQ+gKAhUAgntB0/7VpmU3WFIh/WnxovTlR7c=</jahia-module-signature>
+        <jahia-module-signature>MCwCFDOUUnSik/5wFMoX03dM8V8mUI11AhQwwjTv795lKi7GKF99d1uVe8PUSg==</jahia-module-signature>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
     </properties>
 
