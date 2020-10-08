@@ -29,7 +29,7 @@
         <property name="name" value="saml2Metadata"/>
         <property name="requireAuthenticatedUser" value="true"/>
         <property name="requiredMethods" value="GET,POST"/>
-        <property name="requiredPermission" value="canSetupSaml2"/>
+        <property name="requiredPermission" value="canSetupJahiaAuth"/>
         <property name="settingsService" ref="settingsService"/>
         <property name="util" ref="saml2Util"/>
     </bean>
