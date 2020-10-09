@@ -112,8 +112,8 @@
                     vm.maximumAuthenticationLifetime = data.maximumAuthenticationLifetime;
                     vm.forceAuth = data.forceAuth === 'true';
                     vm.passive = data.passive === 'true';
-                    vm.signAuthnRequest = data.signAuthnRequest;
-                    vm.requireSignedAssertions = data.requireSignedAssertions;
+                    vm.signAuthnRequest = data.signAuthnRequest === 'true';
+                    vm.requireSignedAssertions = data.requireSignedAssertions === 'true';
                     vm.bindingType = data.bindingType;
                     vm.expandedCard = true;
                 } else {
