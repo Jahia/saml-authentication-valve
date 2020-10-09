@@ -34,6 +34,7 @@ public class SamlConnector implements ConnectorService {
 
     public void validateSettings(ConnectorConfig settings) throws IOException {
         util.validateSettings(settings);
+        util.resetClient(settings.getSiteKey());
     }
 
     public void setUtil(SAML2Util util) {
