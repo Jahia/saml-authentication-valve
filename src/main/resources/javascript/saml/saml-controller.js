@@ -91,11 +91,12 @@
 
 
         function metadata() {
-            window.open(maContextInfos.siteKey + ".saml2Metadata.do")
+            window.open(vm.siteKey + ".saml2Metadata.do")
         }
 
         function init(jahiaContext) {
             i18nService.addKey(saml2i18n);
+            vm.siteKey = jahiaContext.siteKey;
 
             settingsService.getConnectorData('Saml', ['enabled', 'relyingPartyIdentifier', 'keyStoreType', 'keyStoreAlias', 'keyStorePass', 'privateKeyPass', 'incomingTargetUrl', 'postLoginPath', 'maximumAuthenticationLifetime', 'forceAuth', 'passive', 'signAuthnRequest', 'requireSignedAssertions', 'bindingType']).success(function (data) {
                 if (data && !angular.equals(data, {})) {
