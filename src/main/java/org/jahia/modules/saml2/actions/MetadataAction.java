@@ -14,6 +14,7 @@ import org.opensaml.core.config.InitializationService;
 import org.pac4j.saml.client.SAML2ClientConfiguration;
 import org.pac4j.saml.crypto.KeyStoreCredentialProvider;
 import org.pac4j.saml.metadata.SAML2MetadataGenerator;
+import org.pac4j.saml.metadata.SAML2MetadataResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,17 +35,11 @@ public final class MetadataAction extends Action {
         }
         return ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
             final String siteKey = renderContext.getSite().getSiteKey();
-            final SAML2Settings saml2Settings = saml2SettingsService.getSettings(siteKey);
 
-            final SAML2ClientConfiguration saml2ClientConfiguration = util.getSAML2ClientConfiguration(saml2Settings);
-            final KeyStoreCredentialProvider keyStoreCredentialProvider = new KeyStoreCredentialProvider(saml2ClientConfiguration);
-            final SAML2MetadataGenerator saml2MetadataGenerator = new SAML2MetadataGenerator(null);
-            saml2MetadataGenerator.setEntityId(saml2Settings.getRelyingPartyIdentifier());
-            saml2MetadataGenerator.setAssertionConsumerServiceUrl(util.getAssertionConsumerServiceUrl(req, saml2Settings.getIncomingTargetUrl()));
-            saml2MetadataGenerator.setCredentialProvider(keyStoreCredentialProvider);
+            SAML2MetadataResolver metadataResolver = util.getSAML2Client(saml2SettingsService, req, siteKey).getServiceProviderMetadataResolver();
 
             try {
-                renderContext.getResponse().getWriter().append(saml2MetadataGenerator.getMetadata(saml2MetadataGenerator.buildEntityDescriptor()));
+                renderContext.getResponse().getWriter().append(metadataResolver.getMetadata());
             } catch (Exception e) {
                 logger.error("Error when getting metadata", e);
                 return ActionResult.INTERNAL_ERROR;
