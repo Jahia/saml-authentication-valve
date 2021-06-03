@@ -25,7 +25,7 @@
         <joda-time.version>2.9.9</joda-time.version>
         <cryptacular.version>1.2.1</cryptacular.version>
         <xalan.version>2.7.2</xalan.version>
-        <apachehttp.version>4.5.5</apachehttp.version>
+        <apachehttp.version>4.5.13</apachehttp.version>
         <bouncycastle.version>1.53</bouncycastle.version>
         <java-support.version>7.1.1</java-support.version>
         <jahia-module-signature>MC0CFQCA0YNu187Sz7Bha/dLzWpw1lEtMAIUVxoTv7LGKH/Qbi4POPqMAnIAyd4=</jahia-module-signature>
