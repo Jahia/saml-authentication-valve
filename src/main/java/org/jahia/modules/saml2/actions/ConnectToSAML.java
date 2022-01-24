@@ -11,8 +11,12 @@ import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
-import org.pac4j.core.context.J2EContext;
-import org.pac4j.core.exception.HttpAction;
+import org.pac4j.core.context.JEEContext;
+import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.core.exception.http.FoundAction;
+import org.pac4j.core.exception.http.OkAction;
+import org.pac4j.core.exception.http.RedirectionAction;
+import org.pac4j.core.exception.http.SeeOtherAction;
 import org.pac4j.saml.client.SAML2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ConnectToSAML extends Action {
     private static final Logger logger = LoggerFactory.getLogger(ConnectToSAML.class);
@@ -51,14 +56,26 @@ public class ConnectToSAML extends Action {
                 response.addCookie(new Cookie(siteKey, siteParam.replaceAll("\n\r", "")));
             }
             final SAML2Client client = util.getSAML2Client(settingsService, request, siteKey);
-            final J2EContext webContext = new J2EContext(request, response);
-            final HttpAction action = client.redirect(webContext);
-            try {
-                response.getWriter().flush();
-            } catch (IOException e) {
-                logger.error("Cannot send response", e);
+            JEEContext webContext = new JEEContext(request, response);
+            final Optional<RedirectionAction> action = client.getRedirectionAction(webContext, JEESessionStore.INSTANCE);
+            if (action.isPresent()) {
+                RedirectionAction redirectionAction = action.get();
+                try {
+                    if (redirectionAction instanceof OkAction) {
+                        response.getWriter().append(((OkAction)redirectionAction).getContent());
+                    } else if (redirectionAction instanceof SeeOtherAction) {
+                        response.sendRedirect(((SeeOtherAction)redirectionAction).getLocation());
+                    } else if (redirectionAction instanceof FoundAction) {
+                        response.sendRedirect(((FoundAction)redirectionAction).getLocation());
+                    }
+                    response.getWriter().flush();
+                } catch (IOException e) {
+                    logger.error("Cannot send response", e);
+                }
+                logger.info(redirectionAction.getMessage());
+            } else {
+                logger.warn("No SAML redirection");
             }
-            logger.info(action.getMessage());
             return true;
         });
     }

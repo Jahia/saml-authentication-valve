@@ -28,7 +28,7 @@ public class SamlConnector implements ConnectorService {
     public List<ConnectorPropertyInfo> getAvailableProperties() {
         List<ConnectorPropertyInfo> array = new ArrayList<>();
         array.add(new ConnectorPropertyInfo("login", "string"));
-        new CommonProfileDefinition<SAML2Profile>().getPrimaryAttributes().forEach(s -> array.add(new ConnectorPropertyInfo(s, s.equals(CommonProfileDefinition.EMAIL) ? "email" : "string")));
+        new CommonProfileDefinition().getPrimaryAttributes().forEach(s -> array.add(new ConnectorPropertyInfo(s, s.equals(CommonProfileDefinition.EMAIL) ? "email" : "string")));
         return array;
     }
 

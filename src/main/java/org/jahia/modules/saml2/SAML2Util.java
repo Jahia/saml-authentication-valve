@@ -9,7 +9,7 @@ import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.saml.client.SAML2Client;
-import org.pac4j.saml.client.SAML2ClientConfiguration;
+import org.pac4j.saml.config.SAML2Configuration;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 
@@ -78,8 +78,8 @@ public final class SAML2Util {
         clients.remove(siteKey);
     }
 
-    public SAML2ClientConfiguration getSAML2ClientConfiguration(ConnectorConfig saml2Settings) {
-        final SAML2ClientConfiguration saml2ClientConfiguration = new SAML2ClientConfiguration();
+    public SAML2Configuration getSAML2ClientConfiguration(ConnectorConfig saml2Settings) {
+        final SAML2Configuration saml2ClientConfiguration = new SAML2Configuration();
 
         saml2ClientConfiguration.setMaximumAuthenticationLifetime(Integer.parseInt(saml2Settings.getProperty(SAML2Constants.MAXIMUM_AUTHENTICATION_LIFETIME)));
         saml2ClientConfiguration.setIdentityProviderMetadataResource(new ByteArrayResource(saml2Settings.getBinaryProperty(SAML2Constants.IDENTITY_PROVIDER_METADATA)));
@@ -98,7 +98,7 @@ public final class SAML2Util {
         saml2ClientConfiguration.setPassive(saml2Settings.getBooleanProperty(SAML2Constants.PASSIVE));
         saml2ClientConfiguration.setAuthnRequestSigned(saml2Settings.getBooleanProperty(SAML2Constants.SIGN_AUTH_REQUEST));
         saml2ClientConfiguration.setWantsAssertionsSigned(saml2Settings.getBooleanProperty(SAML2Constants.REQUIRES_SIGNED_ASSERTIONS));
-        saml2ClientConfiguration.setDestinationBindingType(saml2Settings.getProperty(SAML2Constants.BINDING_TYPE));
+        saml2ClientConfiguration.setAuthnRequestBindingType(saml2Settings.getProperty(SAML2Constants.BINDING_TYPE));
 
         return saml2ClientConfiguration;
     }
@@ -113,7 +113,7 @@ public final class SAML2Util {
         return initSAMLClient(getSAML2ClientConfiguration(saml2Settings), getAssertionConsumerServiceUrl(request, saml2Settings.getProperty(SAML2Constants.INCOMING_TARGET_URL)));
     }
 
-    private SAML2Client initSAMLClient(SAML2ClientConfiguration saml2ClientConfiguration, String callbackUrl) {
+    private SAML2Client initSAMLClient(SAML2Configuration saml2ClientConfiguration, String callbackUrl) {
         return ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
             try {
                 final File spMetadataFile = saml2ClientConfiguration.getServiceProviderMetadataResource().getFile();
@@ -150,7 +150,7 @@ public final class SAML2Util {
     private byte[] generateKeyStore(ConnectorConfig settings) throws IOException {
         File samlFileName = new File(getSamlFileName(settings.getSiteKey(), "keystore.jks"));
         samlFileName.getParentFile().mkdirs();
-        SAML2ClientConfiguration saml2ClientConfiguration = getSAML2ClientConfiguration(settings);
+        SAML2Configuration saml2ClientConfiguration = getSAML2ClientConfiguration(settings);
         saml2ClientConfiguration.setKeystoreResource(new FileSystemResource(samlFileName));
         initSAMLClient(saml2ClientConfiguration, "/");
         byte[] s = FileUtils.readFileToByteArray(samlFileName);

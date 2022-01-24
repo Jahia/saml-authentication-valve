@@ -12,11 +12,12 @@ import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
-import org.pac4j.core.context.J2EContext;
+import org.pac4j.core.context.JEEContext;
+import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.core.credentials.Credentials;
+import org.pac4j.core.profile.UserProfile;
 import org.pac4j.saml.client.SAML2Client;
-import org.pac4j.saml.credentials.SAML2Credentials;
 import org.pac4j.saml.exceptions.SAMLException;
-import org.pac4j.saml.profile.SAML2Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.jahia.modules.jahiaauth.service.JahiaAuthConstants.PROPERTY_VALUE;
 import static org.jahia.modules.jahiaauth.service.JahiaAuthConstants.PROPERTY_VALUE_TYPE;
@@ -44,23 +46,26 @@ public class SAMLCallback extends Action {
         try {
             ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
                 final SAML2Client client = util.getSAML2Client(settingsService, httpServletRequest, siteKey);
-                final J2EContext webContext = new J2EContext(httpServletRequest, renderContext.getResponse());
-                final SAML2Credentials saml2Credentials = client.getCredentials(webContext);
-                final SAML2Profile saml2Profile = client.getUserProfile(saml2Credentials, webContext);
+                final JEEContext webContext = new JEEContext(httpServletRequest, renderContext.getResponse());
+                final Optional<Credentials> saml2Credentials = client.getCredentials(webContext, JEESessionStore.INSTANCE);
+                final Optional<UserProfile> saml2Profile = saml2Credentials.flatMap(c -> client.getUserProfile(c, webContext, JEESessionStore.INSTANCE));
 
                 ConnectorConfig settings = settingsService.getConnectorConfig(siteKey, "Saml");
 
-                Map<String, Object> properties = getMapperResult(saml2Profile);
+                if (saml2Profile.isPresent()) {
+                    Map<String, Object> properties = getMapperResult(saml2Profile.get());
 
-                for (MapperConfig mapper : settings.getMappers()) {
-                    try {
-                        jahiaAuthMapperService.executeMapper(httpServletRequest.getSession().getId(), mapper, properties);
-                    } catch (JahiaAuthException e) {
-                        return false;
+                    for (MapperConfig mapper : settings.getMappers()) {
+                        try {
+                            jahiaAuthMapperService.executeMapper(httpServletRequest.getSession().getId(), mapper, properties);
+                        } catch (JahiaAuthException e) {
+                            return false;
+                        }
                     }
-                }
 
-                return true;
+                    return true;
+                }
+                return false;
             });
         } catch (SAMLException e) {
             logger.warn("Cannot log in user : {}", e.getMessage());
@@ -72,7 +77,7 @@ public class SAMLCallback extends Action {
     /**
      * properties for new user.
      */
-    private Map<String, Object> getMapperResult(SAML2Profile saml2Profile) {
+    private Map<String, Object> getMapperResult(UserProfile saml2Profile) {
         Map<String, Object> properties = new HashMap<>();
         for (Map.Entry<String, Object> entry : saml2Profile.getAttributes().entrySet()) {
             if (entry.getValue() instanceof List) {
