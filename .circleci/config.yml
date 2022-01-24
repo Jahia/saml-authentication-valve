@@ -97,6 +97,7 @@ workflows:
           auditci_level: << pipeline.parameters.AUDITCI_LEVEL >>
       - jahia-modules-orb/build:
           context: QA_ENVIRONMENT
+          base_image: cimg/openjdk:11:0-node
           requires:
             - jahia-modules-orb/initialize
             - jahia-modules-orb/update-signature
