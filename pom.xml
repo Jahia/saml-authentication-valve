@@ -19,18 +19,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <pac4j.version>5.3.0</pac4j.version>
         <opensaml.version>4.1.1</opensaml.version>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <google.guava.version>26.0-jre</google.guava.version>
-        <joda-time.version>2.9.9</joda-time.version>
+        <google.guava.version>31.0.1-jre</google.guava.version>
         <cryptacular.version>1.2.4</cryptacular.version>
-        <xalan.version>2.7.2</xalan.version>
-        <apachehttp.version>4.5.5</apachehttp.version>
         <bouncycastle.version>1.70</bouncycastle.version>
-        <java-support.version>7.1.1</java-support.version>
+        <java-support.version>8.2.1</java-support.version>
         <jahia-module-signature>MC0CFQCA0YNu187Sz7Bha/dLzWpw1lEtMAIUVxoTv7LGKH/Qbi4POPqMAnIAyd4=</jahia-module-signature>
         <jahia.plugin.version>6.0</jahia.plugin.version>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
 
@@ -202,7 +199,7 @@
         <dependency>
             <groupId>net.shibboleth.utilities</groupId>
             <artifactId>java-support</artifactId>
-            <version>8.2.1</version>
+            <version>${java-support.version}</version>
         </dependency>
 
         <dependency>
