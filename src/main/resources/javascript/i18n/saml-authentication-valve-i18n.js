@@ -43,5 +43,6 @@ var saml2i18n = {
     "Saml.label.picture_url":"Picture URL",
     "Saml.label.profile_url":"Profile URL",
     "Saml.label.login":"Login",
+    "Saml.label.username":"Username",
     "Saml.title": "SAML Connector"
 };
