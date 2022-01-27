@@ -20,6 +20,7 @@
         <pac4j.version>5.3.0</pac4j.version>
         <opensaml.version>4.1.1</opensaml.version>
         <google.guava.version>31.0.1-jre</google.guava.version>
+        <joda-time.version>2.9.9</joda-time.version>
         <cryptacular.version>1.2.4</cryptacular.version>
         <bouncycastle.version>1.70</bouncycastle.version>
         <java-support.version>8.2.1</java-support.version>
@@ -146,6 +147,12 @@
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-xmlsec-impl</artifactId>
             <version>${opensaml.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time.version}</version>
         </dependency>
 
         <dependency>
