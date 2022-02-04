@@ -33,7 +33,7 @@ parameters:
     default: "jahia/saml-authentication-valve"
   PRIMARY_RELEASE_BRANCH:
     type: string
-    default: "2_x" # main or master ? set the branch for the main release
+    default: "master" # main or master ? set the branch for the main release
   JAHIA_IMAGE:
     type: string
     default: "jahia/jahia-ee-dev:8-SNAPSHOT"
