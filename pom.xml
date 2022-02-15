@@ -22,6 +22,7 @@
         <google.guava.version>31.0.1-jre</google.guava.version>
         <cryptacular.version>1.2.4</cryptacular.version>
         <bouncycastle.version>1.70</bouncycastle.version>
+        <joda-time.version>2.9.9</joda-time.version>
         <java-support.version>7.5.2</java-support.version>
         <jahia-module-signature>MCwCFCtZ/WWUhFj8BoS2Qn7CDFVvNKEzAhQJQjFzNkYpZpaAfXXaa0YrLJOxFg==</jahia-module-signature>
         <jahia.plugin.version>6.0</jahia.plugin.version>
@@ -222,6 +223,11 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time.version}</version>
+        </dependency>
     </dependencies>
 
     <repositories>
