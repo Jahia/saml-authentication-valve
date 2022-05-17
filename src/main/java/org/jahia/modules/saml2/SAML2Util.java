@@ -31,7 +31,7 @@ public final class SAML2Util {
         }
 
         try {
-            URL url = new URL(request.getScheme(), serverName, request.getLocalPort(), request.getContextPath() + incoming);
+            URL url = new URL(request.getScheme(), serverName, request.getServerPort(), request.getContextPath() + incoming);
             return url.toString();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
