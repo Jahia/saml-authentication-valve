@@ -137,7 +137,8 @@ public class SAMLCallback extends Action {
     private boolean updateUserProperties(JCRNodeWrapper jcrNodeWrapper, Map<String, Object> mapperResult) throws RepositoryException {
         boolean isUpdated = false;
         for (Map.Entry<String, Object> entry : mapperResult.entrySet()) {
-            if (Objects.isNull(jcrNodeWrapper.getPropertyAsString(entry.getKey())) || !jcrNodeWrapper.getPropertyAsString(entry.getKey()).equals(entry.getValue())) {
+            if (Objects.isNull(jcrNodeWrapper.getPropertyAsString(entry.getKey())) || 
+                    (!Objects.isNull(entry.getValue()) && !jcrNodeWrapper.getPropertyAsString(entry.getKey()).equals(entry.getValue()))) {
                 jcrNodeWrapper.setProperty(entry.getKey(), (String) entry.getValue());
                 isUpdated = true;
             }
