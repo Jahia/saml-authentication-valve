@@ -64,6 +64,10 @@
                 <label message-key="angular.saml2.directives.settings.ma-settings.relyingPartyIdentifier"></label>
                 <input ng-model="saml.relyingPartyIdentifier">
             </md-input-container>
+            <md-input-container class="md-block" flex>
+                <label message-key="angular.saml2.directives.settings.ma-settings.serverLocation"></label>
+                <input ng-model="saml.serverLocation">
+            </md-input-container>
             <div layout="row">
                 <md-input-container class="md-block md-input-has-placeholder" flex>
                     <label message-key="angular.saml2.directives.settings.ma-settings.keyStore"></label>

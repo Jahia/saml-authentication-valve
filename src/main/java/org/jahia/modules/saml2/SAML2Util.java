@@ -110,7 +110,12 @@ public final class SAML2Util {
      * @param request
      */
     private SAML2Client initSAMLClient(ConnectorConfig saml2Settings, HttpServletRequest request) {
-        return initSAMLClient(getSAML2ClientConfiguration(saml2Settings), getAssertionConsumerServiceUrl(request, saml2Settings.getProperty(SAML2Constants.INCOMING_TARGET_URL)));
+        final SAML2Configuration saml2ClientConfiguration = getSAML2ClientConfiguration(saml2Settings);
+        if (StringUtils.isEmpty(saml2Settings.getProperty(SAML2Constants.SERVER_LOCATION))) {
+            return initSAMLClient(saml2ClientConfiguration, getAssertionConsumerServiceUrl(request, saml2Settings.getProperty(SAML2Constants.INCOMING_TARGET_URL)));
+        } else {
+            return initSAMLClient(saml2ClientConfiguration, saml2Settings.getProperty(SAML2Constants.SERVER_LOCATION) + saml2Settings.getProperty(SAML2Constants.INCOMING_TARGET_URL));
+        }
     }
 
     private SAML2Client initSAMLClient(SAML2Configuration saml2ClientConfiguration, String callbackUrl) {

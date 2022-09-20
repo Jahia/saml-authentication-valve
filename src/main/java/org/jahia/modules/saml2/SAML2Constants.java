@@ -12,6 +12,7 @@ public final class SAML2Constants {
     public static final String KEY_STORE_PASS = "keyStorePass";
     public static final String PRIVATE_KEY_PASS = "privateKeyPass";
     public static final String RELYING_PARTY_IDENTIFIER = "relyingPartyIdentifier";
+    public static final String SERVER_LOCATION = "serverLocation";
     public static final String POST_LOGIN_PATH = "postLoginPath";
     public static final String MAPPER_NAME = "mapperName";
     public static final String MAPPER_ID_FIELD = "mapperIdField";

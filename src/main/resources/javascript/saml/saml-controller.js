@@ -54,6 +54,7 @@
                     identityProviderMetadata: vm.identityProviderMetadata,
                     keyStore: vm.keyStore,
                     relyingPartyIdentifier: vm.relyingPartyIdentifier,
+                    serverLocation: vm.serverLocation,
                     keyStoreType: vm.keyStoreType,
                     keyStoreAlias: vm.keyStoreAlias,
                     keyStorePass: vm.keyStorePass,
@@ -98,11 +99,12 @@
             i18nService.addKey(saml2i18n);
             vm.siteKey = jahiaContext.siteKey;
 
-            settingsService.getConnectorData('Saml', ['enabled', 'relyingPartyIdentifier', 'keyStoreType', 'keyStoreAlias', 'keyStorePass', 'privateKeyPass', 'incomingTargetUrl', 'postLoginPath', 'maximumAuthenticationLifetime', 'forceAuth', 'passive', 'signAuthnRequest', 'requireSignedAssertions', 'bindingType']).success(function (data) {
+            settingsService.getConnectorData('Saml', ['enabled', 'relyingPartyIdentifier', 'serverLocation', 'keyStoreType', 'keyStoreAlias', 'keyStorePass', 'privateKeyPass', 'incomingTargetUrl', 'postLoginPath', 'maximumAuthenticationLifetime', 'forceAuth', 'passive', 'signAuthnRequest', 'requireSignedAssertions', 'bindingType']).success(function (data) {
                 if (data && !angular.equals(data, {})) {
                     vm.connectorHasSettings = true;
                     vm.enabled = data.enabled;
                     vm.relyingPartyIdentifier = data.relyingPartyIdentifier;
+                    vm.serverLocation = data.serverLocation;
                     vm.keyStoreType = data.keyStoreType;
                     vm.keyStoreAlias = data.keyStoreAlias;
                     vm.keyStorePass = data.keyStorePass;
