@@ -15,16 +15,6 @@ public class SamlConnector implements ConnectorService {
     private SAML2Util util;
 
     @Override
-    public String getServiceName() {
-        return "Saml";
-    }
-
-    @Override
-    public String getProtectedResourceUrl() {
-        return null;
-    }
-
-    @Override
     public List<ConnectorPropertyInfo> getAvailableProperties() {
         List<ConnectorPropertyInfo> array = new ArrayList<>();
         array.add(new ConnectorPropertyInfo("login", "string"));
