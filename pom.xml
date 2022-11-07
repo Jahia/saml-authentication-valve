@@ -219,7 +219,7 @@
         <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>jahia-authentication</artifactId>
-            <version>1.0.0</version>
+            <version>1.7.0</version>
             <scope>provided</scope>
         </dependency>
 
