@@ -1,1 +1,8 @@
 - karafCommand: "bundle:list"
+
+- installBundle:
+  - 'mvn:org.jahia.modules/jahia-authentication/RELEASE'
+  - 'mvn:org.jahia.modules/jcr-auth-provider/RELEASE'
+  - 'mvn:org.jahia.modules/sample-boostrap-templates'
+  autoStart: true
+  uninstallPreviousVersion: true

@@ -7,8 +7,20 @@ source ./set-env.sh
 #!/usr/bin/env bash
 START_TIME=$SECONDS
 
-echo " == Using MANIFEST: ${MANIFEST}"
-echo " == Using JAHIA_URL= ${JAHIA_URL}"
+echo " env.run.sh == Printing the most important environment variables"
+echo " MANIFEST: ${MANIFEST}"
+echo " TESTS_IMAGE: ${TESTS_IMAGE}"
+echo " JAHIA_IMAGE: ${JAHIA_IMAGE}"
+echo " MODULE_ID: ${MODULE_ID}"
+echo " JAHIA_URL: ${JAHIA_URL}"
+echo " JAHIA_HOST: ${JAHIA_HOST}"
+echo " JAHIA_PORT: ${JAHIA_PORT}"
+echo " JAHIA_USERNAME: ${JAHIA_USERNAME}"
+echo " JAHIA_PASSWORD: ${JAHIA_PASSWORD}"
+echo " JAHIA_USERNAME_TOOLS: ${JAHIA_USERNAME_TOOLS}"
+echo " JAHIA_PASSWORD_TOOLS: ${JAHIA_PASSWORD_TOOLS}"
+echo " SUPER_USER_PASSWORD: ${SUPER_USER_PASSWORD}"
+echo " TIMEZONE: ${TIMEZONE}"
 echo " == Using Node version: $(node -v)"
 echo " == Using yarn version: $(yarn -v)"
 
@@ -33,9 +45,16 @@ else
   curl ${MANIFEST} --output ./run-artifacts/curl-manifest
   MANIFEST="curl-manifest"
 fi
-sed -i -e "s/NEXUS_USERNAME/$(echo ${NEXUS_USERNAME} | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" ./run-artifacts/${MANIFEST}
-sed -i -e "s/NEXUS_PASSWORD/$(echo ${NEXUS_PASSWORD} | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" ./run-artifacts/${MANIFEST}
-sed -i "" -e "s/JAHIA_VERSION/${JAHIA_VERSION}/g" ./run-artifacts/${MANIFEST}
+
+
+if [[ -d provisioning/ ]]; then
+  cd provisioning/ || exit 1
+  for f in *.yaml ; do
+    echo "$(date +'%d %B %Y - %k:%M') == Executing provisioning: ${f} =="
+    curl -u root:${SUPER_USER_PASSWORD} -X POST ${JAHIA_URL}/modules/api/provisioning --form script="@./${f};type=text/yaml"
+  done
+  cd ..
+fi
 
 echo "$(date +'%d %B %Y - %k:%M') == Executing manifest: ${MANIFEST} =="
 curl -u root:${SUPER_USER_PASSWORD} -X POST ${JAHIA_URL}/modules/api/provisioning --form script="@./run-artifacts/${MANIFEST};type=text/yaml"
@@ -63,8 +82,19 @@ if [[ -d artifacts/ && $MANIFEST == *"build"* ]]; then
   cd ..
 fi
 
+if [[ -d assets/ ]]; then
+  cd ./assets || exit 1
+  for file in $(ls -1 script-* | sort -n)
+  do
+    echo "$(date +'%d %B %Y - %k:%M') [SCRIPT] == Submitting script: $file =="
+    curl -u root:${SUPER_USER_PASSWORD} -X POST ${JAHIA_URL}/modules/api/provisioning --form script='[{"executeScript":"'"$file"'"}]' --form file=@$file
+    echo "$(date +'%d %B %Y - %k:%M') [SCRIPT] == Script executed =="
+  done
+  cd ..
+fi
+
 echo "$(date +'%d %B %Y - %k:%M') == Fetching the list of installed modules =="
-./node_modules/@jahia/jahia-reporter/bin/run utils:modules \
+~/node_modules/@jahia/jahia-reporter/bin/run utils:modules \
   --moduleId="${MODULE_ID}" \
   --jahiaUrl="${JAHIA_URL}" \
   --jahiaPassword="${SUPER_USER_PASSWORD}" \
@@ -80,6 +110,9 @@ if [[ $INSTALLED_MODULE_VERSION == "UNKNOWN" ]]; then
 fi
 
 echo "$(date +'%d %B %Y - %k:%M') == Run tests =="
+mkdir -p ./results/reports
+rm -rf ./results/reports/*
+
 yarn e2e:ci
 if [[ $? -eq 0 ]]; then
   echo "$(date +'%d %B %Y - %k:%M') == Full execution successful =="

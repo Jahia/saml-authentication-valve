@@ -1,5 +1,12 @@
-- addMavenRepository: "https://NEXUS_USERNAME:NEXUS_PASSWORD@devtools.jahia.com/nexus/content/groups/enterprise@id=jahia-enterprise@snapshots"
 - installBundle:
-  - 'mvn:org.jahia.modules/server-availability-manager'
+  - 'mvn:org.jahia.modules/jahia-authentication/RELEASE'
+  - 'mvn:org.jahia.modules/jcr-auth-provider/RELEASE'
+  - 'mvn:org.jahia.modules/sample-boostrap-templates'
+  autoStart: true
+  uninstallPreviousVersion: true
+
+- addMavenRepository: 'https://devtools.jahia.com/nexus/content/groups/public/@snapshots@noreleases'
+- installBundle:
+  - 'mvn:org.jahia.modules/saml-authentication-valve'
   autoStart: true
   uninstallPreviousVersion: true

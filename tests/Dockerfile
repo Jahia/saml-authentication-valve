@@ -1,9 +1,6 @@
-FROM cypress/base:18.12.0
+FROM cypress/browsers:node18.12.0-chrome106-ff106
 
-RUN apt-get update && apt-get install -y jq
-
-RUN apt-get update && apt-get install -y curl
-
+RUN apt update && apt install -yq jq curl
 RUN adduser --disabled-password jahians
 
 USER jahians
