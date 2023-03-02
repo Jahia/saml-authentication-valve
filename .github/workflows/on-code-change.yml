@@ -67,7 +67,7 @@ jobs:
       - uses: jahia/jahia-modules-action/helper@v2
       - uses: KengoTODA/actions-setup-docker-compose@main
         with:
-          version: '1.29.2'
+          version: '2.16'
       - uses: actions/setup-node@v2
         with:
           node-version: 'lts/*'
