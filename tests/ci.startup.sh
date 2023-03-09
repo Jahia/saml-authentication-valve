@@ -17,8 +17,9 @@ docker-compose pull jahia
 # even with a delay between ldap server and keycloak
 # Workaround is to start it the first time and let it error out, remove the container and restart again.
 docker-compose up -d keycloak
-sleep 30
+sleep 45
 docker stop keycloak; docker rm keycloak
+sleep 15
 
 docker-compose up -d --renew-anon-volumes --remove-orphans --force-recreate jahia
 
