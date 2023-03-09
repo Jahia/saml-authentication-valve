@@ -1,12 +1,18 @@
 - installBundle:
   - 'mvn:org.jahia.modules/jahia-authentication/RELEASE'
   - 'mvn:org.jahia.modules/jcr-auth-provider/RELEASE'
-  - 'mvn:org.jahia.modules/sample-boostrap-templates'
+  - 'mvn:org.jahia.modules/contact'
+  - 'mvn:org.jahia.modules/event/3.1.0'
+  - 'mvn:org.jahia.modules/font-awesome'
+  - 'mvn:org.jahia.modules/teasers'
   autoStart: true
   uninstallPreviousVersion: true
 
-- addMavenRepository: 'https://devtools.jahia.com/nexus/content/groups/public/@snapshots@noreleases'
+- addMavenRepository: 'https://devtools.jahia.com/nexus/content/groups/public@id=jahia-snapshots'
 - installBundle:
+  - 'mvn:org.jahia.modules/bootstrap'
+  - 'mvn:org.jahia.modules/bootstrap-components'
+  - 'mvn:org.jahia.modules/sample-bootstrap-templates'
   - 'mvn:org.jahia.modules/saml-authentication-valve'
   autoStart: true
   uninstallPreviousVersion: true
