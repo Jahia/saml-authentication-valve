@@ -20,7 +20,7 @@
 - Keycloak client ID (aka Relying Party identifier): `jahia-saml-client`
 - To export any keycloak config changes:
   1. Get bash access to keycloak server: `docker exec -u root -it keycloak bash`
-  2. Run export: `/opt/keycloak/bin/kc.sh --export --dir /opt/keycloak/data/import --realm realm-idp`
+  2. Run export: `/opt/keycloak/bin/kc.sh export --dir /opt/keycloak/data/import --realm realm-idp`
   3. This will export files to a mapped volume folder in your local cypress test directory `volumes/keycloak`
   4. Saved config files will then get imported when container is started with command `start-dev --import-realm` (as part of docker compose file config)
 
