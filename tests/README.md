@@ -10,11 +10,13 @@
 ```
 - Start by running `docker-compose up -d keycloak`
   - also starts ldap://ldap-server
+  - Note: LDAP server connection has been taken out for now due to unable to connect when running docker-compose in github actions. Users are now defined directly within `realm-idp` keycloak server
 - Admin console url http://keycloak:8080/admin
   - login `admin/admin`
   - SAML authentication realm: `realm-idp`
     - Make sure you switch to the correct realm after login
   - External port needs to be same as docker internal port (8080) for generating `idp-metadata.xml`, which means we need to map jahia server to a different port (8081)
+  - This also means that you would need to change Jahia port to 8081 specified in .env.example (or a separate cloned .env) to run cypress debug locally.
   - Note: there is a bug on the latest keycloak console version where clicking action buttons (e.g. save button) does not show toast notifications
     - To fix, need to execute this code in the browser console: `crypto.randomUUID = () => Math.floor(Math.random() * 294893849384)` (random large long integer number)
 - Keycloak client ID (aka Relying Party identifier): `jahia-saml-client`
