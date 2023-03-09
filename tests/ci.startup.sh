@@ -12,8 +12,14 @@ echo " JAHIA_IMAGE: ${JAHIA_IMAGE}"
 echo " JAHIA_URL: ${JAHIA_URL}"
 
 docker-compose pull jahia
-docker-compose up -d ldap
-sleep 30 # needs a bit of time for ldap to start before keycloak can connect
+
+# WORKAROUND: It seems keycloak could not reach ldap server the first time its started
+# even with a delay between ldap server and keycloak
+# Workaround is to start it the first time and let it error out, remove the container and restart again.
+docker-compose up -d keycloak
+sleep 30
+docker stop keycloak; docker rm keycloak
+
 docker-compose up -d --renew-anon-volumes --remove-orphans --force-recreate jahia
 
 if [[ $1 != "notests" ]]; then
