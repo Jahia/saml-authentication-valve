@@ -12,7 +12,7 @@ echo " JAHIA_IMAGE: ${JAHIA_IMAGE}"
 
 docker-compose pull jahia
 docker-compose up -d ldap
-sleep 20 # needs a bit of time for ldap to start before keycloak can connect
+sleep 30 # needs a bit of time for ldap to start before keycloak can connect
 docker-compose up -d --renew-anon-volumes --remove-orphans --force-recreate jahia
 
 if [[ $1 != "notests" ]]; then
