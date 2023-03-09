@@ -32,6 +32,9 @@ done
 ELAPSED_TIME=$(($SECONDS - $START_TIME))
 echo " == Jahia became alive in ${ELAPSED_TIME} seconds"
 
+echo " == Checking status of keycloak realm-idp == "
+echo $(curl http://keycloak:8080/realms/realm-idp | jq)
+
 mkdir -p ./run-artifacts
 mkdir -p ./results
 
