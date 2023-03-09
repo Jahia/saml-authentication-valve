@@ -3,7 +3,7 @@ services:
 
     ldap:
         image: jahia/docker-openldap:latest
-        container_name: jahia-ldap
+        container_name: ldap-server
         hostname: ldap-server
         environment:
             LDAP_LOG_LEVEL: '256'
