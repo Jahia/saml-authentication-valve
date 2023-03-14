@@ -1,0 +1,14 @@
+mutation createSamlButton($homePath: String!, $name: String!) {
+    jcr {
+        addNode(
+            parentPathOrId: $homePath,
+            name:"pagecontent",
+            primaryNodeType:"jnt:contentList",
+            mixins:["jmix:systemNameReadonly"])
+        {
+            addChild(name: $name, primaryNodeType:"jnt:samlLogin") {
+                uuid
+            }
+        }
+    }
+}
