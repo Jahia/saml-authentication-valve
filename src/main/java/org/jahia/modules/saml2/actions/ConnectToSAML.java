@@ -55,6 +55,7 @@ public class ConnectToSAML extends Action {
                     contextPath = "/";
                 }
                 cookie.setPath(contextPath);
+                cookie.setSecure(request.isSecure());
                 response.addCookie(cookie);
             }
             final String siteParam = request.getParameter(SAML2Constants.SITE);
