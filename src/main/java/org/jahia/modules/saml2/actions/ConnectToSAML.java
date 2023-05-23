@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang.StringUtils;
 
 public class ConnectToSAML extends Action {
     private static final Logger logger = LoggerFactory.getLogger(ConnectToSAML.class);
@@ -48,7 +49,13 @@ public class ConnectToSAML extends Action {
             // access to the secure resource
             final String redirectParam = request.getParameter(REDIRECT);
             if (redirectParam != null) {
-                response.addCookie(new Cookie(REDIRECT, redirectParam.replaceAll("\n\r", "")));
+                final Cookie cookie = new Cookie(REDIRECT, redirectParam.replaceAll("\n\r", ""));
+                String contextPath = request.getContextPath();
+                if (StringUtils.isEmpty(contextPath)) {
+                    contextPath = "/";
+                }
+                cookie.setPath(contextPath);
+                response.addCookie(cookie);
             }
             final String siteParam = request.getParameter(SAML2Constants.SITE);
             if (siteParam != null) {
