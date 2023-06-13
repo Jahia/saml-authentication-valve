@@ -24,7 +24,7 @@
         <bouncycastle.version>1.70</bouncycastle.version>
         <joda-time.version>2.9.9</joda-time.version>
         <java-support.version>7.5.2</java-support.version>
-        <jahia-module-signature>MCwCFAW4m3g6CtyBMdeYJoRnQ1LVdT9OAhQ5CwqU9jc6LoJ93gIuD97uPRCr6A==</jahia-module-signature>
+        <jahia-module-signature>MCwCFGwG8uxBQyLgD6E9FuwI0wuqIK9aAhQqgjaMXtdKgEEWsLeelbiNvRiyGQ==</jahia-module-signature>
         <jahia.plugin.version>6.0</jahia.plugin.version>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
         <maven.compiler.source>1.8</maven.compiler.source>
