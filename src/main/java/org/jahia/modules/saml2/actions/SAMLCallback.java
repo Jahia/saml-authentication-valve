@@ -109,7 +109,7 @@ public class SAMLCallback extends Action {
             }
         }
 
-        return redirection + "?site=" + siteKey;
+        return redirection + (redirection.contains("?") ? "&" : "?") + "site=" + siteKey;
     }
 
     public void setJahiaAuthMapperService(JahiaAuthMapperService jahiaAuthMapperService) {
