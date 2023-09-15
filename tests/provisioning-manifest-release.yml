@@ -1,6 +1,6 @@
 - installBundle:
   - 'mvn:org.jahia.modules/jahia-authentication/RELEASE'
-  - 'mvn:org.jahia.modules/jcr-auth-provider'
+  - 'mvn:org.jahia.modules/jcr-auth-provider/RELEASE'
   - 'mvn:org.jahia.modules/contact'
   - 'mvn:org.jahia.modules/event/3.1.0'
   - 'mvn:org.jahia.modules/font-awesome'
