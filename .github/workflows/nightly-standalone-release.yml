@@ -24,6 +24,7 @@ jobs:
       - uses: jahia/jahia-modules-action/integration-tests@v2
         with:
           module_id: saml-authentication-valve
+          incident_service: saml-authentication-valve-JahiaRL
           testrail_project: SAML Module
           tests_manifest: provisioning-manifest-release.yml
           jahia_image: jahia/jahia-discovery:8
