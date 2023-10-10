@@ -18,7 +18,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <pac4j.version>4.5.4</pac4j.version>
-        <opensaml.version>3.4.6</opensaml.version>
+        <opensaml.version>4.0.1</opensaml.version>
         <google.guava.version>31.0.1-jre</google.guava.version>
         <cryptacular.version>1.2.4</cryptacular.version>
         <bouncycastle.version>1.70</bouncycastle.version>
