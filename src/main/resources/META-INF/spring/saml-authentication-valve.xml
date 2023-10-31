@@ -10,7 +10,7 @@
     <bean class="org.jahia.modules.saml2.actions.ConnectToSAML">
         <property name="name" value="connectToSaml"/>
         <property name="requireAuthenticatedUser" value="false"/>
-        <property name="requiredMethods" value="GET"/>
+        <property name="requiredMethods" value="GET,POST"/>
         <property name="settingsService" ref="settingsService"/>
         <property name="util" ref="saml2Util"/>
     </bean>
