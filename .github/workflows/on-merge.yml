@@ -68,7 +68,8 @@ jobs:
       - uses: jahia/jahia-modules-action/integration-tests@v2
         with:
           module_id: content-editor
-          testrail_project: Content Editor
+          testrail_project: SAML Module
+          timeout_minutes: 30
           tests_manifest: provisioning-manifest-build.yml
           jahia_image: jahia/jahia-ee-dev:8
           should_use_build_artifacts: true
