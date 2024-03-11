@@ -64,6 +64,16 @@
             <groupId>org.pac4j</groupId>
             <artifactId>pac4j-saml-opensamlv3</artifactId>
             <version>${pac4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -88,6 +98,12 @@
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-saml-impl</artifactId>
             <version>${opensaml.version}</version>
+            <exclusions>
+                <exclusion>
+                      <groupId>org.apache.velocity</groupId>
+                      <artifactId>velocity</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -106,6 +122,12 @@
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-storage-impl</artifactId>
             <version>${opensaml.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>            
         </dependency>
 
         <dependency>
@@ -118,6 +140,12 @@
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-security-api</artifactId>
             <version>${opensaml.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -190,6 +218,12 @@
             <groupId>org.apache.santuario</groupId>
             <artifactId>xmlsec</artifactId>
             <version>2.1.7</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.woodstox</groupId>
+                    <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
         </dependency>
 
         <dependency>
