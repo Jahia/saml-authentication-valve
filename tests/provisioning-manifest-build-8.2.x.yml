@@ -31,5 +31,7 @@
   - 'mvn:org.jahia.modules/bootstrap'
   - 'mvn:org.jahia.modules/bootstrap-components'
   - 'mvn:org.jahia.modules/sample-bootstrap-templates'
+  - 'mvn:org.jahia.modules/skins'
+  - 'mvn:org.jahia.modules/default-skins'  
   autoStart: true
   uninstallPreviousVersion: true
