@@ -27,8 +27,8 @@ jobs:
           incident_service: saml-authentication-valve-JahiaRL
           testrail_project: SAML Module
           timeout_minutes: 30
-          tests_manifest: provisioning-manifest-release.yml
-          jahia_image: jahia/jahia-ee:8
+          tests_manifest: provisioning-manifest-release-8.1.x.yml
+          jahia_image: jahia/jahia-ee:8.1
           should_use_build_artifacts: false
           should_skip_artifacts: true
           should_skip_notifications: false
