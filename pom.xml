@@ -20,11 +20,11 @@
         <pac4j.version>4.5.4</pac4j.version>
         <opensaml.version>3.4.6</opensaml.version>
         <cryptacular.version>1.2.4</cryptacular.version>
-        <bouncycastle.version>1.70</bouncycastle.version>
+        <bouncycastle.version>1.78</bouncycastle.version>
         <joda-time.version>2.9.9</joda-time.version>
         <java-support.version>7.5.2</java-support.version>
         <jahia-module-signature>MCwCFEhH+XaRQ8NaSBSXLoduqfIvwWCUAhR0TMaY8NPXTNiIh2nOZjfWfUSOLQ==</jahia-module-signature>
-        <jahia.plugin.version>6.0</jahia.plugin.version>
+        <jahia.plugin.version>6.10</jahia.plugin.version>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -208,19 +208,19 @@
 
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <artifactId>bcprov-jdk18on</artifactId>
             <version>${bouncycastle.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
+            <artifactId>bcpkix-jdk18on</artifactId>
             <version>${bouncycastle.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcutil-jdk15on</artifactId>
+            <artifactId>bcutil-jdk18on</artifactId>
             <version>${bouncycastle.version}</version>
         </dependency>
 
