@@ -59,6 +59,12 @@
             <artifactId>xalan</artifactId>
             <version>2.7.3</version>
         </dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.12.2</version>
+        </dependency>
         
        <dependency>
             <groupId>org.pac4j</groupId>
@@ -273,11 +279,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>${joda-time.version}</version>
-        </dependency>
+
     </dependencies>
 
     <repositories>
