@@ -24,7 +24,7 @@
         <joda-time.version>2.9.9</joda-time.version>
         <java-support.version>7.5.2</java-support.version>
         <jahia-module-signature>MCwCFEhH+XaRQ8NaSBSXLoduqfIvwWCUAhR0TMaY8NPXTNiIh2nOZjfWfUSOLQ==</jahia-module-signature>
-        <jahia.plugin.version>6.10</jahia.plugin.version>
+        <jahia.plugin.version>6.9</jahia.plugin.version>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -327,15 +327,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>5.1.9</version>
                 <extensions>true</extensions>
-                <dependencies>
-                    <dependency>
-                        <groupId>biz.aQute.bnd</groupId>
-                        <artifactId>biz.aQute.bndlib</artifactId>
-                        <version>6.3.1</version>
-                    </dependency>
-                </dependencies>
                 <configuration>
                     <instructions>
                         <Jahia-Depends>jahia-authentication</Jahia-Depends>
