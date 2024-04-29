@@ -20,11 +20,11 @@
         <pac4j.version>4.5.7</pac4j.version>
         <opensaml.version>3.4.6</opensaml.version>
         <cryptacular.version>1.2.6</cryptacular.version>
-        <bouncycastle.version>1.77</bouncycastle.version>
+        <bouncycastle.version>1.78</bouncycastle.version>
         <joda-time.version>2.12.7</joda-time.version>
         <java-support.version>7.5.2</java-support.version>
         <jahia-module-signature>MCwCFEhH+XaRQ8NaSBSXLoduqfIvwWCUAhR0TMaY8NPXTNiIh2nOZjfWfUSOLQ==</jahia-module-signature>
-        <jahia.plugin.version>6.0</jahia.plugin.version>
+        <jahia.plugin.version>6.8</jahia.plugin.version>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -59,8 +59,14 @@
             <artifactId>xalan</artifactId>
             <version>2.7.3</version>
         </dependency>
-        
-       <dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.12.2</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.pac4j</groupId>
             <artifactId>pac4j-saml-opensamlv3</artifactId>
             <version>${pac4j.version}</version>
@@ -72,6 +78,10 @@
                 <exclusion>
                     <groupId>org.bouncycastle</groupId>
                     <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -100,8 +110,8 @@
             <version>${opensaml.version}</version>
             <exclusions>
                 <exclusion>
-                      <groupId>org.apache.velocity</groupId>
-                      <artifactId>velocity</artifactId>
+                    <groupId>org.apache.velocity</groupId>
+                    <artifactId>velocity</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -182,18 +192,18 @@
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-xmlsec-impl</artifactId>
             <version>${opensaml.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.cryptacular</groupId>
             <artifactId>cryptacular</artifactId>
             <version>${cryptacular.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                    <groupId>org.bouncycastle</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -222,8 +232,8 @@
                 <exclusion>
                     <groupId>com.fasterxml.woodstox</groupId>
                     <artifactId>woodstox-core</artifactId>
-                    </exclusion>
-                </exclusions>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -236,6 +246,12 @@
             <groupId>net.shibboleth.utilities</groupId>
             <artifactId>java-support</artifactId>
             <version>${java-support.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -251,6 +267,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.velocity.tools</groupId>
+            <artifactId>velocity-tools-generic</artifactId>
+            <version>3.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>jahia-authentication</artifactId>
             <version>1.7.0</version>
@@ -262,6 +284,29 @@
             <artifactId>joda-time</artifactId>
             <version>${joda-time.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.jahia.server</groupId>
+            <artifactId>jahia-impl</artifactId>
+            <version>${parent.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.velocity</groupId>
+                    <artifactId>velocity</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.velocity</groupId>
+                    <artifactId>velocity-tools</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+
     </dependencies>
 
     <repositories>
@@ -288,19 +333,10 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>5.1.2</version>
                 <extensions>true</extensions>
-                <dependencies>
-                    <dependency>
-                        <groupId>biz.aQute.bnd</groupId>
-                        <artifactId>biz.aQute.bndlib</artifactId>
-                        <version>6.1.0</version>
-                    </dependency>
-                </dependencies>
                 <configuration>
                     <instructions>
                         <Jahia-Depends>jahia-authentication</Jahia-Depends>
-                        <Embed-Transitive>false</Embed-Transitive>
                         <Import-Package>
                             ${jahia.plugin.projectPackageImport},
                             org.springframework.core.io;version="[3.2,4)",
