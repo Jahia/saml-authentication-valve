@@ -21,6 +21,7 @@
         <property name="settingsService" ref="settingsService"/>
         <property name="jahiaAuthMapperService" ref="jahiaAuthMapperService"/>
         <property name="util" ref="saml2Util"/>
+        <property name="jahiaSitesService" ref="JahiaSitesService"/>
     </bean>
 
     <bean class="org.jahia.modules.saml2.actions.MetadataAction">
