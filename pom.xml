@@ -26,8 +26,8 @@
         <jahia-module-signature>MCwCFCORJpX/7p8rfob/opwz3bSWcwtiAhRIbiwmnH7UgV2SW8o73YT/XPQ/Rg==</jahia-module-signature>
         <jahia.plugin.version>6.8</jahia.plugin.version>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <sonar.sources>src/main/resources/javascript</sonar.sources>
         <jahia.plugin.version>6.10</jahia.plugin.version>
     </properties>
