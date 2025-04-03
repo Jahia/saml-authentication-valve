@@ -12,14 +12,15 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
-    "@jahia/cypress": "^2.0.0",
+    "@jahia/cypress": "^4.3.0",
     "@jahia/eslint-config": "^1.1.0",
     "@jahia/jahia-reporter": "^1.0.30",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
-    "cypress": "^12.7.0",
+    "cypress": "14.2.1",
     "cypress-multi-reporters": "^1.6.2",
     "cypress-terminal-report": "^5.0.2",
+    "cypress-wait-until": "^3.0.2",
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-chai-friendly": "^0.7.2",
@@ -35,5 +36,6 @@
     "mochawesome-report-generator": "^6.2.0",
     "prettier": "^2.6.2",
     "typescript": "^4.7.2"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }
