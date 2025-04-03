@@ -12,7 +12,7 @@ describe('Login via SAML', () => {
             languages: 'en,fr,de',
             locale: 'en',
             serverName: 'localhost',
-            templateSet: 'dx-base-demo-templates'
+            templateSet: 'samples-bootstrap-templates'
         });
         [
             'saml-authentication-valve',
@@ -28,7 +28,7 @@ describe('Login via SAML', () => {
     });
 
     after(() => {
-        deleteSite(siteKey);
+        // deleteSite(siteKey);
     });
 
     it('User should be able to add SAML button and publish', () => {
@@ -38,9 +38,9 @@ describe('Login via SAML', () => {
     });
 
     /* Wait/retry until site is published */
-    it('User should be able to login using SAML authentication', {retries: 5}, () => {
+    it('User should be able to login using SAML authentication', () => {
         cy.visit('sites/samlTestSite/home.html');
-        cy.get(`input[value="${buttonName}"]`, {timeout: 5000}).should('exist').and('be.visible').click();
+        cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
         cy.get('#username').should('be.visible').type('blachance8');
         cy.get('#password').should('be.visible').type('password');
         cy.get('input[type="submit"]').should('be.visible').click();
@@ -48,6 +48,25 @@ describe('Login via SAML', () => {
         cy.log('Verify user is logged in');
         cy.get('body').should('contain', 'blachance8');
         cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
+    });
+
+    it.skip('User should be able to login using SAML authentication in FR', () => {
+        cy.clearAllCookies();
+        cy.visit('/fr/sites/samlTestSite/home.html', {
+            headers: {
+                'Accept-Language': 'fr'
+            }
+        });
+        cy.title().should('include', 'SAML Test Site FR');
+        cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
+        cy.get('#username').should('be.visible').type('blachance8');
+        cy.get('#password').should('be.visible').type('password');
+        cy.get('input[type="submit"]').should('be.visible').click();
+
+        cy.log('Verify user is logged in');
+        cy.get('body').should('contain', 'blachance8');
+        cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
+        cy.title().should('include', 'SAML Test Site FR');
     });
 
     /**
@@ -65,7 +84,7 @@ describe('Login via SAML', () => {
             mutationFile: 'samlLogin/createSamlButton.graphql',
             variables: {homePath: home, name}
         }).should(res => {
-            expect(res?.data?.jcr.addNode.uuid, `Created SAML button ${name}`).to.be.not.undefined;
+            expect(res?.data?.jcr.addNode.addChild.uuid, `Created SAML button ${name}`).to.be.not.undefined;
         });
     }
 });
