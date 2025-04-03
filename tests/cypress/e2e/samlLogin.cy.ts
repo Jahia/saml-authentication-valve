@@ -5,7 +5,7 @@ describe('Login via SAML', () => {
     const siteKey = 'samlTestSite';
     const buttonName = 'my-saml-button';
 
-    let home = `/sites/${siteKey}/home`;
+    const home = `/sites/${siteKey}/home`;
     before(() => {
         deleteSite(siteKey);
         createSite(siteKey, {
@@ -28,7 +28,7 @@ describe('Login via SAML', () => {
     });
 
     after(() => {
-        // deleteSite(siteKey);
+        deleteSite(siteKey);
     });
 
     it('User should be able to add SAML button and publish', () => {
