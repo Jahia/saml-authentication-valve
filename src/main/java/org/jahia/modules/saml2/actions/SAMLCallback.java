@@ -51,7 +51,7 @@ public class SAMLCallback extends Action {
                 ConnectorConfig settings = settingsService.getConnectorConfig(siteKey, "Saml");
 
                 if (saml2Profile.isPresent()) {
-                    Map<String, Object> properties = getMapperResult((BasicUserProfile)saml2Profile.get());
+                    Map<String, Object> properties = getMapperResult((BasicUserProfile) saml2Profile.get());
 
                     for (MapperConfig mapper : settings.getMappers()) {
                         try {
@@ -106,21 +106,21 @@ public class SAMLCallback extends Action {
             // Resolve locale of possible
             Locale locale = null;
             try {
-                Iterator<Locale> requestLocale = request.getLocales().asIterator();
+                Enumeration<Locale> requestLocale = request.getLocales();
                 JahiaSite siteByKey = jahiaSitesService.getSiteByKey(siteKey);
                 locale = LanguageCodeConverters.languageCodeToLocale(siteByKey.getDefaultLanguage());
                 List<Locale> languagesAsLocales = siteByKey.getLanguagesAsLocales();
-                while (requestLocale.hasNext()) {
-                    Locale next = requestLocale.next();
+                while (requestLocale.hasMoreElements()) {
+                    Locale next = requestLocale.nextElement();
                     if (languagesAsLocales.contains(next)) {
                         locale = next;
                         break;
                     }
                 }
             } catch (Exception e) {
-                logger.warn("Error while setting the locale", e);
+                logger.warn("Error while setting the locale in SAML Callback", e);
             }
-            redirection = request.getContextPath() + (locale != null ? "/"+locale : "") + settingsService.getSettings(siteKey).getValues("Saml").getProperty(SAML2Constants.POST_LOGIN_PATH);
+            redirection = request.getContextPath() + (locale != null ? "/" + locale : "") + settingsService.getSettings(siteKey).getValues("Saml").getProperty(SAML2Constants.POST_LOGIN_PATH);
             if (StringUtils.isEmpty(redirection)) {
                 // default value
                 redirection = "/";
