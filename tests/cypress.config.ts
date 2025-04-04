@@ -3,7 +3,6 @@ import {defineConfig} from 'cypress';
 export default defineConfig({
     chromeWebSecurity: false,
     defaultCommandTimeout: 30000,
-    videoUploadOnPasses: false,
     reporter: 'cypress-multi-reporters',
     reporterOptions: {
         configFile: 'reporter-config.json'
@@ -19,7 +18,7 @@ export default defineConfig({
             // eslint-disable-next-line @typescript-eslint/no-var-requires
             return require('./cypress/plugins/index.js')(on, config);
         },
-        excludeSpecPattern: '*.ignore.ts',
-        baseUrl: 'http://localhost:8080'
+        defaultBrowser: 'chrome',
+        excludeSpecPattern: ['**/*.ignore.ts', '**/*.fr.*']
     }
 });
