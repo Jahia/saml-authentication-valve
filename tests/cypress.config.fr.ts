@@ -29,11 +29,12 @@ export default defineConfig({
                 if (browser.family === 'firefox') {
                     // Auto open devtools
                     launchOptions.args.push('-devtools');
+                    launchOptions.preferences['intl.accept_languages'] = 'fr-ca,fr,en-ca,en-us,en';
                 }
 
                 if (browser.name === 'electron') {
                     // Auto open devtools
-                    launchOptions.preferences.devTools = true;
+                    launchOptions.preferences.devTools = false;
                 }
 
                 console.log(launchOptions.args); // Print all current args
@@ -43,7 +44,6 @@ export default defineConfig({
             // eslint-disable-next-line @typescript-eslint/no-var-requires
             return require('./cypress/plugins/index.js')(on, config);
         },
-        excludeSpecPattern: ['*.ignore.ts', '**/*.en.cy.ts'],
-        baseUrl: 'http://localhost:8080'
+        excludeSpecPattern: ['*.ignore.ts', '**/*.en.cy.ts']
     }
 });
