@@ -10,7 +10,10 @@ import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
+import org.jahia.services.sites.JahiaSite;
+import org.jahia.services.sites.JahiaSitesService;
 import org.jahia.utils.ClassLoaderUtils;
+import org.jahia.utils.LanguageCodeConverters;
 import org.opensaml.core.config.InitializationService;
 import org.pac4j.core.context.JEEContext;
 import org.pac4j.core.profile.BasicUserProfile;
@@ -23,10 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class SAMLCallback extends Action {
     private static final Logger logger = LoggerFactory.getLogger(SAMLCallback.class);
@@ -36,6 +36,7 @@ public class SAMLCallback extends Action {
     private SAML2Util util;
 
     private JahiaAuthMapperService jahiaAuthMapperService;
+    private JahiaSitesService jahiaSitesService;
 
     @Override
     public ActionResult doExecute(HttpServletRequest httpServletRequest, RenderContext renderContext, Resource resource, JCRSessionWrapper jcrSessionWrapper, Map<String, List<String>> map, URLResolver urlResolver) throws Exception {
@@ -50,7 +51,7 @@ public class SAMLCallback extends Action {
                 ConnectorConfig settings = settingsService.getConnectorConfig(siteKey, "Saml");
 
                 if (saml2Profile.isPresent()) {
-                    Map<String, Object> properties = getMapperResult((BasicUserProfile)saml2Profile.get());
+                    Map<String, Object> properties = getMapperResult((BasicUserProfile) saml2Profile.get());
 
                     for (MapperConfig mapper : settings.getMappers()) {
                         try {
@@ -102,7 +103,24 @@ public class SAMLCallback extends Action {
     private String retrieveRedirectUrl(HttpServletRequest request, String siteKey) {
         String redirection = util.getCookieValue(request, REDIRECT);
         if (StringUtils.isEmpty(redirection)) {
-            redirection = request.getContextPath() + settingsService.getSettings(siteKey).getValues("Saml").getProperty(SAML2Constants.POST_LOGIN_PATH);
+            // Resolve locale of possible
+            Locale locale = null;
+            try {
+                Enumeration<Locale> requestLocale = request.getLocales();
+                JahiaSite siteByKey = jahiaSitesService.getSiteByKey(siteKey);
+                locale = LanguageCodeConverters.languageCodeToLocale(siteByKey.getDefaultLanguage());
+                List<Locale> languagesAsLocales = siteByKey.getLanguagesAsLocales();
+                while (requestLocale.hasMoreElements()) {
+                    Locale next = requestLocale.nextElement();
+                    if (languagesAsLocales.contains(next)) {
+                        locale = next;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                logger.warn("Error while setting the locale in SAML Callback", e);
+            }
+            redirection = request.getContextPath() + (locale != null ? "/" + locale : "") + settingsService.getSettings(siteKey).getValues("Saml").getProperty(SAML2Constants.POST_LOGIN_PATH);
             if (StringUtils.isEmpty(redirection)) {
                 // default value
                 redirection = "/";
@@ -122,5 +140,9 @@ public class SAMLCallback extends Action {
 
     public void setUtil(SAML2Util util) {
         this.util = util;
+    }
+
+    public void setJahiaSitesService(JahiaSitesService jahiaSitesService) {
+        this.jahiaSitesService = jahiaSitesService;
     }
 }

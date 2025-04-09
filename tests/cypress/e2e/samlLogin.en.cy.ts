@@ -1,15 +1,30 @@
-import {publishSite, createSite, deleteSite} from '../fixtures/site';
+import {enableModule, createSite, deleteSite, setNodeProperty} from '@jahia/cypress';
+import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
 
 describe('Login via SAML', () => {
     const siteKey = 'samlTestSite';
     const buttonName = 'my-saml-button';
 
+    const home = `/sites/${siteKey}/home`;
     before(() => {
-        createSite(siteKey, [
+        deleteSite(siteKey);
+        createSite(siteKey, {
+            languages: 'en,fr,de',
+            locale: 'en',
+            serverName: 'localhost',
+            templateSet: 'samples-bootstrap-templates'
+        });
+        [
             'saml-authentication-valve',
             'jahia-authentication',
             'jcr-auth-provider'
-        ]);
+        ].forEach(moduleName => {
+            enableModule(moduleName, siteKey);
+        });
+        setNodeProperty(home, 'jcr:title', 'SAML Test Site', 'en');
+        setNodeProperty(home, 'jcr:title', 'SAML Test Site FR', 'fr');
+        setNodeProperty(home, 'jcr:title', 'SAML Test Site DE', 'de');
+        publishAndWaitJobEnding(home, ['en', 'fr', 'de']);
     });
 
     after(() => {
@@ -19,11 +34,11 @@ describe('Login via SAML', () => {
     it('User should be able to add SAML button and publish', () => {
         installConfig('samlLogin/org.jahia.modules.auth-samlTestSite.cfg');
         createSamlButton(buttonName);
-        publishSite(siteKey, 'en');
+        publishAndWaitJobEnding(home, ['en']);
     });
 
     /* Wait/retry until site is published */
-    it('User should be able to login using SAML authentication', {retries: 5}, () => {
+    it('User should be able to login using SAML authentication', () => {
         cy.visit('sites/samlTestSite/home.html');
         cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
         cy.get('#username').should('be.visible').type('blachance8');
@@ -33,6 +48,7 @@ describe('Login via SAML', () => {
         cy.log('Verify user is logged in');
         cy.get('body').should('contain', 'blachance8');
         cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
+        cy.title().should('equal', 'SAML Test Site');
     });
 
     /**
@@ -48,7 +64,7 @@ describe('Login via SAML', () => {
     function createSamlButton(name) {
         cy.apollo({
             mutationFile: 'samlLogin/createSamlButton.graphql',
-            variables: {homePath: `/sites/${siteKey}/home`, name}
+            variables: {homePath: home, name}
         }).should(res => {
             expect(res?.data?.jcr.addNode.addChild.uuid, `Created SAML button ${name}`).to.be.not.undefined;
         });

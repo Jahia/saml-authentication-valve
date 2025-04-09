@@ -116,7 +116,9 @@ echo "$(date +'%d %B %Y - %k:%M') == Run tests =="
 mkdir -p ./results/reports
 rm -rf ./results/reports/*
 
-yarn e2e:ci
+yarn e2e:ci --config-file "cypress.config.ts"
+export ELECTRON_EXTRA_LAUNCH_ARGS=--lang=fr
+yarn e2e:ci --config-file "cypress.config.fr.ts"
 if [[ $? -eq 0 ]]; then
   echo "$(date +'%d %B %Y - %k:%M') == Full execution successful =="
   echo "success" > ./results/test_success

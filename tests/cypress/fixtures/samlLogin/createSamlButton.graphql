@@ -4,7 +4,7 @@ mutation createSamlButton($homePath: String!, $name: String!) {
             parentPathOrId: $homePath,
             name:"pagecontent",
             primaryNodeType:"jnt:contentList",
-            mixins:["jmix:systemNameReadonly"])
+            mixins:["jmix:systemNameReadonly","jmix:isAreaList"])
         {
             addChild(name: $name, primaryNodeType:"jnt:samlLogin") {
                 uuid
