@@ -8,7 +8,7 @@
   autoStart: true
   uninstallPreviousVersion: true
 
-- addMavenRepository: 'https://devtools.jahia.com/nexus/content/groups/public@id=jahia-snapshots'
+- addMavenRepository: 'https://devtools.jahia.com/nexus/content/groups/public/@id=jahia-snapshots'
 - installBundle:
   - 'mvn:org.jahia.modules/legacy-default-components'
   - 'mvn:org.jahia.modules/dx-base-demo-core'
