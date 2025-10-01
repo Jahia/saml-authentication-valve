@@ -1,0 +1,102 @@
+---
+page:
+  $path: /sites/academy/home/documentation/jahia/8_2/developer/authentication/installing-and-configuring-SAML2
+  jcr:title: Installing and configuring SAML2 authentication
+  j:templateName: documentation
+content:
+  $subpath: document-area/content
+publish: false
+---
+
+The [SAML2 Authentication Valve module](https://store.jahia.com/contents/modules-repository/org/jahia/modules/saml-authentication-valve.html) enables you to activate SAML on one or more of your Jahia websites.
+
+## Installing the SAML2 Authentication Valve module
+
+To make SAML available in Jahia, deploy the module and install it on your site. You must also deploy and install the [Jahia Authentication](https://store.jahia.com/contents/modules-repository/org/jahia/modules/jahia-authentication.html) and [JCR Authentication Provider](https://store.jahia.com/contents/modules-repository/org/jahia/modules/jcr-auth-provider.html) modules. 
+For more information on deploying modules, see [Installing a module](https://academy.jahia.com/cms/render/default/training-kb/tutorials/administrators/installing-a-module) tutorial.
+
+## Creating a keystore
+
+You can manually create the keystore that will communicate with the Identity Provider (IdP). The following command shows example values used to create a keystore.
+
+```bash
+keytool -genkeypair -alias jahiakeystorealias -keypass changeit -keystore sp.jks -storepass changeit -keyalg RSA -keysize 2048 -validity 3650
+```
+
+When you run the command, you will be prompted with the following question. Your answer must match your Jahia site domain name (jahia.server.name).
+
+- What is your first and last name?: jahia.server.name
+
+## Configuring SAML2 authentication
+
+SAML configuration is stored in a file in the `karaf/etc` folder. There is one configuration file per site. You can configure SAML in **Site Settings** in Jahia.
+
+To configure SAML:
+
+1. In Jahia, navigate to **Administration>Sites>Jahia Authentication** and expand **SAML2 Settings**.
+
+    ![SAML Settings](./img/saml2-settings-1.png)
+2. Toggle the **Activate** slider to enable.
+3. In **Identity Provider MetaData** file, click **Choose File** and upload the Identity Provider Metadata XML file provided by the Identity Provider (IdP), for example, Shibboleth or Google.
+4. In **Relying Party Identifier**, provide the identifier of your Service Provider that is sent to the IdP.
+5. In **Server Location**, provide the public URL of your Jahia site, for example, `http://localhost:8080`. It will be used to generate the Service Provider metadata.
+6. In **Keystore, Keystore type, Keystore Alias, Password of the Keystore,** and **Password of the Private Key** enter values that you defined when creating the server key and certificate. You can also leave the keystore empty and fill in the other values to automatically generate a new keystore. Note that the generated keystore will use the hostname for the CN entry of the certificate.
+7. In **Incoming Target Url**, enter the URL where the IdP will return the SAML response. The default value is `/home.callback.saml`.
+8. In **Redirect after successful login**, enter the Jahia relative URL where users are redirected after successful authentication, for example, `/home.html`.
+9. In **Maximum authentication lifetime**, enter the maximum age of the authentication on the IdP. Users must reauthenticate if the session on the IdP is older than the specified time.
+10. Select from the following options:
+    - **Force authentication**  
+       If set, users must authenticate every time they login, even if the user has already a session on the IdP. This cannot be used along with `Passive authentication`.
+
+    - **Passive authentication**
+       If set, users log in transparently without any interaction. Users are authenticated only if the IdP is able to do so without asking the user. This cannot be used along with `Force authentication`.
+
+    - **Sign authentication request**
+       Sign the request sent to the IdP.
+
+    - **Requires signed assertions**
+       If set, will only accept signed assertions from the IdP.
+
+11. In **Binding type**, select the SAML binding type used to communicate with the IdP.
+12. Click **Save**.
+
+After saving your SAML configuration, the **Open Service Provider Metadata** and **Mappers** buttons become available at the bottom of the page. You can use **Open Service Provider Metadata** to download service provider metadata based on the configuration. This can be required to configure the IdP.
+
+## Mapping users
+
+Next, map the fields that are used to authenticate users in your IdP to the fields used to authenticate users in Jahia. You specify how to map user data to a user in Jahia.  You first select the IdP field that is used as the username. Then you map it to the appropriate username field in Jahia. You can also choose a specific mapper that creates a new user in the JCR.
+
+To map users:
+
+1. On the **SAML2 Settings** page, click **Mappers**.
+
+   ![SAML Mappers 1](./img/saml2-open-mappers.png)
+   The SAML Connector page opens.
+
+2. Expand the provider type that is available for you to configure. The following example shows how to configure settings for the JCR Authentication Provider module.
+   
+   ![SAML Mappers 2](./img/saml2-mapping_01.png)
+
+3. Toggle the **Activate** slider to enable.
+
+4. In **Field from connector**, select the fields to map from your IdP. For example, select **Login**.
+
+   ![SAML Mappers 3](./img/saml2-mapping_02.png)
+
+5. In **Field from provider**, select the fields to map to in Jahia. For example, select **Login username mandatory**.
+
+   ![SAML Mappers 4](./img/saml2-mapping_03.png)
+
+6. Click **Save**.
+
+Next, add a login button or form to a page in your site to redirect Jahia users to the SAML IdP.
+
+#### Adding a login form
+
+Users are redirected from Jahia to the SAML IdP when they call the `*.connect.saml` url. To redirect users, you can add a simple link in the page (for example, http://localhost/sites/mySite/home.connect.saml) or add an HTML form.
+
+Jahia also provides a simple form component, SAML2 Login, with the module. The component displays a simple login button which calls the action. When a user clicks the login button, they are redirected to the IdP with the SAML login request from Jahia. Once logged in, the IdP redirects to Jahia with a signed assertion containing the user information.
+
+### Related links
+
+More details on configuration options can be found in the pac4j library documentation: [http://www.pac4j.org/3.2.x/docs/clients/saml.html](http://www.pac4j.org/3.2.x/docs/clients/saml.html)
