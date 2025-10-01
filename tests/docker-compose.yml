@@ -3,7 +3,7 @@ services:
 
     ldap:
         image: ghcr.io/jahia/docker-openldap:latest
-        container_name: ldap-server
+        container_name: saml-ldap-server
         hostname: ldap-server
         environment:
             LDAP_LOG_LEVEL: '256'
@@ -21,7 +21,7 @@ services:
 
     keycloak:
         image: quay.io/keycloak/keycloak:21.0
-        container_name: keycloak
+        container_name: saml-keycloak
         hostname: keycloak
         # Issue with unable to connect ldap in github actions. (somewhat) OK on local
         # depends_on:
@@ -42,12 +42,12 @@ services:
 
     jahia:
         image: '${JAHIA_IMAGE}'
-        container_name: jahia
+        container_name: saml-jahia
         hostname: jahia
         depends_on:
             - keycloak
         environment:
-            - SUPER_USER_PASSWORD=${SUPER_USER_PASSWORD}        
+            - SUPER_USER_PASSWORD=${SUPER_USER_PASSWORD}
             - MAX_RAM_PERCENTAGE=95
             - JPDA=true # debug
         ports:
@@ -61,7 +61,7 @@ services:
         image: '${TESTS_IMAGE}'
         # https://github.com/cypress-io/cypress/issues/350
         ipc: host
-        container_name: cypress
+        container_name: saml-cypress
         depends_on:
             - jahia
         environment:

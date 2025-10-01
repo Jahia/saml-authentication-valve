@@ -7,9 +7,12 @@ import org.jahia.modules.jahiaauth.service.SettingsService;
 import org.jahia.settings.SettingsBean;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
+import org.osgi.service.component.annotations.Component;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 
@@ -21,8 +24,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
+@Component(immediate = true, service = SAML2Util.class)
 public final class SAML2Util {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SAML2Util.class);
     private final HashMap<String, SAML2Client> clients = new HashMap<>();
 
     public String getAssertionConsumerServiceUrl(final HttpServletRequest request, final String incoming) {
@@ -55,6 +60,7 @@ public final class SAML2Util {
             client = initSAMLClient(saml2Settings, request);
             clients.put(siteKey, client);
         }
+        LOGGER.debug("SAML2 Client found for siteKey: {}", siteKey);
         return client;
     }
 

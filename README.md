@@ -13,7 +13,7 @@ SAML Authentication Valve
 
 ## Presentation
 
-This module is meant to activate SAML on one or multiples Jahia websites.
+This module is meant to activate SAML on one or multiple Jahia websites.
 
 ## Installation
 
@@ -39,43 +39,43 @@ A dedicated Site Setting is available to edit the configuration.
 
 You will have to fill the following entries : 
 
-- Identity Provider MetaData file :
-The Identity Provider Metadata file is provided by the Identity Provider (IdP), for example Shibboleth or Google. This XML file must be uploaded here.
+- Identity Provider MetaData file:
+The Identity Provider Metadata file is provided by the Identity Provider (IdP), for example, Shibboleth or Google. This XML file must be uploaded here.
 
-- Relying Party Identifier :
+- Relying on Party Identifier:
 This is the identifier of your Service Provider, which will be sent to the IdP.
 
-- Incoming Target Url :
-This is the URL when the IdP will return the SAML response. Its default value is /home.samlCallback.do
+- Incoming Target Url:
+This is the URL when the IdP will return the SAML response. Its default value is /home.callback.saml
 
 - Keystore, Keystore type, Alias, Password of the Keystore and Password of the Private Key
-Those value must match the one defined when creating the server key and certificate. 
+Those values must match the one defined when creating the server key and certificate. 
 You can also let the keystore empty and fill in the other values to automatically generate a new keystore. Note that it will use the hostname for the CN entry of the certificate
 
-- Redirect after successful login :
-This is the DX relative URL where the user will be redirect after successfully authentication. (For example /home.html)
+- Redirect after successful login:
+This is the DX relative URL where the user will be redirected after successful authentication. (For example /home.html)
 
-- Maximum authentication lifetime :
+- Maximum authentication lifetime:
 The maximum age of the authentication on the IdP. User will be asked to reauthenticate if the session on the IdP is older than the specified time. 
 
-- Force authentication :
-If set, authentication will be asked everytime even if the user has already a session on the IdP.
+- Force authentication:
+If set, authentication will be asked everytime even if the user already has a session on the IdP.
 
-- Passive :
+- Passive:
 The user will transparently log in, without any interaction. User will be authenticated only if the IdP is able to do it without asking the user. This cannot be used along with `Force authentication`
 
-- Sign authentication request :
+- Sign authentication request:
 Sign the request sent to the IdP.
 
-- Requires signed assertions :
+- Requires signed assertions:
 Will only accept signed assertions from the IdP.
 
-- Binding type :
+- Binding type:
 SAML binding type used to communicate with the IdP.
 
-- User mapper :
+- User mapper:
 How to map the user data to a user in Jahia. By default , `SAML ID` will try to find a user with the same ID as the one sent by the IdP.
-It also possible to choose a specific mapper that will create a new user in the JCR or in LDAP.
+It is also possible to choose a specific mapper that will create a new user in the JCR or in LDAP.
 
 Then click on the save button on the top right of the screen.
 
@@ -93,7 +93,7 @@ keyStore = ...
 keyStoreAlias = saml2clientconfiguration
 keyStorePass = changeit
 privateKeyPass = changeit
-incomingTargetUrl = /home.samlCallback.do
+incomingTargetUrl = /home.callback.saml
 postLoginPath = /
 maximumAuthenticationLifetime = 86400
 forceAuth = false
@@ -107,15 +107,18 @@ mapperName = jcrOAuthProvider
 
 ### Login
 
-In order to dispatch the login to the SAML IdP, the user need to call the connectToSAML action on a page.
-This can be done by adding a simple link in the page ( for example `http://localhost/sites/mySite/home.connectToSAML.do` ), or by adding an HTML form.
+To dispatch the login to the SAML IdP, the user needs to invoke the SAML authentication process by calling any URL of the site with the suffix `connect.saml`.
+This can be done by adding a simple link in the page (for example `http://localhost/sites/mySite/home.connect.saml` ), or by adding an HTML form.
+As the target url will be processed by a filter, it can be called from any page or directly from the root of the site.
 
-A simple form component ("SAML2 Login") is also provided with the module. It will display a simple login button, which will call the action.
+A simple form component ("SAML2 Login") is also provided with the module. It will display a simple login button, which will call the saml authentication process.
 
-The user will be redirect to the IdP with the SAML login request from Jahia. Once logged id, IdP will redirect to Jahia with a signed assertion containing the user information.
+The user will be redirected to the IdP with the SAML login request from Jahia. Once logged id, IdP will redirect to Jahia with a signed assertion containing the user information.
+
+As the SAML configuration is unique for each Jahia Site, the siteKey may be provided when calling the connect.saml url, for example `http://localhost/connect.saml?siteKey=mySite`. The server name could also be used to determine the siteKey without any query parameter. 
 
 ## Links
 <!-- 
     Relevant links
 -->
-- More details on configuration options can be found in the pac4j library documentation : http://www.pac4j.org/3.2.x/docs/clients/saml.html
+- More details on configuration options can be found in the pac4j library documentation: http://www.pac4j.org/3.2.x/docs/clients/saml.html
