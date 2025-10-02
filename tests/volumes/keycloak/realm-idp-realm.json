@@ -519,7 +519,7 @@
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
-    "redirectUris" : [ "http://jahia:8080/sites/samlTestSite/*", "http://jahia:8081/sites/samlTestSite/*"],
+    "redirectUris" : [ "http://jahia:8080/.*", "http://jahia:8081/.*" ],
     "webOrigins" : [ "http://jahia:8080", "http://jahia:8081" ],
     "notBefore" : 0,
     "bearerOnly" : false,
