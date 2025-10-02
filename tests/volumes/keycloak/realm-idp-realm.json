@@ -519,7 +519,7 @@
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
-    "redirectUris" : [ "http://jahia:8080/sites/samlTestSite/home.callback.saml?client_name=SAML2Client", "http://jahia:8081/sites/samlTestSite/home.callback.saml?client_name=SAML2Client", "http://jahia:8081/sites/samlTestSite/home.callback.saml", "http://jahia:8080/sites/samlTestSite/home.callback.saml" ],
+    "redirectUris" : [ "http://jahia:8080/sites/samlTestSite/*", "http://jahia:8081/sites/samlTestSite/*"],
     "webOrigins" : [ "http://jahia:8080", "http://jahia:8081" ],
     "notBefore" : 0,
     "bearerOnly" : false,
