@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.saml2.filter;
+package org.jahia.modules.saml2.helper;
 
-import org.jahia.bin.filters.AbstractServletFilter;
 import org.jahia.modules.saml2.SAML2Constants;
 import org.jahia.services.content.JCRCallback;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.JCRTemplate;
+import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.sites.JahiaSite;
 import org.jahia.services.sites.JahiaSitesService;
 import org.slf4j.Logger;
@@ -27,40 +27,45 @@ import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Jerome Blanchard
  */
-public abstract class AbstractSAMLFilter extends AbstractServletFilter {
+public class SAMLSiteHelper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSAMLFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SAMLSiteHelper.class);
 
-    private final JahiaSitesService sitesService = JahiaSitesService.getInstance();
+    private static final JahiaSitesService sitesService = JahiaSitesService.getInstance();
 
-    protected JahiaSite getSiteByKey(String siteKey) {
+    public static JahiaSite getSiteByKey(String siteKey) {
         try {
-            JahiaSite site = JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<JahiaSite>() {
+            return JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<JahiaSite>() {
                 @Override public JahiaSite doInJCR(JCRSessionWrapper session) {
                     try {
-                        JahiaSite site = sitesService.getSiteByKey(siteKey, session);
-                        if (site == null) {
-                            LOGGER.error("Cannot find site for key {}, loading default site", siteKey);
-                            site = sitesService.getDefaultSite();
-                        }
-                        return site;
+                        return sitesService.getSiteByKey(siteKey, session);
                     } catch (RepositoryException e) {
+                        LOGGER.error("Cannot find site for key {}", siteKey);
                         return null;
                     }
                 }
             });
-            return site;
         } catch (RepositoryException e) {
             LOGGER.error("Cannot find site for key {}", siteKey, e);
             return null;
         }
     }
 
-    protected String getSiteKey(HttpServletRequest request) {
+    /**
+     * We do not use URLResolver strategies to determine the site key (aka parsing the path to extract /sites/siteKey/**) to avoid
+     * code duplication and because it seems not relevant to do such processing here.
+     * Only the following strategies are implemented in that order:
+     * - siteKey request parameter
+     * - the only site in case of a Jahia single site instance
+     * - server name resolution for multi-site instances
+     */
+    public static String findSiteKeyForRequest(HttpServletRequest request) {
         String siteKey = request.getParameter(SAML2Constants.SITEKEY);
         if (siteKey == null) {
             LOGGER.info("No site key provided, trying to guess using server name");
@@ -68,13 +73,20 @@ public abstract class AbstractSAMLFilter extends AbstractServletFilter {
                 siteKey = JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<String>() {
                     @Override public String doInJCR(JCRSessionWrapper session) {
                         try {
-                            JahiaSite site = sitesService.getSiteByServerName(request.getServerName(), session);
-                            if (site == null) {
-                                LOGGER.error("Cannot find site for server name {}, loading default site", request.getServerName());
-                                site = sitesService.getDefaultSite();
+                            List<JCRSiteNode> sites = sitesService.getSitesNodeList(session);
+                            if (sites.size() == 1) {
+                                return sites.get(0).getSiteKey();
                             }
-                            return site.getSiteKey();
+                            Optional<String> siteKey = sites.stream()
+                                    .filter(site -> site.getServerName().equals(request.getServerName()))
+                                    .map(JCRSiteNode::getSiteKey).findFirst();
+                            if (siteKey.isPresent()) {
+                                return siteKey.get();
+                            }
+                            LOGGER.error("Unable to determine site key for server name {}, check your configuration", request.getServerName());
+                            return null;
                         } catch (RepositoryException e) {
+                            LOGGER.error("Error while trying to determine site key from server name {}", request.getServerName(), e);
                             return null;
                         }
                     }

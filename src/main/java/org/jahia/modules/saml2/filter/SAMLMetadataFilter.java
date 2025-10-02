@@ -18,6 +18,7 @@ package org.jahia.modules.saml2.filter;
 import org.jahia.bin.filters.AbstractServletFilter;
 import org.jahia.modules.jahiaauth.service.SettingsService;
 import org.jahia.modules.saml2.SAML2Util;
+import org.jahia.modules.saml2.helper.SAMLSiteHelper;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
 import org.osgi.service.component.annotations.Activate;
@@ -36,7 +37,7 @@ import java.io.IOException;
  * @author Jerome Blanchard
  */
 @Component(immediate = true, service = AbstractServletFilter.class)
-public class SAMLMetadataFilter extends AbstractSAMLFilter {
+public class SAMLMetadataFilter extends AbstractServletFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLMetadataFilter.class);
 
@@ -67,7 +68,7 @@ public class SAMLMetadataFilter extends AbstractSAMLFilter {
         String requestURI = httpRequest.getRequestURI();
         if (requestURI.endsWith("metadata.saml")) {
             LOGGER.debug("SAMLMetadataFilter.doFilter() matches URL {}", requestURI);
-            final String siteKey = getSiteKey(httpRequest);
+            final String siteKey = SAMLSiteHelper.findSiteKeyForRequest(httpRequest);
             if (siteKey != null) {
                 boolean generated = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
                     SAML2MetadataResolver metadataResolver = util.getSAML2Client(settingsService, httpRequest, siteKey).getServiceProviderMetadataResolver();
@@ -84,7 +85,7 @@ public class SAMLMetadataFilter extends AbstractSAMLFilter {
                     return;
                 }
             } else {
-                LOGGER.error("No site found (param or servername based), cannot proceed with SAML2 metadata generation");
+                LOGGER.error("No site found (param or servername based), cannot proceed with SAML metadata generation");
             }
         }
         chain.doFilter(request, response);

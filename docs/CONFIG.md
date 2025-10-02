@@ -62,7 +62,7 @@ To configure SAML:
 
 After saving your SAML configuration, the **Open Service Provider Metadata** and **Mappers** buttons become available at the bottom of the page. You can use **Open Service Provider Metadata** to download service provider metadata based on the configuration. This can be required to configure the IdP.
 
-## Mapping users
+### Mapping users
 
 Next, map the fields that are used to authenticate users in your IdP to the fields used to authenticate users in Jahia. You specify how to map user data to a user in Jahia.  You first select the IdP field that is used as the username. Then you map it to the appropriate username field in Jahia. You can also choose a specific mapper that creates a new user in the JCR.
 
@@ -91,11 +91,49 @@ To map users:
 
 Next, add a login button or form to a page in your site to redirect Jahia users to the SAML IdP.
 
-#### Adding a login form
+### Adding a login form
 
-Users are redirected from Jahia to the SAML IdP when they call the `*.connect.saml` url. To redirect users, you can add a simple link in the page (for example, http://localhost/sites/mySite/home.connect.saml) or add an HTML form.
+Users are redirected from Jahia to the SAML IdP when they call the `*.connect.saml?siteKey={sitekey}` url. To redirect users, you can add a simple link in the page (for example, http://localhost/sites/mySite/home.connect.saml?siteKey=mySite) or add an HTML form.
 
 Jahia also provides a simple form component, SAML2 Login, with the module. The component displays a simple login button which calls the action. When a user clicks the login button, they are redirected to the IdP with the SAML login request from Jahia. Once logged in, the IdP redirects to Jahia with a signed assertion containing the user information.
+
+### Considerations about `siteKey` query param
+
+As the SAML configuration is per site, **you must include** a `siteKey` query param in the connection URL, for example, `?siteKey=mySite` and also in the SAML configuration **Incoming Target Url**. 
+If you don't do so, the SAML authentication will not work and you will get an error in the log file.
+
+You can omit that if the server name is mapped to a site in Jahia and the server name is always used in URLs. Thus, the site can be retrieved from the server name and the query param is not needed.
+Without the query param, the SAML authentication **won't work** using http://localhost access.
+
+:::info
+Even when having a server name configured, using the query param is always safer and faster as it will always work and does not need any lookup in the Jahia Sites list.
+:::
+
+## SAML authentication process and private pages or sites
+
+On some occasions, you might want to protect a page or an entire site using SAML authentication. In this case, you must ensure that the SAML authentication is triggered correctly.
+
+The default Jahia configuration will always return a 404 HTTP error (Not Found) when a user tries to access a private page or site without being authenticated. This is done for security reasons, to avoid exposing the existence of private pages or sites. 
+For some reason, you may want to change that behavior and redirect users to the SAML IdP especially when a complete site is private to start the user's login process when accessing the site.
+
+### Configure Jahia to allow 401 HTTP errors (Unauthorized)  
+
+The configuration is located in `jahia.properties` and cannot be changed from the Jahia UI. You must edit the file directly on the server. It is also a server configuration that applies to all sites hosted on the server.
+
+```
+# Define behaviour when the user has no access to a resource (page or file)
+# silent : returns a 404 when the resource does not exist or is not accessible
+# authorizationError : returns a 401 for guest users and 403 for authenticated users without access permission
+protectedResourceAccessStrategy=authorizationError
+```
+
+Thus, when a user tries to access a private page or site without being authenticated, they will get a 401 HTTP error (Unauthorized). 
+The default 401 Jahia page includes a login form that will not work with SAML authentication but the embedded Jahia authentication.
+
+To ensure that the 401 error page contains a link or form to redirect users to the SAML IdP, you must **customize the 401 error page**.
+
+Follow the documentation page about [Custom error pages](https://academy.jahia.com/training-kb/knowledge-base/how-to-customize-the-error-pages) and 
+about [Overriding Jahia login page](https://academy.jahia.com/override-default-jahia-login-page)
 
 ### Related links
 

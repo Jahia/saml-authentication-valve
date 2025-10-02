@@ -20,6 +20,7 @@ import org.jahia.bin.filters.AbstractServletFilter;
 import org.jahia.modules.jahiaauth.service.SettingsService;
 import org.jahia.modules.saml2.SAML2Constants;
 import org.jahia.modules.saml2.SAML2Util;
+import org.jahia.modules.saml2.helper.SAMLSiteHelper;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
 import org.osgi.service.component.annotations.Activate;
@@ -45,7 +46,7 @@ import java.util.Optional;
  * @author Jerome Blanchard
  */
 @Component(immediate = true, service = AbstractServletFilter.class)
-public class SAMLConnectFilter extends AbstractSAMLFilter {
+public class SAMLConnectFilter extends AbstractServletFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLConnectFilter.class);
     private static final String REDIRECT = "redirect";
@@ -54,7 +55,6 @@ public class SAMLConnectFilter extends AbstractSAMLFilter {
     private SettingsService settingsService;
     @Reference
     private SAML2Util util;
-
 
     @Override
     public void init(FilterConfig filterConfig) {
@@ -78,7 +78,7 @@ public class SAMLConnectFilter extends AbstractSAMLFilter {
         String requestURI = httpRequest.getRequestURI();
         if (requestURI.endsWith("connect.saml")) {
             LOGGER.debug("SAMLConnectFilter.doFilter() matches request URI: {}", requestURI);
-            final String siteKey = getSiteKey(httpRequest);
+            final String siteKey = SAMLSiteHelper.findSiteKeyForRequest(httpRequest);
             if (siteKey != null) {
                 boolean redirected = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
                     // Storing redirect url into cookie to be used when the request is send from IDP to continue the access to the secure resource
@@ -126,7 +126,7 @@ public class SAMLConnectFilter extends AbstractSAMLFilter {
                     return;
                 }
             } else {
-                LOGGER.error("No site found (param or servername based), cannot proceed with SAML2 authentication");
+                LOGGER.error("No site found (param or servername based), cannot proceed with SAML authentication");
             }
         }
         chain.doFilter(request, response);

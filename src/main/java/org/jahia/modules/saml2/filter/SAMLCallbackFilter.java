@@ -20,6 +20,7 @@ import org.jahia.bin.filters.AbstractServletFilter;
 import org.jahia.modules.jahiaauth.service.*;
 import org.jahia.modules.saml2.SAML2Constants;
 import org.jahia.modules.saml2.SAML2Util;
+import org.jahia.modules.saml2.helper.SAMLSiteHelper;
 import org.jahia.services.sites.JahiaSite;
 import org.jahia.utils.ClassLoaderUtils;
 import org.jahia.utils.LanguageCodeConverters;
@@ -46,7 +47,7 @@ import java.util.*;
  * @author Jerome Blanchard
  */
 @Component(immediate = true, service = AbstractServletFilter.class)
-public class SAMLCallbackFilter extends AbstractSAMLFilter{
+public class SAMLCallbackFilter extends AbstractServletFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLCallbackFilter.class);
     private static final String REDIRECT = "redirect";
@@ -80,7 +81,7 @@ public class SAMLCallbackFilter extends AbstractSAMLFilter{
         String requestURI = httpRequest.getRequestURI();
         if (requestURI.endsWith("callback.saml")) {
             LOGGER.debug("SAMLCallbackFilter.doFilter() matches URL {}", requestURI);
-            String siteKey = getSiteKey(httpRequest);
+            String siteKey = SAMLSiteHelper.findSiteKeyForRequest(httpRequest);
             if (siteKey != null) {
                 try {
                     boolean redirect = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
@@ -120,7 +121,7 @@ public class SAMLCallbackFilter extends AbstractSAMLFilter{
                     LOGGER.warn("Cannot log in user : {}", e.getMessage());
                 }
             } else {
-                LOGGER.error("No site found (param or servername based), cannot proceed with SAML2 authentication");
+                LOGGER.error("No site found (param or servername based), cannot proceed with SAML authentication");
             }
         }
         chain.doFilter(request, response);
@@ -164,7 +165,7 @@ public class SAMLCallbackFilter extends AbstractSAMLFilter{
             Locale locale = null;
             try {
                 Enumeration<Locale> requestLocale = request.getLocales();
-                JahiaSite siteByKey = this.getSiteByKey(siteKey);
+                JahiaSite siteByKey = SAMLSiteHelper.getSiteByKey(siteKey);
                 locale = LanguageCodeConverters.languageCodeToLocale(siteByKey.getDefaultLanguage());
                 List<Locale> languagesAsLocales = siteByKey.getLanguagesAsLocales();
                 while (requestLocale.hasMoreElements()) {

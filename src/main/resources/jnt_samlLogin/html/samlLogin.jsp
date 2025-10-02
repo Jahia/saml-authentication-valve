@@ -18,7 +18,7 @@
 <%--@elvariable id="currentResource" type="org.jahia.services.render.Resource"--%>
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
 <c:if test="${not renderContext.loggedIn}">
-    <form action="${renderContext.mainResource.node.name}.connect.saml">
+    <form action="${renderContext.mainResource.node.name}.connect.saml?siteKey=${renderContext.site.siteKey}">
         <input type="submit" value="${currentNode.displayableName}">
     </form>
 </c:if>
