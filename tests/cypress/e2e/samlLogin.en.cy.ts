@@ -28,7 +28,7 @@ describe('Login via SAML', () => {
     });
 
     after(() => {
-        deleteSite(siteKey);
+        //deleteSite(siteKey);
     });
 
     it('User should be able to add SAML button and publish', () => {

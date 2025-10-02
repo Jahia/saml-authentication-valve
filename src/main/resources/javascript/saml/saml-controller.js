@@ -92,7 +92,7 @@
 
 
         function metadata() {
-            window.open(vm.siteKey + ".metadata.saml")
+            window.open(vm.siteKey + ".metadata.saml?siteKey=" + vm.siteKey, '_blank');
         }
 
         function init(jahiaContext) {
