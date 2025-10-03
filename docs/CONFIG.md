@@ -111,7 +111,7 @@ Even when having a server name configured, using the query param is always safer
 
 ## SAML authentication process and private pages or sites
 
-On some occasions, you might want to protect a page or an entire site using SAML authentication. In this case, you must ensure that the SAML authentication is triggered correctly.
+On some occasions, you might want to protect some pages or an entire site using SAML authentication by enforcing user permissions on pages and maybe the site itself. In this case, you must ensure that the SAML authentication is triggered correctly.
 
 The default Jahia configuration will always return a 404 HTTP error (Not Found) when a user tries to access a private page or site without being authenticated. This is done for security reasons, to avoid exposing the existence of private pages or sites. 
 For some reason, you may want to change that behavior and redirect users to the SAML IdP especially when a complete site is private to start the user's login process when accessing the site.
@@ -132,8 +132,38 @@ The default 401 Jahia page includes a login form that will not work with SAML au
 
 To ensure that the 401 error page contains a link or form to redirect users to the SAML IdP, you must **customize the 401 error page**.
 
-Follow the documentation page about [Custom error pages](https://academy.jahia.com/training-kb/knowledge-base/how-to-customize-the-error-pages) and 
-about [Overriding Jahia login page](https://academy.jahia.com/override-default-jahia-login-page)
+Follow the documentation page about [Custom error pages](https://academy.jahia.com/training-kb/knowledge-base/how-to-customize-the-error-pages) 
+
+In the case where the site itself is not public (aka guest cannot read it), the custom error page won't be able to load from the template set, and you have to put it directly in the Jahia file system: 
+
+```bash
+cp error_401.jsp <tomcat_home>/webapps/ROOT/errors/sites/<mySite>/error_401.jsp
+```
+
+Such a sample jsp page could be: 
+
+```html
+<%@page language="java" contentType="text/html; charset=UTF-8" session="false" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>SAML Login</title>
+</head>
+<body>
+<div style="margin: 50px; font-family: Arial, sans-serif;">
+    The resource you try to access is protected, and you don't have the required permissions.
+    <br/>
+    Please log in with an account that has the required permissions.
+    <br/><br/>
+    <a href="${pageContext.request.requestURI}.connect.saml">Go to SAML login page</a>
+</div>
+</body>
+</html>
+```
+
+:::info
+You can always route the user to the SAML Authentication from an external link (a portal page, for example) using the site url followed by connect.saml?siteKey={sitekey} as explained in the Adding a login form section.
+:::
 
 ### Related links
 

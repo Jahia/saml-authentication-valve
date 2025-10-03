@@ -15,15 +15,11 @@
  */
 package org.jahia.modules.saml2.filter;
 
-import org.apache.commons.lang.StringUtils;
 import org.jahia.bin.filters.AbstractServletFilter;
 import org.jahia.modules.jahiaauth.service.*;
-import org.jahia.modules.saml2.SAML2Constants;
 import org.jahia.modules.saml2.SAML2Util;
-import org.jahia.modules.saml2.helper.SAMLSiteHelper;
-import org.jahia.services.sites.JahiaSite;
+import org.jahia.modules.saml2.helper.SAMLHelper;
 import org.jahia.utils.ClassLoaderUtils;
-import org.jahia.utils.LanguageCodeConverters;
 import org.opensaml.core.config.InitializationService;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -81,7 +77,7 @@ public class SAMLCallbackFilter extends AbstractServletFilter {
         String requestURI = httpRequest.getRequestURI();
         if (requestURI.endsWith("callback.saml")) {
             LOGGER.debug("SAMLCallbackFilter.doFilter() matches URL {}", requestURI);
-            String siteKey = SAMLSiteHelper.findSiteKeyForRequest(httpRequest);
+            String siteKey = SAMLHelper.findSiteKeyForRequest(httpRequest);
             if (siteKey != null) {
                 try {
                     boolean redirect = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
@@ -112,7 +108,7 @@ public class SAMLCallbackFilter extends AbstractServletFilter {
                         return false;
                     });
                     if (redirect) {
-                        String redirection = retrieveRedirectUrl(httpRequest, siteKey);
+                        String redirection = SAMLHelper.getRedirectionUrl(httpRequest, siteKey, util, settingsService);
                         LOGGER.debug("Redirecting to {}", redirection);
                         httpResponse.sendRedirect(redirection);
                         return;
@@ -152,41 +148,5 @@ public class SAMLCallbackFilter extends AbstractServletFilter {
         return properties;
     }
 
-    /**
-     * Gets the redirection URL from the cookie, if not set takes the value is taken from the site settings
-     *
-     * @param request : the http request
-     * @return the redirection URL
-     */
-    private String retrieveRedirectUrl(HttpServletRequest request, String siteKey) {
-        String redirection = util.getCookieValue(request, REDIRECT);
-        if (StringUtils.isEmpty(redirection)) {
-            // Resolve locale of possible
-            Locale locale = null;
-            try {
-                Enumeration<Locale> requestLocale = request.getLocales();
-                JahiaSite siteByKey = SAMLSiteHelper.getSiteByKey(siteKey);
-                locale = LanguageCodeConverters.languageCodeToLocale(siteByKey.getDefaultLanguage());
-                List<Locale> languagesAsLocales = siteByKey.getLanguagesAsLocales();
-                while (requestLocale.hasMoreElements()) {
-                    Locale next = requestLocale.nextElement();
-                    if (languagesAsLocales.contains(next)) {
-                        locale = next;
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                LOGGER.warn("Error while setting the locale in SAML Callback", e);
-            }
-            redirection = request.getContextPath() + (locale != null ? "/" + locale : "") + settingsService.getSettings(siteKey).getValues("Saml").getProperty(
-                    SAML2Constants.POST_LOGIN_PATH);
-            if (StringUtils.isEmpty(redirection)) {
-                // default value
-                redirection = "/";
-            }
-        }
-
-        return redirection + (redirection.contains("?") ? "&" : "?") + "site=" + siteKey;
-    }
 
 }

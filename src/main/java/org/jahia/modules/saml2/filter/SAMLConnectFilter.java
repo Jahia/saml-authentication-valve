@@ -15,12 +15,10 @@
  */
 package org.jahia.modules.saml2.filter;
 
-import org.apache.commons.lang.StringUtils;
 import org.jahia.bin.filters.AbstractServletFilter;
 import org.jahia.modules.jahiaauth.service.SettingsService;
-import org.jahia.modules.saml2.SAML2Constants;
 import org.jahia.modules.saml2.SAML2Util;
-import org.jahia.modules.saml2.helper.SAMLSiteHelper;
+import org.jahia.modules.saml2.helper.SAMLHelper;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
 import org.osgi.service.component.annotations.Activate;
@@ -36,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -49,7 +46,6 @@ import java.util.Optional;
 public class SAMLConnectFilter extends AbstractServletFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLConnectFilter.class);
-    private static final String REDIRECT = "redirect";
 
     @Reference
     private SettingsService settingsService;
@@ -78,25 +74,12 @@ public class SAMLConnectFilter extends AbstractServletFilter {
         String requestURI = httpRequest.getRequestURI();
         if (requestURI.endsWith("connect.saml")) {
             LOGGER.debug("SAMLConnectFilter.doFilter() matches request URI: {}", requestURI);
-            final String siteKey = SAMLSiteHelper.findSiteKeyForRequest(httpRequest);
+            final String siteKey = SAMLHelper.findSiteKeyForRequest(httpRequest);
             if (siteKey != null) {
                 boolean redirected = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
-                    // Storing redirect url into cookie to be used when the request is send from IDP to continue the access to the secure resource
-                    final String redirectParam = httpRequest.getParameter(REDIRECT);
-                    if (redirectParam != null) {
-                        final Cookie cookie = new Cookie(REDIRECT, redirectParam.replaceAll("\n\r", ""));
-                        String contextPath = httpRequest.getContextPath();
-                        if (StringUtils.isEmpty(contextPath)) {
-                            contextPath = "/";
-                        }
-                        cookie.setPath(contextPath);
-                        cookie.setSecure(httpRequest.isSecure());
-                        httpResponse.addCookie(cookie);
-                    }
-                    final String siteParam = httpRequest.getParameter(SAML2Constants.SITE);
-                    if (siteParam != null) {
-                        httpResponse.addCookie(new Cookie(siteKey, siteParam.replaceAll("\n\r", "")));
-                    }
+                    // Store authentication context (redirect URL, preferred language, site param) in cookies
+                    SAMLHelper.storeAuthenticationContext(httpRequest, httpResponse, siteKey);
+
                     final SAML2Client client = util.getSAML2Client(settingsService, httpRequest, siteKey);
                     JEEContext webContext = new JEEContext(httpRequest, httpResponse);
                     final Optional<RedirectionAction> action = client.getRedirectionAction(webContext);
@@ -137,4 +120,3 @@ public class SAMLConnectFilter extends AbstractServletFilter {
         LOGGER.debug("Destroying SAMLConnectFilter...");
     }
 }
-
