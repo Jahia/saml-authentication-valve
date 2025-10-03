@@ -34,10 +34,8 @@ import javax.jcr.RepositoryException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * @author Jerome Blanchard
@@ -130,7 +128,8 @@ public class SAMLHelper {
         // Store preferred language from Accept-Language header
         String acceptLanguage = request.getHeader(HttpHeaders.ACCEPT_LANGUAGE);
         if (acceptLanguage != null) {
-            final Cookie langCookie = new Cookie(PREFERRED_LANGUAGE, acceptLanguage.replaceAll("\n\r", ""));
+            final String cookieValue = Base64.getEncoder().encodeToString(acceptLanguage.replaceAll("\n\r", "").getBytes(StandardCharsets.UTF_8));
+            final Cookie langCookie = new Cookie(PREFERRED_LANGUAGE, cookieValue);
             langCookie.setPath(contextPath);
             langCookie.setSecure(request.isSecure());
             response.addCookie(langCookie);
@@ -182,8 +181,9 @@ public class SAMLHelper {
             List<Locale> languagesAsLocales = siteByKey.getLanguagesAsLocales();
 
             // Check if we have a preferred language cookie from the initial request
-            String preferredLanguage = util.getCookieValue(request, PREFERRED_LANGUAGE);
-            if (preferredLanguage != null) {
+            String encodedPreferredLanguage = util.getCookieValue(request, PREFERRED_LANGUAGE);
+            if (encodedPreferredLanguage != null) {
+                String preferredLanguage = new String(Base64.getDecoder().decode(encodedPreferredLanguage), StandardCharsets.UTF_8);
                 locale = parsePreferredLanguage(preferredLanguage, languagesAsLocales, locale);
             }
 
