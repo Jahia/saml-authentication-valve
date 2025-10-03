@@ -172,25 +172,34 @@ public class SAMLHelper {
     private static Locale resolveLocale(HttpServletRequest request, String siteKey, SAML2Util util) {
         Locale locale = null;
         try {
-            JahiaSite siteByKey = getSiteByKey(siteKey);
-            if (siteByKey == null) {
-                return null;
-            }
+            locale = JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Locale>() {
+                @Override public Locale doInJCR(JCRSessionWrapper session) {
+                    try {
+                        Locale locale = null;
+                        JahiaSite siteByKey = sitesService.getSiteByKey(siteKey, session);
+                        if (siteByKey == null) {
+                            return null;
+                        }
+                        locale = LanguageCodeConverters.languageCodeToLocale(siteByKey.getDefaultLanguage());
+                        List<Locale> languagesAsLocales = siteByKey.getLanguagesAsLocales();
 
-            locale = LanguageCodeConverters.languageCodeToLocale(siteByKey.getDefaultLanguage());
-            List<Locale> languagesAsLocales = siteByKey.getLanguagesAsLocales();
+                        // Check if we have a preferred language cookie from the initial request
+                        String encodedPreferredLanguage = util.getCookieValue(request, PREFERRED_LANGUAGE);
+                        if (encodedPreferredLanguage != null) {
+                            String preferredLanguage = new String(Base64.getDecoder().decode(encodedPreferredLanguage), StandardCharsets.UTF_8);
+                            locale = parsePreferredLanguage(preferredLanguage, languagesAsLocales, locale);
+                        }
 
-            // Check if we have a preferred language cookie from the initial request
-            String encodedPreferredLanguage = util.getCookieValue(request, PREFERRED_LANGUAGE);
-            if (encodedPreferredLanguage != null) {
-                String preferredLanguage = new String(Base64.getDecoder().decode(encodedPreferredLanguage), StandardCharsets.UTF_8);
-                locale = parsePreferredLanguage(preferredLanguage, languagesAsLocales, locale);
-            }
-
-            // Fallback to request locales if cookie didn't match
-            if (locale.equals(LanguageCodeConverters.languageCodeToLocale(siteByKey.getDefaultLanguage()))) {
-                locale = resolveFromRequestLocales(request, languagesAsLocales, locale);
-            }
+                        // Fallback to request locales if cookie didn't match
+                        if (locale.equals(LanguageCodeConverters.languageCodeToLocale(siteByKey.getDefaultLanguage()))) {
+                            locale = resolveFromRequestLocales(request, languagesAsLocales, locale);
+                        }
+                        return locale;
+                    } catch (RepositoryException e) {
+                        return null;
+                    }
+                }
+            });
         } catch (Exception e) {
             LOGGER.warn("Error while setting the locale in SAML authentication", e);
         }
