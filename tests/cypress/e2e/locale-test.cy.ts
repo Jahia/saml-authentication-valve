@@ -3,7 +3,7 @@ describe('Locale Test Demonstration', () => {
         cy.visit('/');
 
         // Check current browser locale
-        cy.getBrowserLocale().then((locale) => {
+        cy.getBrowserLocale().then(locale => {
             cy.log(`Default browser locale: ${locale}`);
         });
 
@@ -22,7 +22,7 @@ describe('Locale Test Demonstration', () => {
         cy.reload();
 
         // Verify the locale change
-        cy.getBrowserLocale().then((locale) => {
+        cy.getBrowserLocale().then(locale => {
             cy.log(`Browser locale after change: ${locale}`);
         });
 
@@ -30,7 +30,7 @@ describe('Locale Test Demonstration', () => {
         cy.testLocaleFormatting('fr-FR');
 
         // Verify date formatting shows French format
-        cy.window().then((win) => {
+        cy.window().then(win => {
             const testDate = new Date('2023-12-25');
             const formattedDate = testDate.toLocaleDateString();
             cy.log(`French date format: ${formattedDate}`);
@@ -50,7 +50,7 @@ describe('Locale Test Demonstration', () => {
         cy.reload();
 
         // Verify the locale change
-        cy.getBrowserLocale().then((locale) => {
+        cy.getBrowserLocale().then(locale => {
             cy.log(`Browser locale after change: ${locale}`);
         });
 
@@ -58,7 +58,7 @@ describe('Locale Test Demonstration', () => {
         cy.testLocaleFormatting('de-DE');
 
         // Verify date formatting shows German format
-        cy.window().then((win) => {
+        cy.window().then(win => {
             const testDate = new Date('2023-12-25');
             const formattedDate = testDate.toLocaleDateString();
             cy.log(`German date format: ${formattedDate}`);
