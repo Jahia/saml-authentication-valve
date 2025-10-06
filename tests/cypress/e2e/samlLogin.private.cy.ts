@@ -39,10 +39,10 @@ describe('Login via SAML on Private Site', () => {
 
     it('Anonymous user should not be able to access private site', () => {
         cy.clearAllCookies();
-        cy.visit(`/sites/${siteKey}/home.html`, {failOnStatusCode: false});
+        cy.visit('/', {failOnStatusCode: false});
 
         // Verify that the user gets a 404 error
-        cy.get('body').should('satisfy', ($body) => {
+        cy.get('body').should('satisfy', $body => {
             const bodyText = $body.text().toLowerCase();
             return bodyText.includes('page not found');
         });
