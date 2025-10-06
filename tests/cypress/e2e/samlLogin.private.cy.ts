@@ -9,6 +9,7 @@ describe('Login via SAML on Private Site', () => {
 
     before(() => {
         deleteSite(siteKey);
+        deleteUser('/users/fj/ac/bj/blachance8');
         createSite(siteKey, {
             languages: 'en,fr,de',
             locale: 'en',
@@ -50,13 +51,16 @@ describe('Login via SAML on Private Site', () => {
 
     it('User should be able to login using SAML authentication on private site', () => {
         cy.clearAllCookies();
+        cy.setLocale('en-EN');
+        cy.setLanguageHeaders('en-EN');
+        cy.reload();
 
         // Try to initiate the SAML Auth process - should be redirected to login
         cy.visit(`/connect.saml?siteKey=${siteKey}`, {failOnStatusCode: false});
 
         // Fill in credentials on IdP
         cy.get('#username').should('be.visible').type('blachance8');
-        cy.get('#password').should('be.visible').type('password');
+        cy.get('#password').should('be.visible').type('tagada');
         cy.get('input[type="submit"]').should('be.visible').click();
 
         cy.log('Verify user is logged in and can access private site');
@@ -83,6 +87,15 @@ describe('Login via SAML on Private Site', () => {
             variables: {nodePath}
         }).should(res => {
             expect(res?.data?.jcr?.mutateNode, `Revoked guest access for ${nodePath}`).to.be.not.undefined;
+        });
+    }
+
+    function deleteUser(userPath) {
+        cy.apollo({
+            mutationFile: 'samlLogin/deleteUser.graphql',
+            variables: {userPath}
+        }).should(res => {
+            expect(res?.data?.jcr?.deleteNode, `Deleted user at ${userPath}`).to.be.true;
         });
     }
 });

@@ -116,7 +116,6 @@ public final class SAML2Util {
                 redirection = "/";
             }
         }
-
         return redirection + (redirection.contains("?") ? "&" : "?") + "site=" + siteKey;
     }
 

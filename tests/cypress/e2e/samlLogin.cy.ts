@@ -39,7 +39,11 @@ describe('Login via SAML', () => {
 
     it('User should be able to login using SAML authentication', () => {
         cy.clearAllCookies();
-        setTestLanguage('en-EN');
+        cy.setLocale('en-EN');
+        cy.setLanguageHeaders('en-EN');
+        cy.reload();
+        // Delete user to avoid preferred language to be already set
+        deleteUser('/users/fj/ac/bj/blachance8');
         cy.visit('/');
         cy.title().should('equal', 'SAML Test Site');
         cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
@@ -55,7 +59,11 @@ describe('Login via SAML', () => {
 
     it('User should be able to login using SAML authentication in FR', () => {
         cy.clearAllCookies();
-        setTestLanguage('fr-FR');
+        cy.setLocale('fr-FR');
+        cy.setLanguageHeaders('fr-FR');
+        cy.reload();
+        // Delete user to avoid preferred language to be already set
+        deleteUser('/users/fj/ac/bj/blachance8');
         cy.visit('/');
         cy.title().should('equal', 'SAML Test Site FR');
         cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
@@ -67,12 +75,6 @@ describe('Login via SAML', () => {
         cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
         cy.title().should('equal', 'SAML Test Site FR');
     });
-
-    function setTestLanguage(lang) {
-        cy.intercept('*', req => {
-            req.headers['Accept-Language'] = lang;
-        });
-    }
 
     function installConfig(configFilePath) {
         return cy.runProvisioningScript(
@@ -87,6 +89,13 @@ describe('Login via SAML', () => {
             variables: {homePath: home, name}
         }).should(res => {
             expect(res?.data?.jcr.addNode.addChild.uuid, `Created SAML button ${name}`).to.be.not.undefined;
+        });
+    }
+
+    function deleteUser(userPath) {
+        cy.apollo({
+            mutationFile: 'samlLogin/deleteUser.graphql',
+            variables: {userPath}
         });
     }
 });

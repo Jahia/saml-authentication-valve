@@ -25,11 +25,14 @@ require('cypress-terminal-report/src/installLogsCollector')({
     collectTypes: ['cons:log', 'cons:info', 'cons:warn', 'cons:error', 'cy:log', 'cy:xhr', 'cy:request', 'cy:intercept', 'cy:command']
 });
 require('@jahia/cypress/dist/support/registerSupport').registerSupport();
+
 Cypress.on('uncaught:exception', (err, runnable) => {
     // Returning false here prevents Cypress from
     // failing the test
     return false;
 });
+
+// Enable Chrome DevTools Protocol for locale manipulation
 if (Cypress.browser.family === 'chromium') {
     Cypress.automation('remote:debugger:protocol', {
         command: 'Network.enable',
@@ -41,7 +44,7 @@ if (Cypress.browser.family === 'chromium') {
     });
 }
 
-// add embeddable video/screenshot with mocha report
+// Add embeddable video/screenshot with mocha report
 Cypress.on('test:after:run', (test, runnable) => {
     let videoName = Cypress.spec.name;
     videoName = videoName.replace('/.cy.*', '');
