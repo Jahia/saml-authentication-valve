@@ -18,7 +18,6 @@ package org.jahia.modules.saml2.filter;
 import org.jahia.bin.filters.AbstractServletFilter;
 import org.jahia.modules.jahiaauth.service.SettingsService;
 import org.jahia.modules.saml2.SAML2Util;
-import org.jahia.modules.saml2.helper.SAMLHelper;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
 import org.osgi.service.component.annotations.Activate;
@@ -74,11 +73,11 @@ public class SAMLConnectFilter extends AbstractServletFilter {
         String requestURI = httpRequest.getRequestURI();
         if (requestURI.endsWith("connect.saml")) {
             LOGGER.debug("SAMLConnectFilter.doFilter() matches request URI: {}", requestURI);
-            final String siteKey = SAMLHelper.findSiteKeyForRequest(httpRequest);
+            final String siteKey = util.findSiteKeyForRequest(httpRequest);
             if (siteKey != null) {
                 boolean redirected = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
-                    // Store authentication context (redirect URL, preferred language, site param) in cookies
-                    SAMLHelper.storeAuthenticationContext(httpRequest, httpResponse, siteKey);
+                    // Store authentication context (redirect URL, site param) in cookies
+                    util.storeAuthenticationContext(httpRequest, httpResponse, siteKey);
 
                     final SAML2Client client = util.getSAML2Client(settingsService, httpRequest, siteKey);
                     JEEContext webContext = new JEEContext(httpRequest, httpResponse);

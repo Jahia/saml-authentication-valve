@@ -37,9 +37,10 @@ describe('Login via SAML', () => {
         publishAndWaitJobEnding(home, ['en']);
     });
 
-    /* Wait/retry until site is published */
     it('User should be able to login using SAML authentication', () => {
-        cy.visit(`sites/${siteKey}/home.html`);
+        cy.clearAllCookies();
+        setTestLanguage('en');
+        cy.visit('/');
         cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
         cy.get('#username').should('be.visible').type('blachance8');
         cy.get('#password').should('be.visible').type('password');
@@ -51,9 +52,27 @@ describe('Login via SAML', () => {
         cy.title().should('equal', 'SAML Test Site');
     });
 
-    /**
-     * @param configFilePath config file path relative to fixtures folder
-     */
+    it('User should be able to login using SAML authentication in FR', () => {
+        cy.clearAllCookies();
+        setTestLanguage('fr');
+        cy.visit('/');
+        cy.title().should('equal', 'SAML Test Site FR');
+        cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
+        cy.get('#username').should('be.visible').type('blachance8');
+        cy.get('#password').should('be.visible').type('password');
+        cy.get('input[type="submit"]').should('be.visible').click();
+        cy.log('Verify user is logged in');
+        cy.get('body').should('contain', 'blachance8');
+        cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
+        cy.title().should('equal', 'SAML Test Site FR');
+    });
+
+    function setTestLanguage(lang) {
+        cy.intercept('*', req => {
+            req.headers['Accept-Language'] = lang;
+        });
+    }
+
     function installConfig(configFilePath) {
         return cy.runProvisioningScript(
             {fileContent: `- installConfiguration: "${configFilePath}"`, type: 'application/yaml'},

@@ -18,7 +18,6 @@ package org.jahia.modules.saml2.filter;
 import org.jahia.bin.filters.AbstractServletFilter;
 import org.jahia.modules.jahiaauth.service.SettingsService;
 import org.jahia.modules.saml2.SAML2Util;
-import org.jahia.modules.saml2.helper.SAMLHelper;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
 import org.osgi.service.component.annotations.Activate;
@@ -68,7 +67,7 @@ public class SAMLMetadataFilter extends AbstractServletFilter {
         String requestURI = httpRequest.getRequestURI();
         if (requestURI.endsWith("metadata.saml")) {
             LOGGER.debug("SAMLMetadataFilter.doFilter() matches URL {}", requestURI);
-            final String siteKey = SAMLHelper.findSiteKeyForRequest(httpRequest);
+            final String siteKey = util.findSiteKeyForRequest(httpRequest);
             if (siteKey != null) {
                 boolean generated = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
                     SAML2MetadataResolver metadataResolver = util.getSAML2Client(settingsService, httpRequest, siteKey).getServiceProviderMetadataResolver();

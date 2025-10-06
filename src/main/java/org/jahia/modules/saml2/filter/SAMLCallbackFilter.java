@@ -18,7 +18,6 @@ package org.jahia.modules.saml2.filter;
 import org.jahia.bin.filters.AbstractServletFilter;
 import org.jahia.modules.jahiaauth.service.*;
 import org.jahia.modules.saml2.SAML2Util;
-import org.jahia.modules.saml2.helper.SAMLHelper;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
 import org.osgi.service.component.annotations.Activate;
@@ -37,7 +36,10 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Jerome Blanchard
@@ -46,7 +48,6 @@ import java.util.*;
 public class SAMLCallbackFilter extends AbstractServletFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLCallbackFilter.class);
-    private static final String REDIRECT = "redirect";
 
     @Reference
     private SettingsService settingsService;
@@ -77,7 +78,7 @@ public class SAMLCallbackFilter extends AbstractServletFilter {
         String requestURI = httpRequest.getRequestURI();
         if (requestURI.endsWith("callback.saml")) {
             LOGGER.debug("SAMLCallbackFilter.doFilter() matches URL {}", requestURI);
-            String siteKey = SAMLHelper.findSiteKeyForRequest(httpRequest);
+            String siteKey = util.findSiteKeyForRequest(httpRequest);
             if (siteKey != null) {
                 try {
                     boolean redirect = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
@@ -108,7 +109,7 @@ public class SAMLCallbackFilter extends AbstractServletFilter {
                         return false;
                     });
                     if (redirect) {
-                        String redirection = SAMLHelper.getRedirectionUrl(httpRequest, siteKey, util, settingsService);
+                        String redirection = util.getRedirectionUrl(httpRequest, siteKey, util, settingsService);
                         LOGGER.debug("Redirecting to {}", redirection);
                         httpResponse.sendRedirect(redirection);
                         return;

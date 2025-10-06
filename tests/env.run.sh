@@ -116,14 +116,8 @@ echo "$(date +'%d %B %Y - %k:%M') == Run tests =="
 mkdir -p ./results/reports
 rm -rf ./results/reports/*
 
-yarn e2e:ci --config-file "cypress.config.ts"
-FIRST_TEST_EXIT_CODE=$?
-export ELECTRON_EXTRA_LAUNCH_ARGS=--lang=fr
-yarn e2e:ci --config-file "cypress.config.fr.ts"
-SECOND_TEST_EXIT_CODE=$?
-
-if [[ $FIRST_TEST_EXIT_CODE -eq 0 && $SECOND_TEST_EXIT_CODE -eq 0 ]]; then
-  echo "$(date +'%d %B %Y - %k:%M') == Full execution successful =="
+yarn e2e:ci
+if [[ $? -eq 0 ]]; then  echo "$(date +'%d %B %Y - %k:%M') == Full execution successful =="
   echo "success" > ./results/test_success
   yarn report:merge; yarn report:html
   exit 0
