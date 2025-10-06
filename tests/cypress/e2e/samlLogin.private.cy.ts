@@ -42,7 +42,7 @@ describe('Login via SAML on Private Site', () => {
         cy.visit('/', {failOnStatusCode: false});
 
         // Verify that the user gets a 404 error
-        cy.get('body').should('satisfy', $body => {
+        cy.get('body').should('satisfy', $body=> {
             const bodyText = $body.text().toLowerCase();
             return bodyText.includes('page not found');
         });
