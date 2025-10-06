@@ -73,7 +73,12 @@ describe('Login via SAML on Private Site', () => {
         cy.clearAllCookies();
 
         // Try to visit the French version of the private site
-        cy.visit(`/sites/${siteKey}/connect.saml?siteKey=${siteKey}&locale=fr`, {failOnStatusCode: false});
+        cy.visit(`/sites/${siteKey}/connect.saml?siteKey=${siteKey}`, {
+            failOnStatusCode: false,
+            headers: {
+                'Accept-Language': 'fr'
+            }
+        });
 
         // Fill in credentials on IdP
         cy.get('#username').should('be.visible').type('blachance8');
