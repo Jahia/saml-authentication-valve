@@ -54,7 +54,12 @@ describe('Login via SAML on Private Site', () => {
         cy.clearAllCookies();
 
         // Try to initiate the SAML Auth process - should be redirected to login
-        cy.visit(`/sites/${siteKey}/connect.saml?siteKey=${siteKey}`, {failOnStatusCode: false});
+        cy.visit(`/sites/${siteKey}/connect.saml?siteKey=${siteKey}`, {
+            failOnStatusCode: false,
+            headers: {
+                'Accept-Language': 'en'
+            }
+        });
 
         // Fill in credentials on IdP
         cy.get('#username').should('be.visible').type('blachance8');
