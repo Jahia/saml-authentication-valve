@@ -39,8 +39,9 @@ describe('Login via SAML', () => {
 
     it('User should be able to login using SAML authentication', () => {
         cy.clearAllCookies();
-        setTestLanguage('en');
+        setTestLanguage('en-EN');
         cy.visit('/');
+        cy.title().should('equal', 'SAML Test Site');
         cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
         cy.get('#username').should('be.visible').type('blachance8');
         cy.get('#password').should('be.visible').type('password');
@@ -54,7 +55,7 @@ describe('Login via SAML', () => {
 
     it('User should be able to login using SAML authentication in FR', () => {
         cy.clearAllCookies();
-        setTestLanguage('fr');
+        setTestLanguage('fr-FR');
         cy.visit('/');
         cy.title().should('equal', 'SAML Test Site FR');
         cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
