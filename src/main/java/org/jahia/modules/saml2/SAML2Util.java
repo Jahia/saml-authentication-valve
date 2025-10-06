@@ -31,8 +31,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
 
 @Component(immediate = true, service = SAML2Util.class)
 public final class SAML2Util {
