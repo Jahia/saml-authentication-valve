@@ -39,7 +39,7 @@ describe('Login via SAML', () => {
 
     /* Wait/retry until site is published */
     it('User should be able to login using SAML authentication', () => {
-        cy.visit('sites/samlTestSite/home.html');
+        cy.visit(`sites/${siteKey}/home.html`);
         cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
         cy.get('#username').should('be.visible').type('blachance8');
         cy.get('#password').should('be.visible').type('password');

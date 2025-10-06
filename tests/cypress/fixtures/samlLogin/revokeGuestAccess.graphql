@@ -1,0 +1,12 @@
+mutation revokeGuestAccess($nodePath: String!) {
+    jcr {
+        mutateNode(pathOrId: $nodePath) {
+            revokeRoles(
+                principalName: "guest"
+                principalType: USER
+                roleNames: ["reader"]
+            )
+        }
+    }
+}
+

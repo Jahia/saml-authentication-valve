@@ -117,9 +117,12 @@ mkdir -p ./results/reports
 rm -rf ./results/reports/*
 
 yarn e2e:ci --config-file "cypress.config.ts"
+FIRST_TEST_EXIT_CODE=$?
 export ELECTRON_EXTRA_LAUNCH_ARGS=--lang=fr
 yarn e2e:ci --config-file "cypress.config.fr.ts"
-if [[ $? -eq 0 ]]; then
+SECOND_TEST_EXIT_CODE=$?
+
+if [[ $FIRST_TEST_EXIT_CODE -eq 0 && $SECOND_TEST_EXIT_CODE -eq 0 ]]; then
   echo "$(date +'%d %B %Y - %k:%M') == Full execution successful =="
   echo "success" > ./results/test_success
   yarn report:merge; yarn report:html
