@@ -1,4 +1,35 @@
+import {createSite, deleteSite, enableModule, setNodeProperty} from '@jahia/cypress';
+import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
+
 describe('Locale Test Demonstration', () => {
+    const siteKey = 'samlTestSite';
+    const home = `/sites/${siteKey}/home`;
+
+    before(() => {
+        deleteSite(siteKey);
+        createSite(siteKey, {
+            languages: 'en,fr,de',
+            locale: 'en',
+            serverName: 'localhost',
+            templateSet: 'samples-bootstrap-templates'
+        });
+        [
+            'saml-authentication-valve',
+            'jahia-authentication',
+            'jcr-auth-provider'
+        ].forEach(moduleName => {
+            enableModule(moduleName, siteKey);
+        });
+        setNodeProperty(home, 'jcr:title', 'SAML Test Site', 'en');
+        setNodeProperty(home, 'jcr:title', 'SAML Test Site FR', 'fr');
+        setNodeProperty(home, 'jcr:title', 'SAML Test Site DE', 'de');
+        publishAndWaitJobEnding(home, ['en', 'fr', 'de']);
+    });
+
+    after(() => {
+        deleteSite(siteKey);
+    });
+
     it('should verify default browser locale', () => {
         cy.visit('/');
 
@@ -30,12 +61,12 @@ describe('Locale Test Demonstration', () => {
         cy.testLocaleFormatting('fr-FR');
 
         // Verify date formatting shows French format
-        cy.window().then(win => {
+        cy.window().then(() => {
             const testDate = new Date('2023-12-25');
             const formattedDate = testDate.toLocaleDateString();
             cy.log(`French date format: ${formattedDate}`);
             // French format should be 25/12/2023
-            expect(formattedDate).to.match(/25[\/\.]12[\/\.]2023/);
+            expect(formattedDate).to.match(/25[/.]12[/.]2023/);
         });
     });
 
@@ -58,12 +89,12 @@ describe('Locale Test Demonstration', () => {
         cy.testLocaleFormatting('de-DE');
 
         // Verify date formatting shows German format
-        cy.window().then(win => {
+        cy.window().then(() => {
             const testDate = new Date('2023-12-25');
             const formattedDate = testDate.toLocaleDateString();
             cy.log(`German date format: ${formattedDate}`);
             // German format should be 25.12.2023
-            expect(formattedDate).to.match(/25[\/\.]12[\/\.]2023/);
+            expect(formattedDate).to.match(/25[/.]12[/.]2023/);
         });
     });
 

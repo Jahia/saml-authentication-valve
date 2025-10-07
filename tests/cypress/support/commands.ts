@@ -1,11 +1,11 @@
+import 'cypress-wait-until';
+
 declare global {
-    namespace Cypress {
-        interface Chainable {
-            setLocale(locale: string): Chainable<void>;
-            setLanguageHeaders(locale: string): Chainable<void>;
-            getBrowserLocale(): Chainable<string>;
-            testLocaleFormatting(locale: string): Chainable<void>;
-        }
+    interface Chainable {
+        setLocale(locale: string): Chainable<void>;
+        setLanguageHeaders(locale: string): Chainable<void>;
+        getBrowserLocale(): Chainable<string>;
+        testLocaleFormatting(locale: string): Chainable<void>;
     }
 }
 
