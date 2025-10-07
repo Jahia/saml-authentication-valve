@@ -7,7 +7,6 @@ describe('SAML Open Redirect Protection', () => {
 
     before(() => {
         deleteSite(siteKey);
-        deleteUser('/users/fj/ac/bj/blachance8');
         createSite(siteKey, {
             languages: 'en',
             locale: 'en',
@@ -29,12 +28,11 @@ describe('SAML Open Redirect Protection', () => {
 
     after(() => {
         deleteSite(siteKey);
-        deleteUser('/users/fj/ac/bj/blachance8');
     });
 
     it('Should block external URL redirects with HTTP protocol', () => {
         cy.clearAllCookies();
-        
+
         // Attempt to use an external HTTP URL as redirect parameter
         const maliciousRedirect = 'http://evil.com/steal-data';
         cy.visit(`/connect.saml?siteKey=${siteKey}&redirect=${encodeURIComponent(maliciousRedirect)}`, {failOnStatusCode: false});
@@ -52,7 +50,7 @@ describe('SAML Open Redirect Protection', () => {
 
     it('Should block external URL redirects with HTTPS protocol', () => {
         cy.clearAllCookies();
-        
+
         // Attempt to use an external HTTPS URL as redirect parameter
         const maliciousRedirect = 'https://malicious-site.com/phishing';
         cy.visit(`/connect.saml?siteKey=${siteKey}&redirect=${encodeURIComponent(maliciousRedirect)}`, {failOnStatusCode: false});
@@ -70,7 +68,7 @@ describe('SAML Open Redirect Protection', () => {
 
     it('Should block protocol-relative URLs (//)', () => {
         cy.clearAllCookies();
-        
+
         // Attempt to use a protocol-relative URL as redirect parameter
         const maliciousRedirect = '//attacker.com/evil-page';
         cy.visit(`/connect.saml?siteKey=${siteKey}&redirect=${encodeURIComponent(maliciousRedirect)}`, {failOnStatusCode: false});
@@ -88,7 +86,7 @@ describe('SAML Open Redirect Protection', () => {
 
     it('Should block URLs with path traversal attempts', () => {
         cy.clearAllCookies();
-        
+
         // Attempt to use a URL with path traversal as redirect parameter
         const maliciousRedirect = '/sites/other-site/../../../admin/sensitive-data';
         cy.visit(`/connect.saml?siteKey=${siteKey}&redirect=${encodeURIComponent(maliciousRedirect)}`, {failOnStatusCode: false});
@@ -106,7 +104,7 @@ describe('SAML Open Redirect Protection', () => {
 
     it('Should block URLs with potential XSS payloads', () => {
         cy.clearAllCookies();
-        
+
         // Attempt to use a URL with XSS payload as redirect parameter
         const maliciousRedirect = '/sites/test?param=<script>alert("xss")</script>';
         cy.visit(`/connect.saml?siteKey=${siteKey}&redirect=${encodeURIComponent(maliciousRedirect)}`, {failOnStatusCode: false});
@@ -124,7 +122,7 @@ describe('SAML Open Redirect Protection', () => {
 
     it('Should allow safe local URL redirects', () => {
         cy.clearAllCookies();
-        
+
         // Use a safe local URL as redirect parameter
         const safeRedirect = `/sites/${siteKey}/home`;
         cy.visit(`/connect.saml?siteKey=${siteKey}&redirect=${encodeURIComponent(safeRedirect)}`, {failOnStatusCode: false});
@@ -142,7 +140,7 @@ describe('SAML Open Redirect Protection', () => {
 
     it('Should block FTP protocol URLs', () => {
         cy.clearAllCookies();
-        
+
         // Attempt to use an FTP URL as redirect parameter
         const maliciousRedirect = 'ftp://malicious-ftp.com/file.txt';
         cy.visit(`/connect.saml?siteKey=${siteKey}&redirect=${encodeURIComponent(maliciousRedirect)}`, {failOnStatusCode: false});
@@ -160,7 +158,7 @@ describe('SAML Open Redirect Protection', () => {
 
     it('Should block JavaScript protocol URLs', () => {
         cy.clearAllCookies();
-        
+
         // Attempt to use a JavaScript URL as redirect parameter
         const maliciousRedirect = 'javascript:alert("XSS")';
         cy.visit(`/connect.saml?siteKey=${siteKey}&redirect=${encodeURIComponent(maliciousRedirect)}`, {failOnStatusCode: false});
