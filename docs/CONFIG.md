@@ -143,7 +143,7 @@ You can also customize the SAML2 Login component to add a `redirect` query param
 ```
 
 :::info
-Redirect URL cannot link to sites or pages outside of the current Jahia site for security reasons. Only local URLs are accepted without any hostname or domain name. URL content is also filtered to avoid any XSS attack.
+Redirect URL cannot link to sites or pages outside the current Jahia site for security reasons. Only local URLs are accepted without any hostname or domain name. URL content is also filtered to avoid any XSS attack.
 :::
 
 ### Considerations about `siteKey` query param
