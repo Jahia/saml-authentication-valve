@@ -94,7 +94,7 @@ public final class SAML2Util {
             response.addCookie(redirectCookie);
         }
 
-        // Store site parameter if provided
+        // Store site parameter if provided (the site parameter is used to manage site users).
         final String siteParam = request.getParameter(SAML2Constants.SITE);
         if (siteParam != null) {
             final Cookie siteCookie = new Cookie(siteKey, siteParam.replaceAll("\n\r", ""));
@@ -116,6 +116,7 @@ public final class SAML2Util {
                 redirection = "/";
             }
         }
+        // The site parameter is added to the redirection URL to manage site users.
         return redirection + (redirection.contains("?") ? "&" : "?") + "site=" + siteKey;
     }
 
