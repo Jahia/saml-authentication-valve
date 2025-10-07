@@ -52,7 +52,7 @@ public final class SAML2Util {
     public String findSiteKeyForRequest(HttpServletRequest request) {
         String siteKey = request.getParameter(SAML2Constants.SITEKEY);
         if (siteKey == null) {
-            LOGGER.info("No site key provided, trying to guess using server name");
+            LOGGER.debug("No site key provided, trying to guess using server name");
             try {
                 siteKey = JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<String>() {
                     @Override public String doInJCR(JCRSessionWrapper session) {

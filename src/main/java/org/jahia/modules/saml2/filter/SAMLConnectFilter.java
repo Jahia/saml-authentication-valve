@@ -97,7 +97,6 @@ public class SAMLConnectFilter extends AbstractServletFilter {
                         } catch (IOException e) {
                             LOGGER.error("Cannot send response", e);
                         }
-                        LOGGER.info(redirectionAction.getMessage());
                     } else {
                         LOGGER.warn("No SAML redirection");
                     }

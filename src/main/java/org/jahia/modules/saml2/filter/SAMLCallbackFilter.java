@@ -110,7 +110,7 @@ public class SAMLCallbackFilter extends AbstractServletFilter {
                     });
                     if (redirect) {
                         String redirection = util.getRedirectionUrl(httpRequest, siteKey, util, settingsService);
-                        LOGGER.info("Redirecting to {}, Headers[Accept-Language]: {}", redirection, httpRequest.getHeader("Accept-Language"));
+                        LOGGER.debug("Redirecting to {}", redirection);
                         httpResponse.sendRedirect(redirection);
                         return;
                     }
