@@ -122,6 +122,30 @@ Users are redirected from Jahia to the SAML IdP when they call the `*.connect.sa
 
 Jahia also provides a simple form component, SAML2 Login, with the module. The component displays a simple login button which calls the action. When a user clicks the login button, they are redirected to the IdP with the SAML login request from Jahia. Once logged in, the IdP redirects to Jahia with a signed assertion containing the user information.
 
+### Using `redirect` query param
+
+If you want the user to come back to a specific page after login, you can add a `redirect` query param to the URL. For example, to redirect the user to the `/about-us.html` page after login, use the following URL: 
+
+```
+/sites/mySite/home.connect.saml?siteKey=mySite&redirect=/sites/mySite/about-us.html
+```
+
+You can also customize the SAML2 Login component to add a `redirect` query param to the URL.
+
+```jsp
+<c:if test="${not renderContext.loggedIn}">
+    <form action="${renderContext.mainResource.node.name}.connect.saml" method="GET">
+        <input type="hidden" name="siteKey" value="${renderContext.site.siteKey}"/>
+        <input type="hidden" name="redirect" value="${renderContext.mainResource.nodePath}.${renderContext.mainResource.templateType}"/>
+        <input type="submit" value="${currentNode.displayableName}">
+    </form>
+</c:if>
+```
+
+:::info
+Redirect URL cannot link to sites or pages outside of the current Jahia site for security reasons. Only local URLs are accepted without any hostname or domain name. URL content is also filtered to avoid any XSS attack.
+:::
+
 ### Considerations about `siteKey` query param
 
 As the SAML configuration is per site, **you must include** a `siteKey` query param in the connection URL, for example, `?siteKey=mySite` and also in the SAML configuration **Incoming Target Url**. 
