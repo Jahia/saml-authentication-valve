@@ -2,7 +2,7 @@ import {enableModule, createSite, deleteSite, setNodeProperty} from '@jahia/cypr
 import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
 
 describe('SAML Open Redirect Protection', () => {
-    const siteKey = 'samlOpenRedirectTestSite';
+    const siteKey = 'samlTestSite';
     const home = `/sites/${siteKey}/home`;
 
     before(() => {
@@ -160,6 +160,7 @@ describe('SAML Open Redirect Protection', () => {
         cy.clearAllCookies();
 
         // Attempt to use a JavaScript URL as redirect parameter
+        // eslint-disable-next-line no-script-url
         const maliciousRedirect = 'javascript:alert("XSS")';
         cy.visit(`/connect.saml?siteKey=${siteKey}&redirect=${encodeURIComponent(maliciousRedirect)}`, {failOnStatusCode: false});
 
@@ -170,6 +171,7 @@ describe('SAML Open Redirect Protection', () => {
 
         // Verify user is redirected to the safe default location
         cy.url().should('contain', `/sites/${siteKey}`);
+        // eslint-disable-next-line no-script-url
         cy.url().should('not.contain', 'javascript:');
         cy.get('body').should('contain', 'blachance8');
     });
@@ -182,14 +184,5 @@ describe('SAML Open Redirect Protection', () => {
             {fileContent: `- installConfiguration: "${configFilePath}"`, type: 'application/yaml'},
             [{fileName: `${configFilePath}`, type: 'text/plain'}]
         );
-    }
-
-    function deleteUser(userPath) {
-        cy.apollo({
-            mutationFile: 'samlLogin/deleteUser.graphql',
-            variables: {userPath}
-        }).should(res => {
-            expect(res?.data?.jcr?.deleteNode, `Deleted user at ${userPath}`).to.be.true;
-        });
     }
 });
