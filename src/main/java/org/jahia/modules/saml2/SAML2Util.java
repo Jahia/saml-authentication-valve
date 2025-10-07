@@ -88,10 +88,14 @@ public final class SAML2Util {
         // Store redirect URL if provided
         final String redirectParam = request.getParameter(SAML2Constants.REDIRECT);
         if (redirectParam != null) {
-            final Cookie redirectCookie = new Cookie(SAML2Constants.REDIRECT, redirectParam.replaceAll("\n\r", ""));
-            redirectCookie.setPath(contextPath);
-            redirectCookie.setSecure(request.isSecure());
-            response.addCookie(redirectCookie);
+            if (isSafeRedirectUrl(redirectParam)) {
+                final Cookie redirectCookie = new Cookie(SAML2Constants.REDIRECT, redirectParam.replaceAll("\n\r", ""));
+                redirectCookie.setPath(contextPath);
+                redirectCookie.setSecure(request.isSecure());
+                response.addCookie(redirectCookie);
+            } else {
+                LOGGER.warn("Unsafe redirect URL detected: {}", redirectParam);
+            }
         }
 
         // Store site parameter if provided (the site parameter is used to manage site users).
@@ -246,6 +250,15 @@ public final class SAML2Util {
         }
 
         initSAMLClient(getSAML2ClientConfiguration(settings), "/");
+    }
+
+    public static boolean isSafeRedirectUrl(String url) {
+        if (url == null || url.isEmpty()) return true;
+        if (url.matches("^[a-zA-Z][a-zA-Z0-9+.-]*:.*")) return false; // only local URLs
+        if (url.startsWith("//")) return false; // only local URLs
+        if (url.contains("..")) return false; // avoid path traversal
+        if (url.contains("<") || url.contains(">") || url.contains("\n") || url.contains("\r")) return false; // XSS/injection
+        return true;
     }
 
     private byte[] generateKeyStore(ConnectorConfig settings) throws IOException {
