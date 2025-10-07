@@ -40,7 +40,7 @@ describe('Login via SAML on Private Site', () => {
 
     it('Anonymous user should not be able to access private site', () => {
         cy.clearAllCookies();
-        cy.visit('/', {failOnStatusCode: false});
+        cy.visit(`${home}`, {failOnStatusCode: false});
 
         // Verify that the user gets a 404 error
         cy.get('body').should('satisfy', $body => {
@@ -60,7 +60,7 @@ describe('Login via SAML on Private Site', () => {
 
         // Fill in credentials on IdP
         cy.get('#username').should('be.visible').type('blachance8');
-        cy.get('#password').should('be.visible').type('tagada');
+        cy.get('#password').should('be.visible').type('password');
         cy.get('input[type="submit"]').should('be.visible').click();
 
         cy.log('Verify user is logged in and can access private site');
