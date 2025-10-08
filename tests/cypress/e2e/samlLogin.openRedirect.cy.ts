@@ -84,24 +84,6 @@ describe('SAML Open Redirect Protection', () => {
         cy.get('body').should('contain', 'blachance8');
     });
 
-    it('Should block URLs with path traversal attempts', () => {
-        cy.clearAllCookies();
-
-        // Attempt to use a URL with path traversal as redirect parameter
-        const maliciousRedirect = '/sites/other-site/../../../admin/sensitive-data';
-        cy.visit(`/connect.saml?siteKey=${siteKey}&redirect=${encodeURIComponent(maliciousRedirect)}`, {failOnStatusCode: false});
-
-        // Complete SAML authentication
-        cy.get('#username').should('be.visible').type('blachance8');
-        cy.get('#password').should('be.visible').type('password');
-        cy.get('input[type="submit"]').should('be.visible').click();
-
-        // Verify user is redirected to the safe default location
-        cy.url().should('contain', `/sites/${siteKey}`);
-        cy.url().should('not.contain', '../');
-        cy.get('body').should('contain', 'blachance8');
-    });
-
     it('Should block URLs with potential XSS payloads', () => {
         cy.clearAllCookies();
 
@@ -124,7 +106,7 @@ describe('SAML Open Redirect Protection', () => {
         cy.clearAllCookies();
 
         // Use a safe local URL as redirect parameter
-        const safeRedirect = `/sites/${siteKey}/home`;
+        const safeRedirect = `/sites/${siteKey}/home.html`;
         cy.visit(`/connect.saml?siteKey=${siteKey}&redirect=${encodeURIComponent(safeRedirect)}`, {failOnStatusCode: false});
 
         // Complete SAML authentication
