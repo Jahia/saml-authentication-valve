@@ -9,7 +9,7 @@ import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.JCRTemplate;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.sites.JahiaSitesService;
-import org.jahia.settings.SettingsBean;
+import org.jahia.api.settings.SettingsBean;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
 import org.osgi.service.component.annotations.Component;
@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -40,6 +42,10 @@ public final class SAML2Util {
 
     @Reference
     private JahiaSitesService sitesService;
+    @Reference
+    private SettingsService settingsService;
+    @Reference
+    private SettingsBean settingsBean;
 
     /**
      * We do not use URLResolver strategies to determine the site key (aka parsing the path to extract /sites/siteKey/**) to avoid
@@ -85,13 +91,18 @@ public final class SAML2Util {
             contextPath = "/";
         }
 
-        // Store redirect URL if provided
+        // Store redirect URL if provided and authorized.
         final String redirectParam = request.getParameter(SAML2Constants.REDIRECT);
         if (redirectParam != null) {
-            final Cookie redirectCookie = new Cookie(SAML2Constants.REDIRECT, redirectParam.replaceAll("\n\r", ""));
-            redirectCookie.setPath(contextPath);
-            redirectCookie.setSecure(request.isSecure());
-            response.addCookie(redirectCookie);
+            if (isAuthorizedRedirect(request, redirectParam, false)) {
+                final Cookie redirectCookie = new Cookie(SAML2Constants.REDIRECT, redirectParam);
+                redirectCookie.setPath(contextPath);
+                redirectCookie.setSecure(request.isSecure());
+                response.addCookie(redirectCookie);
+            } else {
+                LOGGER.info("Unauthorized redirect param URL detected, activate debug for more information");
+                LOGGER.debug("Unauthorized redirect param URL: {}", redirectParam);
+            }
         }
 
         // Store site parameter if provided (the site parameter is used to manage site users).
@@ -107,10 +118,10 @@ public final class SAML2Util {
     /**
      * Retrieve redirection URL
      */
-    public String getRedirectionUrl(HttpServletRequest request, String siteKey, SAML2Util util, SettingsService settingsService) {
-        String redirection = util.getCookieValue(request, SAML2Constants.REDIRECT);
+    public String getRedirectionUrl(HttpServletRequest request, String siteKey) {
+        String redirection = this.getCookieValue(request, SAML2Constants.REDIRECT);
         if (StringUtils.isEmpty(redirection)) {
-            redirection = request.getContextPath() + settingsService.getSettings(siteKey).getValues("Saml").getProperty(SAML2Constants.POST_LOGIN_PATH);
+            redirection = request.getContextPath() + this.settingsService.getSettings(siteKey).getValues("Saml").getProperty(SAML2Constants.POST_LOGIN_PATH);
             if (StringUtils.isEmpty(redirection)) {
                 // default value
                 redirection = "/";
@@ -137,16 +148,15 @@ public final class SAML2Util {
     /**
      * Get saml client.
      *
-     * @param settingsService
      * @param request
      * @return
      */
-    public SAML2Client getSAML2Client(final SettingsService settingsService, final HttpServletRequest request, String siteKey) {
+    public SAML2Client getSAML2Client(final HttpServletRequest request, String siteKey) {
         final SAML2Client client;
         if (clients.containsKey(siteKey)) {
             client = clients.get(siteKey);
         } else {
-            final ConnectorConfig saml2Settings = settingsService.getConnectorConfig(siteKey, "Saml");
+            final ConnectorConfig saml2Settings = this.settingsService.getConnectorConfig(siteKey, "Saml");
             client = initSAMLClient(saml2Settings, request);
             clients.put(siteKey, client);
         }
@@ -248,6 +258,37 @@ public final class SAML2Util {
         initSAMLClient(getSAML2ClientConfiguration(settings), "/");
     }
 
+    // This code is a copy of the Jahia Core logic
+    // https://github.com/Jahia/jahia-private/blob/abb277b5d28185e65497c6f7ef880da42e5a012f/core/src/main/java/org/jahia/bin/Login.java#L192-L219
+    // When refactored in core, we should remove this duplication (https://github.com/Jahia/jahia-private/issues/4332)
+    public boolean isAuthorizedRedirect(HttpServletRequest request, String redirectUrl, boolean authorizeNullRedirect) {
+        if (redirectUrl == null) {
+            return authorizeNullRedirect;
+        }
+
+        try {
+            URI currentUri = new URI(request.getRequestURL().toString());
+            URI redirectUri = new URI(redirectUrl);
+
+            boolean isProtocolRelativeUrl = redirectUrl.startsWith("//");
+            if (redirectUri.isAbsolute() || isProtocolRelativeUrl) {
+                for (String authorizedRedirectHost : this.settingsBean.getAuthorizedRedirectHosts()) {
+                    if (redirectUri.getHost().equalsIgnoreCase(authorizedRedirectHost)) {
+                        return true;
+                    }
+                }
+
+                // Check if the host (domain) of the redirect URL is the same as the current URL
+                return currentUri.getHost().equalsIgnoreCase(redirectUri.getHost()) && currentUri.getPort() == redirectUri.getPort();
+            } else {
+                // Relative URL, consider it as same domain
+                return true;
+            }
+        } catch (URISyntaxException e) {
+            return false;
+        }
+    }
+
     private byte[] generateKeyStore(ConnectorConfig settings) throws IOException {
         File samlFileName = new File(getSamlFileName(settings.getSiteKey(), "keystore.jks"));
         samlFileName.getParentFile().mkdirs();
@@ -261,6 +302,6 @@ public final class SAML2Util {
     }
 
     private String getSamlFileName(String siteKey, String filename) {
-        return SettingsBean.getInstance().getJahiaVarDiskPath() + "/saml/" + siteKey + "." + filename;
+        return this.settingsBean.getJahiaVarDiskPath() + "/saml/" + siteKey + "." + filename;
     }
 }

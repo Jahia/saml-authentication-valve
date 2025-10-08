@@ -37,7 +37,4 @@ public class SamlConnector implements ConnectorService {
         util.resetClient(settings.getSiteKey());
     }
 
-    public void setUtil(SAML2Util util) {
-        this.util = util;
-    }
 }

@@ -16,7 +16,6 @@
 package org.jahia.modules.saml2.filter;
 
 import org.jahia.bin.filters.AbstractServletFilter;
-import org.jahia.modules.jahiaauth.service.SettingsService;
 import org.jahia.modules.saml2.SAML2Util;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
@@ -46,8 +45,6 @@ public class SAMLConnectFilter extends AbstractServletFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLConnectFilter.class);
 
-    @Reference
-    private SettingsService settingsService;
     @Reference
     private SAML2Util util;
 
@@ -79,7 +76,7 @@ public class SAMLConnectFilter extends AbstractServletFilter {
                     // Store authentication context (redirect URL, site param) in cookies
                     util.storeAuthenticationContext(httpRequest, httpResponse, siteKey);
 
-                    final SAML2Client client = util.getSAML2Client(settingsService, httpRequest, siteKey);
+                    final SAML2Client client = util.getSAML2Client(httpRequest, siteKey);
                     JEEContext webContext = new JEEContext(httpRequest, httpResponse);
                     final Optional<RedirectionAction> action = client.getRedirectionAction(webContext);
                     if (action.isPresent()) {
