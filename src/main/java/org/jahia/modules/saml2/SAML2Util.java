@@ -94,7 +94,7 @@ public final class SAML2Util {
                 redirectCookie.setSecure(request.isSecure());
                 response.addCookie(redirectCookie);
             } else {
-                LOGGER.warn("Unsafe redirect param URL detected, activate debug for more information");
+                LOGGER.info("Unsafe redirect param URL detected, activate debug for more information");
                 LOGGER.debug("Unsafe URL: {}", redirectParam);
             }
         }
