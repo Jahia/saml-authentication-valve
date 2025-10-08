@@ -9,7 +9,7 @@ import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.JCRTemplate;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.sites.JahiaSitesService;
-import org.jahia.settings.SettingsBean;
+import org.jahia.api.settings.SettingsBean;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
 import org.osgi.service.component.annotations.Component;
@@ -40,10 +40,24 @@ public final class SAML2Util {
     private static final Logger LOGGER = LoggerFactory.getLogger(SAML2Util.class);
     private final HashMap<String, SAML2Client> clients = new HashMap<>();
 
-    @Reference
     private JahiaSitesService sitesService;
-    @Reference
     private SettingsService settingsService;
+    private SettingsBean settingsBean;
+
+    @Reference
+    public void setSitesService(JahiaSitesService sitesService) {
+        this.sitesService = sitesService;
+    }
+
+    @Reference
+    public void setSettingsService(SettingsService settingsService) {
+        this.settingsService = settingsService;
+    }
+
+    @Reference
+    public void setSettingsBean(SettingsBean settingsBean) {
+        this.settingsBean = settingsBean;
+    }
 
     /**
      * We do not use URLResolver strategies to determine the site key (aka parsing the path to extract /sites/siteKey/**) to avoid
@@ -270,7 +284,7 @@ public final class SAML2Util {
 
             boolean isProtocolRelativeUrl = redirectUrl.startsWith("//");
             if (redirectUri.isAbsolute() || isProtocolRelativeUrl) {
-                for (String authorizedRedirectHost : SettingsBean.getInstance().getAuthorizedRedirectHosts()) {
+                for (String authorizedRedirectHost : this.settingsBean.getAuthorizedRedirectHosts()) {
                     if (redirectUri.getHost().equalsIgnoreCase(authorizedRedirectHost)) {
                         return true;
                     }
@@ -300,6 +314,6 @@ public final class SAML2Util {
     }
 
     private String getSamlFileName(String siteKey, String filename) {
-        return SettingsBean.getInstance().getJahiaVarDiskPath() + "/saml/" + siteKey + "." + filename;
+        return this.settingsBean.getJahiaVarDiskPath() + "/saml/" + siteKey + "." + filename;
     }
 }
