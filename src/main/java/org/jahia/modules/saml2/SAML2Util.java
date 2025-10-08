@@ -40,24 +40,12 @@ public final class SAML2Util {
     private static final Logger LOGGER = LoggerFactory.getLogger(SAML2Util.class);
     private final HashMap<String, SAML2Client> clients = new HashMap<>();
 
+    @Reference
     private JahiaSitesService sitesService;
+    @Reference
     private SettingsService settingsService;
+    @Reference
     private SettingsBean settingsBean;
-
-    @Reference
-    public void setSitesService(JahiaSitesService sitesService) {
-        this.sitesService = sitesService;
-    }
-
-    @Reference
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    @Reference
-    public void setSettingsBean(SettingsBean settingsBean) {
-        this.settingsBean = settingsBean;
-    }
 
     /**
      * We do not use URLResolver strategies to determine the site key (aka parsing the path to extract /sites/siteKey/**) to avoid
@@ -133,7 +121,7 @@ public final class SAML2Util {
     public String getRedirectionUrl(HttpServletRequest request, String siteKey) {
         String redirection = this.getCookieValue(request, SAML2Constants.REDIRECT);
         if (StringUtils.isEmpty(redirection)) {
-            redirection = request.getContextPath() + settingsService.getSettings(siteKey).getValues("Saml").getProperty(SAML2Constants.POST_LOGIN_PATH);
+            redirection = request.getContextPath() + this.settingsService.getSettings(siteKey).getValues("Saml").getProperty(SAML2Constants.POST_LOGIN_PATH);
             if (StringUtils.isEmpty(redirection)) {
                 // default value
                 redirection = "/";
@@ -168,7 +156,7 @@ public final class SAML2Util {
         if (clients.containsKey(siteKey)) {
             client = clients.get(siteKey);
         } else {
-            final ConnectorConfig saml2Settings = settingsService.getConnectorConfig(siteKey, "Saml");
+            final ConnectorConfig saml2Settings = this.settingsService.getConnectorConfig(siteKey, "Saml");
             client = initSAMLClient(saml2Settings, request);
             clients.put(siteKey, client);
         }
