@@ -9,7 +9,7 @@
 
     <artifactId>saml-authentication-valve</artifactId>
     <name>SAML Authentication Valve</name>
-    <version>2.7.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <description>This is the custom module (SAML Authentication Valve) for running on a Digital Experience Manager
         server.
@@ -23,9 +23,8 @@
         <bouncycastle.version>1.78</bouncycastle.version>
         <joda-time.version>2.12.7</joda-time.version>
         <java-support.version>7.5.2</java-support.version>
-        <jahia-module-signature>MCwCFCORJpX/7p8rfob/opwz3bSWcwtiAhRIbiwmnH7UgV2SW8o73YT/XPQ/Rg==</jahia-module-signature>
-        <jahia.plugin.version>6.8</jahia.plugin.version>
-        <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
+        <jahia-module-signature>MCwCFEo6XFBFFd7g4RE7dZgIIyEW1bNGAhRXNxZetL+8TX28mcXVEtyM1njxHw==</jahia-module-signature>
+        <jahia.plugin.version>6.9</jahia.plugin.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <sonar.sources>src/main/resources/javascript</sonar.sources>
@@ -40,13 +39,6 @@
     </scm>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>3.2.13.RELEASE</version>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
@@ -343,7 +335,6 @@
                         <Jahia-Depends>jahia-authentication</Jahia-Depends>
                         <Import-Package>
                             ${jahia.plugin.projectPackageImport},
-                            org.springframework.core.io;version="[3.2,4)",
                             com.google.common.base;version="[30.1,34)",
                             com.google.common.cache;version="[30.1,34)",
                             com.google.common.collect;version="[30.1,34)",

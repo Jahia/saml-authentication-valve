@@ -1,0 +1,6 @@
+mutation deleteUser($userPath: String!) {
+    jcr {
+        deleteNode(pathOrId: $userPath)
+    }
+}
+

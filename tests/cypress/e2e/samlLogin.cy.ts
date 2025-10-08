@@ -37,9 +37,15 @@ describe('Login via SAML', () => {
         publishAndWaitJobEnding(home, ['en']);
     });
 
-    /* Wait/retry until site is published */
     it('User should be able to login using SAML authentication', () => {
-        cy.visit('sites/samlTestSite/home.html');
+        cy.clearAllCookies();
+        cy.setLocale('en-EN');
+        cy.setLanguageHeaders('en-EN');
+        cy.reload();
+        // Delete user to avoid preferred language to be already set
+        deleteUser('/users/fj/ac/bj/blachance8');
+        cy.visit('/');
+        cy.title().should('equal', 'SAML Test Site');
         cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
         cy.get('#username').should('be.visible').type('blachance8');
         cy.get('#password').should('be.visible').type('password');
@@ -51,9 +57,25 @@ describe('Login via SAML', () => {
         cy.title().should('equal', 'SAML Test Site');
     });
 
-    /**
-     * @param configFilePath config file path relative to fixtures folder
-     */
+    it('User should be able to login using SAML authentication in FR', () => {
+        cy.clearAllCookies();
+        cy.setLocale('fr-FR');
+        cy.setLanguageHeaders('fr-FR');
+        cy.reload();
+        // Delete user to avoid preferred language to be already set
+        deleteUser('/users/fj/ac/bj/blachance8');
+        cy.visit('/');
+        cy.title().should('equal', 'SAML Test Site FR');
+        cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
+        cy.get('#username').should('be.visible').type('blachance8');
+        cy.get('#password').should('be.visible').type('password');
+        cy.get('input[type="submit"]').should('be.visible').click();
+        cy.log('Verify user is logged in');
+        cy.get('body').should('contain', 'blachance8');
+        cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
+        cy.title().should('equal', 'SAML Test Site FR');
+    });
+
     function installConfig(configFilePath) {
         return cy.runProvisioningScript(
             {fileContent: `- installConfiguration: "${configFilePath}"`, type: 'application/yaml'},
@@ -67,6 +89,13 @@ describe('Login via SAML', () => {
             variables: {homePath: home, name}
         }).should(res => {
             expect(res?.data?.jcr.addNode.addChild.uuid, `Created SAML button ${name}`).to.be.not.undefined;
+        });
+    }
+
+    function deleteUser(userPath) {
+        cy.apollo({
+            mutationFile: 'samlLogin/deleteUser.graphql',
+            variables: {userPath}
         });
     }
 });
