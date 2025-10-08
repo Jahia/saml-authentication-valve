@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -38,8 +40,18 @@ public final class SAML2Util {
     private static final Logger LOGGER = LoggerFactory.getLogger(SAML2Util.class);
     private final HashMap<String, SAML2Client> clients = new HashMap<>();
 
-    @Reference
     private JahiaSitesService sitesService;
+    private SettingsBean settingsBean;
+
+    @Reference
+    public void setSitesService(JahiaSitesService sitesService) {
+        this.sitesService = sitesService;
+    }
+
+    @Reference
+    public void setSettingsBean(SettingsBean settingsBean) {
+        this.settingsBean = settingsBean;
+    }
 
     /**
      * We do not use URLResolver strategies to determine the site key (aka parsing the path to extract /sites/siteKey/**) to avoid
@@ -85,17 +97,17 @@ public final class SAML2Util {
             contextPath = "/";
         }
 
-        // Store redirect URL if provided
+        // Store redirect URL if provided and authorized.
         final String redirectParam = request.getParameter(SAML2Constants.REDIRECT);
         if (redirectParam != null) {
-            if (isSafeRedirectUrl(redirectParam)) {
+            if (isAuthorizedRedirect(request, redirectParam, false)) {
                 final Cookie redirectCookie = new Cookie(SAML2Constants.REDIRECT, redirectParam.replaceAll("\n\r", ""));
                 redirectCookie.setPath(contextPath);
                 redirectCookie.setSecure(request.isSecure());
                 response.addCookie(redirectCookie);
             } else {
-                LOGGER.info("Unsafe redirect param URL detected, activate debug for more information");
-                LOGGER.debug("Unsafe URL: {}", redirectParam);
+                LOGGER.info("Unauthorized redirect param URL detected, activate debug for more information");
+                LOGGER.debug("Unauthorized redirect param URL: {}", redirectParam);
             }
         }
 
@@ -253,13 +265,35 @@ public final class SAML2Util {
         initSAMLClient(getSAML2ClientConfiguration(settings), "/");
     }
 
-    public static boolean isSafeRedirectUrl(String url) {
-        if (url == null || url.isEmpty()) return true;
-        if (url.matches("^[a-zA-Z][a-zA-Z0-9+.-]*:.*")) return false; // only local URLs
-        if (url.startsWith("//")) return false; // only local URLs
-        if (url.contains("..")) return false; // avoid path traversal
-        if (url.contains("<") || url.contains(">") || url.contains("\n") || url.contains("\r")) return false; // XSS/injection
-        return true;
+    // This code is a copy of the Jahia Core logic
+    // https://github.com/Jahia/jahia-private/blob/abb277b5d28185e65497c6f7ef880da42e5a012f/core/src/main/java/org/jahia/bin/Login.java#L192-L219
+    // When refactored in core, we should remove this duplication (https://github.com/Jahia/jahia-private/issues/4332)
+    public boolean isAuthorizedRedirect(HttpServletRequest request, String redirectUrl, boolean authorizeNullRedirect) {
+        if (redirectUrl == null) {
+            return authorizeNullRedirect;
+        }
+
+        try {
+            URI currentUri = new URI(request.getRequestURL().toString());
+            URI redirectUri = new URI(redirectUrl);
+
+            boolean isProtocolRelativeUrl = redirectUrl.startsWith("//");
+            if (redirectUri.isAbsolute() || isProtocolRelativeUrl) {
+                for (String authorizedRedirectHost : settingsBean.getAuthorizedRedirectHosts()) {
+                    if (redirectUri.getHost().equalsIgnoreCase(authorizedRedirectHost)) {
+                        return true;
+                    }
+                }
+
+                // Check if the host (domain) of the redirect URL is the same as the current URL
+                return currentUri.getHost().equalsIgnoreCase(redirectUri.getHost()) && currentUri.getPort() == redirectUri.getPort();
+            } else {
+                // Relative URL, consider it as same domain
+                return true;
+            }
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 
     private byte[] generateKeyStore(ConnectorConfig settings) throws IOException {
