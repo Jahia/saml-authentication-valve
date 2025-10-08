@@ -16,7 +16,6 @@
 package org.jahia.modules.saml2.filter;
 
 import org.jahia.bin.filters.AbstractServletFilter;
-import org.jahia.modules.jahiaauth.service.SettingsService;
 import org.jahia.modules.saml2.SAML2Util;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
@@ -40,8 +39,6 @@ public class SAMLMetadataFilter extends AbstractServletFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLMetadataFilter.class);
 
-    @Reference
-    private SettingsService settingsService;
     @Reference
     private SAML2Util util;
 
@@ -70,7 +67,7 @@ public class SAMLMetadataFilter extends AbstractServletFilter {
             final String siteKey = util.findSiteKeyForRequest(httpRequest);
             if (siteKey != null) {
                 boolean generated = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
-                    SAML2MetadataResolver metadataResolver = util.getSAML2Client(settingsService, httpRequest, siteKey).getServiceProviderMetadataResolver();
+                    SAML2MetadataResolver metadataResolver = util.getSAML2Client(httpRequest, siteKey).getServiceProviderMetadataResolver();
                     try {
                         httpResponse.getWriter().append(metadataResolver.getMetadata());
                         return true;

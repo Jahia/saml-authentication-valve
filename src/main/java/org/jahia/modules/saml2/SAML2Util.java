@@ -40,18 +40,10 @@ public final class SAML2Util {
     private static final Logger LOGGER = LoggerFactory.getLogger(SAML2Util.class);
     private final HashMap<String, SAML2Client> clients = new HashMap<>();
 
+    @Reference
     private JahiaSitesService sitesService;
-    private SettingsBean settingsBean;
-
     @Reference
-    public void setSitesService(JahiaSitesService sitesService) {
-        this.sitesService = sitesService;
-    }
-
-    @Reference
-    public void setSettingsBean(SettingsBean settingsBean) {
-        this.settingsBean = settingsBean;
-    }
+    private SettingsService settingsService;
 
     /**
      * We do not use URLResolver strategies to determine the site key (aka parsing the path to extract /sites/siteKey/**) to avoid
@@ -101,7 +93,7 @@ public final class SAML2Util {
         final String redirectParam = request.getParameter(SAML2Constants.REDIRECT);
         if (redirectParam != null) {
             if (isAuthorizedRedirect(request, redirectParam, false)) {
-                final Cookie redirectCookie = new Cookie(SAML2Constants.REDIRECT, redirectParam.replaceAll("\n\r", ""));
+                final Cookie redirectCookie = new Cookie(SAML2Constants.REDIRECT, redirectParam);
                 redirectCookie.setPath(contextPath);
                 redirectCookie.setSecure(request.isSecure());
                 response.addCookie(redirectCookie);
@@ -124,8 +116,8 @@ public final class SAML2Util {
     /**
      * Retrieve redirection URL
      */
-    public String getRedirectionUrl(HttpServletRequest request, String siteKey, SAML2Util util, SettingsService settingsService) {
-        String redirection = util.getCookieValue(request, SAML2Constants.REDIRECT);
+    public String getRedirectionUrl(HttpServletRequest request, String siteKey) {
+        String redirection = this.getCookieValue(request, SAML2Constants.REDIRECT);
         if (StringUtils.isEmpty(redirection)) {
             redirection = request.getContextPath() + settingsService.getSettings(siteKey).getValues("Saml").getProperty(SAML2Constants.POST_LOGIN_PATH);
             if (StringUtils.isEmpty(redirection)) {
@@ -154,11 +146,10 @@ public final class SAML2Util {
     /**
      * Get saml client.
      *
-     * @param settingsService
      * @param request
      * @return
      */
-    public SAML2Client getSAML2Client(final SettingsService settingsService, final HttpServletRequest request, String siteKey) {
+    public SAML2Client getSAML2Client(final HttpServletRequest request, String siteKey) {
         final SAML2Client client;
         if (clients.containsKey(siteKey)) {
             client = clients.get(siteKey);
@@ -279,7 +270,7 @@ public final class SAML2Util {
 
             boolean isProtocolRelativeUrl = redirectUrl.startsWith("//");
             if (redirectUri.isAbsolute() || isProtocolRelativeUrl) {
-                for (String authorizedRedirectHost : settingsBean.getAuthorizedRedirectHosts()) {
+                for (String authorizedRedirectHost : SettingsBean.getInstance().getAuthorizedRedirectHosts()) {
                     if (redirectUri.getHost().equalsIgnoreCase(authorizedRedirectHost)) {
                         return true;
                     }

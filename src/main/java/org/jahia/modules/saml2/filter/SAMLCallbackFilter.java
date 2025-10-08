@@ -82,17 +82,15 @@ public class SAMLCallbackFilter extends AbstractServletFilter {
             if (siteKey != null) {
                 try {
                     boolean redirect = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
-                        final SAML2Client client = util.getSAML2Client(settingsService, httpRequest, siteKey);
+                        final SAML2Client client = util.getSAML2Client(httpRequest, siteKey);
                         final JEEContext webContext = new JEEContext(httpRequest, httpResponse);
                         final Optional<SAML2Credentials> saml2Credentials = client.getCredentials(webContext);
                         final Optional<UserProfile> saml2Profile = saml2Credentials.flatMap(c -> client.getUserProfile(c, webContext));
 
-                        ConnectorConfig settings = settingsService.getConnectorConfig(siteKey, "Saml");
-
                         if (saml2Profile.isPresent()) {
                             Map<String, Object> properties = getMapperResult((BasicUserProfile) saml2Profile.get());
-
-                            for (MapperConfig mapper : settings.getMappers()) {
+                            ConnectorConfig config = settingsService.getConnectorConfig(siteKey, "Saml");
+                            for (MapperConfig mapper : config.getMappers()) {
                                 try {
                                     jahiaAuthMapperService.executeMapper(httpRequest.getSession().getId(), mapper, properties);
                                 } catch (JahiaAuthException e) {
@@ -100,16 +98,14 @@ public class SAMLCallbackFilter extends AbstractServletFilter {
                                     return false;
                                 }
                             }
-                            ConnectorConfig config = settingsService.getConnectorConfig(siteKey, "Saml");
                             jahiaAuthMapperService.executeConnectorResultProcessors(config, properties);
-
                             return true;
                         }
                         LOGGER.warn("Cannot log in user : saml2Profile is not present");
                         return false;
                     });
                     if (redirect) {
-                        String redirection = util.getRedirectionUrl(httpRequest, siteKey, util, settingsService);
+                        String redirection = util.getRedirectionUrl(httpRequest, siteKey);
                         LOGGER.debug("Redirecting to {}", redirection);
                         httpResponse.sendRedirect(redirection);
                         return;
