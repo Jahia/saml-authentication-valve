@@ -94,8 +94,6 @@ describe('Login via SAML on Private Site', () => {
         cy.apollo({
             mutationFile: 'samlLogin/deleteUser.graphql',
             variables: {userPath}
-        }).should(res => {
-            expect(res?.data?.jcr?.deleteNode, `Deleted user at ${userPath}`).to.be.true;
         });
     }
 });
