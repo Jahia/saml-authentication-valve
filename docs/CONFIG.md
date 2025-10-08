@@ -180,7 +180,7 @@ Such a sample jsp page could be:
     <br/>
     Please log in with an account that has the required permissions.
     <br/><br/>
-    <a href="${pageContext.request.requestURI}.connect.saml">Go to SAML login page</a>
+    <a href="${pageContext.request.requestURI}.connect.saml?siteKey=mySite">Go to SAML login page</a>
 </div>
 </body>
 </html>
