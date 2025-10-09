@@ -125,7 +125,7 @@
                     vm.keyStoreAlias = "saml2clientconfiguration";
                     vm.keyStorePass = "changeit";
                     vm.privateKeyPass = "changeit";
-                    vm.incomingTargetUrl = jahiaContext.sitePath + "/home.callback.saml";
+                    vm.incomingTargetUrl = jahiaContext.sitePath + "/home.callback.saml?siteKey=" + jahiaContext.siteKey;
                     vm.postLoginPath = jahiaContext.sitePath + "/home.html";
                     vm.maximumAuthenticationLifetime = 86400;
                     vm.bindingType = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
