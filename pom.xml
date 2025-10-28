@@ -30,13 +30,23 @@
         <sonar.sources>src/main/resources/javascript</sonar.sources>
     </properties>
 
-
     <scm>
         <connection>scm:git:git@github.com:Jahia/saml-authentication-valve.git</connection>
         <developerConnection>scm:git:git@github.com:Jahia/saml-authentication-valve.git</developerConnection>
         <url>scm:git:git@github.com:Jahia/saml-authentication-valve.git</url>
         <tag>HEAD</tag>
     </scm>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- remove that specific commons-beanutils version when parent (jahia-modules) will be upgraded to version >= 8.2.3.0 -->
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.11.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -301,7 +311,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
 
     </dependencies>
 
