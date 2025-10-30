@@ -6,6 +6,8 @@ declare global {
         setLanguageHeaders(locale: string): Chainable<void>;
         getBrowserLocale(): Chainable<string>;
         testLocaleFormatting(locale: string): Chainable<void>;
+        clearAllLocalStorage(): Chainable<void>;
+        clearAllSessionStorage(): Chainable<void>;
     }
 }
 
@@ -57,6 +59,22 @@ Cypress.Commands.add('testLocaleFormatting', (expectedLocale: string) => {
         // Log browser language info
         cy.log(`Navigator language: ${win.navigator.language}`);
         cy.log(`Navigator languages: ${win.navigator.languages}`);
+    });
+});
+
+// Clear all localStorage across all domains
+Cypress.Commands.add('clearAllLocalStorage', () => {
+    cy.window().then((win) => {
+        win.localStorage.clear();
+    });
+    // Also clear for the base URL
+    cy.clearLocalStorage();
+});
+
+// Clear all sessionStorage across all domains
+Cypress.Commands.add('clearAllSessionStorage', () => {
+    cy.window().then((win) => {
+        win.sessionStorage.clear();
     });
 });
 
