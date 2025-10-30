@@ -44,13 +44,14 @@ describe('Login via SAML', () => {
 
         // Delete user and wait for confirmation
         deleteUser('/users/fj/ac/bj/blachance8');
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000); // Wait for user deletion to complete
 
         cy.setLocale('en-EN');
         cy.setLanguageHeaders('en-EN');
 
         cy.visit('/', {
-            onBeforeLoad: (win) => {
+            onBeforeLoad: win => {
                 // Ensure clean state
                 win.sessionStorage.clear();
                 win.localStorage.clear();
@@ -82,13 +83,14 @@ describe('Login via SAML', () => {
 
         // Delete user and wait for confirmation
         deleteUser('/users/fj/ac/bj/blachance8');
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000); // Wait for user deletion to complete
 
         cy.setLocale('fr-FR');
         cy.setLanguageHeaders('fr-FR');
 
         cy.visit('/', {
-            onBeforeLoad: (win) => {
+            onBeforeLoad: win => {
                 // Ensure clean state
                 win.sessionStorage.clear();
                 win.localStorage.clear();

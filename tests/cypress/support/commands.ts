@@ -63,8 +63,8 @@ Cypress.Commands.add('testLocaleFormatting', (expectedLocale: string) => {
 });
 
 // Clear all localStorage across all domains
-Cypress.Commands.add('clearAllLocalStorage', () => {
-    cy.window().then((win) => {
+Cypress.Commands.overwrite('clearAllLocalStorage', () => {
+    cy.window().then(win => {
         win.localStorage.clear();
     });
     // Also clear for the base URL
@@ -72,8 +72,8 @@ Cypress.Commands.add('clearAllLocalStorage', () => {
 });
 
 // Clear all sessionStorage across all domains
-Cypress.Commands.add('clearAllSessionStorage', () => {
-    cy.window().then((win) => {
+Cypress.Commands.overwrite('clearAllSessionStorage', () => {
+    cy.window().then(win => {
         win.sessionStorage.clear();
     });
 });

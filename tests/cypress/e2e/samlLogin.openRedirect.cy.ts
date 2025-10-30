@@ -36,6 +36,7 @@ describe('SAML Open Redirect Protection', () => {
         cy.clearAllLocalStorage();
         cy.clearAllSessionStorage();
         // Wait a bit to ensure previous test cleanup is complete
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(500);
     });
 
