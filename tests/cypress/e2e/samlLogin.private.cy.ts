@@ -1,5 +1,6 @@
-import {enableModule, createSite, deleteSite, setNodeProperty} from '@jahia/cypress';
+import {enableModule, createSite, deleteSite, setNodeProperty, getJahiaVersion} from '@jahia/cypress';
 import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
+import {compare} from 'compare-versions'
 
 describe('Login via SAML on Private Site', () => {
     const siteKey = 'samlTestSite';
@@ -42,10 +43,18 @@ describe('Login via SAML on Private Site', () => {
         cy.clearAllCookies();
         cy.visit(`${home}`, {failOnStatusCode: false});
 
-        // Verify that the user gets a 404 error
-        cy.get('body').should('satisfy', $body => {
-            const bodyText = $body.text().toLowerCase();
-            return bodyText.includes('page not found');
+        getJahiaVersion().then(jahiaVersion => {
+            console.log(jahiaVersion);
+            if (compare(jahiaVersion.release.replace('-SNAPSHOT', ''), '8.2', '<')) {
+                // On Jahia 8.1 there is no 404 page but a redirect to local login page
+                cy.get('#loginForm').should('exist');
+            } else {
+                // Verify that the user gets a 404 error
+                cy.get('body').should('satisfy', $body => {
+                    const bodyText = $body.text().toLowerCase();
+                    return bodyText.includes('page not found');
+                });
+            }
         });
     });
 
