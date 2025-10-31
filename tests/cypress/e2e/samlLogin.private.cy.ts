@@ -1,6 +1,6 @@
 import {enableModule, createSite, deleteSite, setNodeProperty, getJahiaVersion} from '@jahia/cypress';
 import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
-import {compare} from 'compare-versions'
+import {compare} from 'compare-versions';
 
 describe('Login via SAML on Private Site', () => {
     const siteKey = 'samlTestSite';
