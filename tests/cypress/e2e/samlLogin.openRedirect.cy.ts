@@ -160,6 +160,7 @@ describe('SAML Open Redirect Protection', () => {
      * Call keycloak login page and populate form.
      */
     function performKeycloakLogin() {
+        // eslint-disable-next-line @typescript-eslint/no-shadow
         cy.origin('http://keycloak:8080', {args: {username, password}}, ({username, password}) => {
             cy.get('#username', {timeout: 10000}).should('be.visible').type(username);
             cy.get('#password', {timeout: 10000}).should('be.visible').type(password);
