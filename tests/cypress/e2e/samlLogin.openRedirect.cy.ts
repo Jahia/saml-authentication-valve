@@ -50,7 +50,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        performKeycloakLogin(username, password);
+        performKeycloakLogin();
 
         // Verify user is redirected to the safe default location (site home) instead of malicious URL
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
@@ -66,7 +66,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        performKeycloakLogin(username, password);
+        performKeycloakLogin();
 
         // Verify user is redirected to the safe default location instead of malicious URL
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
@@ -82,7 +82,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        performKeycloakLogin(username, password);
+        performKeycloakLogin();
 
         // Verify user is redirected to the safe default location
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
@@ -98,7 +98,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        performKeycloakLogin(username, password);
+        performKeycloakLogin();
 
         // Verify user is redirected to the safe default location
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
@@ -114,7 +114,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        performKeycloakLogin(username, password);
+        performKeycloakLogin();
 
         // Verify user is redirected to the specified safe URL
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}/home`);
@@ -130,7 +130,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        performKeycloakLogin(username, password);
+        performKeycloakLogin();
 
         // Verify user is redirected to the safe default location
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
@@ -147,7 +147,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        performKeycloakLogin(username, password);
+        performKeycloakLogin();
 
         // Verify user is redirected to the safe default location
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
@@ -158,10 +158,8 @@ describe('SAML Open Redirect Protection', () => {
 
     /**
      * Call keycloak login page and populate form.
-     * @param username
-     * @param password
      */
-    function performKeycloakLogin(username: string, password: string) {
+    function performKeycloakLogin() {
         cy.origin('http://keycloak:8080', () => {
             cy.get('#username', {timeout: 10000}).should('be.visible').type(username);
             cy.get('#password', {timeout: 10000}).should('be.visible').type(password);
