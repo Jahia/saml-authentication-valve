@@ -4,6 +4,8 @@ import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndW
 describe('SAML Open Redirect Protection', () => {
     const siteKey = 'samlTestSite';
     const home = `/sites/${siteKey}/home`;
+    const username = 'blachance8';
+    const password = 'password';
 
     before(() => {
         deleteSite(siteKey);
@@ -48,12 +50,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        // Complete SAML authentication with explicit waits
-        cy.origin('http://keycloak:8080', () => {
-            cy.get('#username', {timeout: 10000}).should('be.visible').type('blachance8');
-            cy.get('#password', {timeout: 10000}).should('be.visible').type('password');
-            cy.get('input[type="submit"]', {timeout: 10000}).should('be.visible').click();
-        });
+        performKeycloakLogin(username, password);
 
         // Verify user is redirected to the safe default location (site home) instead of malicious URL
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
@@ -69,12 +66,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        // Complete SAML authentication with explicit waits
-        cy.origin('http://keycloak:8080', () => {
-            cy.get('#username', {timeout: 10000}).should('be.visible').type('blachance8');
-            cy.get('#password', {timeout: 10000}).should('be.visible').type('password');
-            cy.get('input[type="submit"]', {timeout: 10000}).should('be.visible').click();
-        });
+        performKeycloakLogin(username, password);
 
         // Verify user is redirected to the safe default location instead of malicious URL
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
@@ -90,12 +82,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        // Complete SAML authentication with explicit waits
-        cy.origin('http://keycloak:8080', () => {
-            cy.get('#username', {timeout: 10000}).should('be.visible').type('blachance8');
-            cy.get('#password', {timeout: 10000}).should('be.visible').type('password');
-            cy.get('input[type="submit"]', {timeout: 10000}).should('be.visible').click();
-        });
+        performKeycloakLogin(username, password);
 
         // Verify user is redirected to the safe default location
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
@@ -111,12 +98,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        // Complete SAML authentication with explicit waits
-        cy.origin('http://keycloak:8080', () => {
-            cy.get('#username', {timeout: 10000}).should('be.visible').type('blachance8');
-            cy.get('#password', {timeout: 10000}).should('be.visible').type('password');
-            cy.get('input[type="submit"]', {timeout: 10000}).should('be.visible').click();
-        });
+        performKeycloakLogin(username, password);
 
         // Verify user is redirected to the safe default location
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
@@ -132,12 +114,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        // Complete SAML authentication with explicit waits
-        cy.origin('http://keycloak:8080', () => {
-            cy.get('#username', {timeout: 10000}).should('be.visible').type('blachance8');
-            cy.get('#password', {timeout: 10000}).should('be.visible').type('password');
-            cy.get('input[type="submit"]', {timeout: 10000}).should('be.visible').click();
-        });
+        performKeycloakLogin(username, password);
 
         // Verify user is redirected to the specified safe URL
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}/home`);
@@ -153,12 +130,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        // Complete SAML authentication with explicit waits
-        cy.origin('http://keycloak:8080', () => {
-            cy.get('#username', {timeout: 10000}).should('be.visible').type('blachance8');
-            cy.get('#password', {timeout: 10000}).should('be.visible').type('password');
-            cy.get('input[type="submit"]', {timeout: 10000}).should('be.visible').click();
-        });
+        performKeycloakLogin(username, password);
 
         // Verify user is redirected to the safe default location
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
@@ -175,12 +147,7 @@ describe('SAML Open Redirect Protection', () => {
             timeout: 30000
         });
 
-        // Complete SAML authentication with explicit waits
-        cy.origin('http://keycloak:8080', () => {
-            cy.get('#username', {timeout: 10000}).should('be.visible').type('blachance8');
-            cy.get('#password', {timeout: 10000}).should('be.visible').type('password');
-            cy.get('input[type="submit"]', {timeout: 10000}).should('be.visible').click();
-        });
+        performKeycloakLogin(username, password);
 
         // Verify user is redirected to the safe default location
         cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
@@ -188,6 +155,19 @@ describe('SAML Open Redirect Protection', () => {
         cy.url().should('not.contain', 'javascript:');
         cy.get('body', {timeout: 10000}).should('contain', 'blachance8');
     });
+
+    /**
+     * Call keycloak login page and populate form.
+     * @param username
+     * @param password
+     */
+    function performKeycloakLogin(username: string, password: string) {
+        cy.origin('http://keycloak:8080', () => {
+            cy.get('#username', {timeout: 10000}).should('be.visible').type(username);
+            cy.get('#password', {timeout: 10000}).should('be.visible').type(password);
+            cy.get('input[type="submit"]', {timeout: 10000}).should('be.visible').click();
+        });
+    }
 
     /**
      * @param configFilePath config file path relative to fixtures folder
