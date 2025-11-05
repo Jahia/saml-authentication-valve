@@ -1,7 +1,0 @@
-mutation publishSite($sitePath: String!, $lang: [String]) {
-    jcr {
-        mutateNode(pathOrId: $sitePath) {
-            publish(languages: $lang, publishSubNodes: true, includeSubTree: true)
-        }
-    }
-}

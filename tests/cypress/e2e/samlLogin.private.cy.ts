@@ -1,16 +1,20 @@
-import {enableModule, createSite, deleteSite, setNodeProperty, getJahiaVersion} from '@jahia/cypress';
+import {enableModule, createSite, deleteSite, deleteUser, setNodeProperty, getJahiaVersion, revokeRoles} from '@jahia/cypress';
 import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
+import {waitAndFillKeycloakLoginForm, initiateSamlLogin, installConfig} from '../support/helper';
 import {compare} from 'compare-versions';
 
 describe('Login via SAML on Private Site', () => {
     const siteKey = 'samlTestSite';
-
     const home = `/sites/${siteKey}/home`;
     const siteRoot = `/sites/${siteKey}`;
 
+    const kcUrl = 'http://keycloak:8080';
+    const kcUsername = 'blachance8';
+    const kcPassword = 'password';
+
     before(() => {
         deleteSite(siteKey);
-        deleteUser('/users/fj/ac/bj/blachance8');
+        deleteUser(kcUsername);
         createSite(siteKey, {
             languages: 'en,fr,de',
             locale: 'en',
@@ -30,8 +34,8 @@ describe('Login via SAML on Private Site', () => {
         installConfig('samlLogin/org.jahia.modules.auth-samlTestSite.cfg');
 
         // Make the site and home page private by revoking guest access
-        revokeGuestAccess(siteRoot);
-        revokeGuestAccess(home);
+        revokeRoles(siteRoot, ['reader'], 'guest', 'USER');
+        revokeRoles(home, ['reader'], 'guest', 'USER');
         publishAndWaitJobEnding(home, ['en']);
     });
 
@@ -64,13 +68,8 @@ describe('Login via SAML on Private Site', () => {
         cy.setLanguageHeaders('en-EN');
         cy.reload();
 
-        // Try to initiate the SAML Auth process - should be redirected to login
-        cy.visit(`/connect.saml?siteKey=${siteKey}`, {failOnStatusCode: false});
-
-        // Fill in credentials on IdP
-        cy.get('#username').should('be.visible').type('blachance8');
-        cy.get('#password').should('be.visible').type('password');
-        cy.get('input[type="submit"]').should('be.visible').click();
+        initiateSamlLogin({siteKey: siteKey})
+        waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
 
         cy.log('Verify user is logged in and can access private site');
 
@@ -79,30 +78,4 @@ describe('Login via SAML on Private Site', () => {
         cy.get('body').should('contain', 'blachance8');
         cy.title().should('equal', 'SAML Private Test Site');
     });
-
-    /**
-     * @param configFilePath config file path relative to fixtures folder
-     */
-    function installConfig(configFilePath) {
-        return cy.runProvisioningScript(
-            {fileContent: `- installConfiguration: "${configFilePath}"`, type: 'application/yaml'},
-            [{fileName: `${configFilePath}`, type: 'text/plain'}]
-        );
-    }
-
-    function revokeGuestAccess(nodePath) {
-        cy.apollo({
-            mutationFile: 'samlLogin/revokeGuestAccess.graphql',
-            variables: {nodePath}
-        }).should(res => {
-            expect(res?.data?.jcr?.mutateNode, `Revoked guest access for ${nodePath}`).to.be.not.undefined;
-        });
-    }
-
-    function deleteUser(userPath) {
-        cy.apollo({
-            mutationFile: 'samlLogin/deleteUser.graphql',
-            variables: {userPath}
-        });
-    }
 });

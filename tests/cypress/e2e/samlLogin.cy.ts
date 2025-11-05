@@ -1,11 +1,16 @@
-import {enableModule, createSite, deleteSite, setNodeProperty} from '@jahia/cypress';
+import {enableModule, createSite, deleteSite, deleteUser, setNodeProperty} from '@jahia/cypress';
 import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
+import {installConfig, createSamlButton, initiateSamlLogin, waitAndFillKeycloakLoginForm} from '../support/helper';
 
 describe('Login via SAML', () => {
     const siteKey = 'samlTestSite';
+    const home = `/sites/${siteKey}/home`;
     const buttonName = 'my-saml-button';
 
-    const home = `/sites/${siteKey}/home`;
+    const kcUrl = 'http://keycloak:8080';
+    const kcUsername = 'blachance8';
+    const kcPassword = 'password';
+
     before(() => {
         deleteSite(siteKey);
         createSite(siteKey, {
@@ -33,7 +38,7 @@ describe('Login via SAML', () => {
 
     it('User should be able to add SAML button and publish', () => {
         installConfig('samlLogin/org.jahia.modules.auth-samlTestSite.cfg');
-        createSamlButton(buttonName);
+        createSamlButton(home, buttonName);
         publishAndWaitJobEnding(home, ['en']);
     });
 
@@ -42,8 +47,7 @@ describe('Login via SAML', () => {
         cy.clearAllLocalStorage();
         cy.clearAllSessionStorage();
 
-        // Delete user and wait for confirmation
-        deleteUser('/users/fj/ac/bj/blachance8');
+        deleteUser('blachance8');
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000); // Wait for user deletion to complete
 
@@ -58,15 +62,10 @@ describe('Login via SAML', () => {
             }
         });
 
+        cy.log('Initiate SAML login flow');
         cy.title().should('equal', 'SAML Test Site');
-        cy.get(`input[value="${buttonName}"]`, {timeout: 10000}).should('exist').and('be.visible').click();
-
-        // Wait for Keycloak login page to be fully loaded
-        cy.origin('http://keycloak:8080', () => {
-            cy.get('#username', {timeout: 10000}).should('be.visible').type('blachance8');
-            cy.get('#password', {timeout: 10000}).should('be.visible').type('password');
-            cy.get('input[type="submit"]', {timeout: 10000}).should('be.visible').click();
-        });
+        initiateSamlLogin({buttonName: buttonName}); // Should redirect to keycloak login page
+        waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
 
         cy.log('Verify user is logged in');
         // Wait for redirect back to Jahia
@@ -81,8 +80,7 @@ describe('Login via SAML', () => {
         cy.clearAllLocalStorage();
         cy.clearAllSessionStorage();
 
-        // Delete user and wait for confirmation
-        deleteUser('/users/fj/ac/bj/blachance8');
+        deleteUser('blachance8');
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000); // Wait for user deletion to complete
 
@@ -97,15 +95,10 @@ describe('Login via SAML', () => {
             }
         });
 
+        cy.log('Initiate SAML login flow');
         cy.title().should('equal', 'SAML Test Site FR');
-        cy.get(`input[value="${buttonName}"]`, {timeout: 10000}).should('exist').and('be.visible').click();
-
-        // Wait for Keycloak login page to be fully loaded
-        cy.origin('http://keycloak:8080', () => {
-            cy.get('#username', {timeout: 10000}).should('be.visible').type('blachance8');
-            cy.get('#password', {timeout: 10000}).should('be.visible').type('password');
-            cy.get('input[type="submit"]', {timeout: 10000}).should('be.visible').click();
-        });
+        initiateSamlLogin({buttonName: buttonName}); // Should redirect to keycloak login page
+        waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
 
         cy.log('Verify user is logged in');
         // Wait for redirect back to Jahia
@@ -114,29 +107,4 @@ describe('Login via SAML', () => {
         cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
         cy.title().should('equal', 'SAML Test Site FR');
     });
-
-    function installConfig(configFilePath) {
-        return cy.runProvisioningScript(
-            {fileContent: `- installConfiguration: "${configFilePath}"`, type: 'application/yaml'},
-            [{fileName: `${configFilePath}`, type: 'text/plain'}]
-        );
-    }
-
-    function createSamlButton(name) {
-        cy.apollo({
-            mutationFile: 'samlLogin/createSamlButton.graphql',
-            variables: {homePath: home, name}
-        }).should(res => {
-            expect(res?.data?.jcr.addNode.addChild.uuid, `Created SAML button ${name}`).to.be.not.undefined;
-        });
-    }
-
-    function deleteUser(userPath) {
-        cy.apollo({
-            mutationFile: 'samlLogin/deleteUser.graphql',
-            variables: {userPath}
-        }).then(() => {
-            cy.log(`User ${userPath} deletion requested`);
-        });
-    }
 });
