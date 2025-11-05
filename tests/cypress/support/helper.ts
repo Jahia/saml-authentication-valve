@@ -1,10 +1,3 @@
-export function installConfig(configFilePath) {
-    return cy.runProvisioningScript(
-        {fileContent: `- installConfiguration: "${configFilePath}"`, type: 'application/yaml'},
-        [{fileName: `${configFilePath}`, type: 'text/plain'}]
-    );
-}
-
 export function createSamlButton(home, name) {
     cy.apollo({
         mutationFile: 'samlLogin/createSamlButton.graphql',

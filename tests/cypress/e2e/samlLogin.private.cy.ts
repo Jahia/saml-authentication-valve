@@ -1,6 +1,6 @@
-import {enableModule, createSite, deleteSite, deleteUser, setNodeProperty, getJahiaVersion, revokeRoles} from '@jahia/cypress';
+import {enableModule, createSite, deleteSite, deleteUser, setNodeProperty, getJahiaVersion, revokeRoles, installConfig} from '@jahia/cypress';
 import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
-import {waitAndFillKeycloakLoginForm, initiateSamlLogin, installConfig} from '../support/helper';
+import {waitAndFillKeycloakLoginForm, initiateSamlLogin} from '../support/helper';
 import {compare} from 'compare-versions';
 
 describe('Login via SAML on Private Site', () => {

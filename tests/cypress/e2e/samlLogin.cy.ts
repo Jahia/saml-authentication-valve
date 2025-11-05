@@ -1,6 +1,6 @@
-import {enableModule, createSite, deleteSite, deleteUser, setNodeProperty} from '@jahia/cypress';
+import {enableModule, createSite, deleteSite, deleteUser, setNodeProperty, installConfig} from '@jahia/cypress';
 import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
-import {installConfig, createSamlButton, initiateSamlLogin, waitAndFillKeycloakLoginForm} from '../support/helper';
+import {createSamlButton, initiateSamlLogin, waitAndFillKeycloakLoginForm} from '../support/helper';
 
 describe('Login via SAML', () => {
     const siteKey = 'samlTestSite';
