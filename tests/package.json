@@ -12,7 +12,7 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
-    "@jahia/cypress": "^4.3.0", // Wait for version that contains the install Config function
+    "@jahia/cypress": "^6.3.0",
     "@jahia/eslint-config": "^1.1.0",
     "@jahia/jahia-reporter": "^1.0.30",
     "@typescript-eslint/eslint-plugin": "^5.48.1",

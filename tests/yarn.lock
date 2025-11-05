@@ -198,10 +198,10 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
-"@jahia/cypress@^4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@jahia/cypress/-/cypress-4.3.0.tgz#9bc34bc2ca24e5ff0a55aac0c6c0352bbca8d184"
-  integrity sha512-s8WeNz6P7u18k80Tqq4yvWBe+whQ6HMKA4tkss7QcAM28IDFyVrauIYOWgYw3f6gOawqRRNoHEHPGv9wSWkrwg==
+"@jahia/cypress@^6.3.0":
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/@jahia/cypress/-/cypress-6.3.0.tgz#db371b267dc9c12092b49c7a30234c96410e4294"
+  integrity sha512-siq+QWZVJzlA/wQg6swJR7dN38kz2jsc2n8/an/9Zupao1e4oYFyx55oQEDgg455/GI0272viyoeQgDou3Gmgg==
   dependencies:
     "@apollo/client" "^3.4.9"
     cypress-real-events "^1.11.0"
@@ -1264,6 +1264,11 @@ common-tags@^1.8.0:
   version "1.8.2"
   resolved "https://registry.yarnpkg.com/common-tags/-/common-tags-1.8.2.tgz#94ebb3c076d26032745fd54face7f688ef5ac9c6"
   integrity sha512-gk/Z852D2Wtb//0I+kRFNKKE9dIIVirjoqPoA1wJU+XePVXZfGeBpk45+A1rKO4Q43prqWBNY/MiIeRLbPWUaA==
+
+compare-versions@^6.1.0:
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/compare-versions/-/compare-versions-6.1.1.tgz#7af3cc1099ba37d244b3145a9af5201b629148a9"
+  integrity sha512-4hm4VPpIecmlg59CHXnRDnqGplJFrbLG4aFEl5vl6cK1u76ws3LLvX7ikFnTDl5vo39sjWD6AaDPYodJp/NNHg==
 
 concat-map@0.0.1:
   version "0.0.1"
