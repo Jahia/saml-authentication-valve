@@ -68,7 +68,7 @@ describe('Login via SAML on Private Site', () => {
         cy.setLanguageHeaders('en-EN');
         cy.reload();
 
-        initiateSamlLogin({siteKey: siteKey})
+        initiateSamlLogin({siteKey: siteKey});
         waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
 
         cy.log('Verify user is logged in and can access private site');

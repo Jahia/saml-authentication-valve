@@ -15,9 +15,9 @@ export function createSamlButton(home, name) {
 }
 
 export function waitAndFillKeycloakLoginForm(keycloakUrl: string, username: string, password: string) {
-    cy.origin(keycloakUrl, {args: {username, password}}, ({username, password}) => {
-        cy.get('#username', {timeout: 10000}).should('be.visible').type(username);
-        cy.get('#password', {timeout: 10000}).should('be.visible').type(password);
+    cy.origin(keycloakUrl, {args: {username, password}}, ({username: user, password: pass}) => {
+        cy.get('#username', {timeout: 10000}).should('be.visible').type(user);
+        cy.get('#password', {timeout: 10000}).should('be.visible').type(pass);
         cy.get('input[type="submit"]', {timeout: 10000}).should('be.visible').click();
     });
 }
@@ -59,5 +59,3 @@ export function initiateSamlLogin(options: SamlLoginOptions): void {
         });
     }
 }
-
-
