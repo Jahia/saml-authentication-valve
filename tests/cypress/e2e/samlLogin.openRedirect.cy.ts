@@ -5,6 +5,9 @@ import {initiateSamlLogin, waitAndFillKeycloakLoginForm} from '../support/helper
 describe('SAML Open Redirect Protection', () => {
     const siteKey = 'samlTestSite';
     const home = `/sites/${siteKey}/home`;
+    const kcUrl = 'http://keycloak:8080';
+    const kcUsername = 'blachance8';
+    const kcPassword = 'password';
     const TEST_CASES = [
         {testName: 'Should block external URL redirects with HTTP protocol', redirect: 'http://evil.com/steal-data', shouldContain: `/sites/${siteKey}`, shouldNotContain: 'evil.com'},
         {testName: 'Should block external URL redirects with HTTPS protocol', redirect: 'https://malicious-site.com/phishing', shouldContain: `/sites/${siteKey}`, shouldNotContain: 'malicious-site.com'},
@@ -15,10 +18,6 @@ describe('SAML Open Redirect Protection', () => {
         // eslint-disable-next-line no-script-url
         {testName: 'Should block JavaScript protocol URLs', redirect: 'javascript:alert("XSS")', shouldContain: `/sites/${siteKey}`, shouldNotContain: 'javascript:'}
     ];
-
-    const kcUrl = 'http://keycloak:8080';
-    const kcUsername = 'blachance8';
-    const kcPassword = 'password';
 
     before(() => {
         deleteSite(siteKey);

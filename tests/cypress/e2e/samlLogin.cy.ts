@@ -11,10 +11,16 @@ describe('Login via SAML', () => {
     const kcUsername = 'blachance8';
     const kcPassword = 'password';
 
+    const TEST_CASES = [
+        {language: 'en', locale: 'en-EN', title: 'SAML Test Site EN'},
+        {language: 'fr', locale: 'fr-FR', title: 'SAML Test Site FR'},
+        {language: 'de', locale: 'de-DE', title: 'SAML Test Site DE'}
+    ];
+
     before(() => {
         deleteSite(siteKey);
         createSite(siteKey, {
-            languages: 'en,fr,de',
+            languages: TEST_CASES.map(c => c.language).join(','),
             locale: 'en',
             serverName: 'localhost',
             templateSet: 'samples-bootstrap-templates'
@@ -26,10 +32,10 @@ describe('Login via SAML', () => {
         ].forEach(moduleName => {
             enableModule(moduleName, siteKey);
         });
-        setNodeProperty(home, 'jcr:title', 'SAML Test Site', 'en');
-        setNodeProperty(home, 'jcr:title', 'SAML Test Site FR', 'fr');
-        setNodeProperty(home, 'jcr:title', 'SAML Test Site DE', 'de');
-        publishAndWaitJobEnding(home, ['en', 'fr', 'de']);
+        TEST_CASES.forEach(({language, title}) => {
+            setNodeProperty(home, 'jcr:title', title, language);
+        });
+        publishAndWaitJobEnding(home, TEST_CASES.map(c => c.language));
     });
 
     after(() => {
@@ -42,69 +48,37 @@ describe('Login via SAML', () => {
         publishAndWaitJobEnding(home, ['en']);
     });
 
-    it('User should be able to login using SAML authentication', () => {
-        cy.clearAllCookies();
-        cy.clearAllLocalStorage();
-        cy.clearAllSessionStorage();
+    TEST_CASES.forEach(({language, locale, title}) => {
+        it('User should be able to login using SAML authentication in ' + language, () => {
+            cy.clearAllLocalStorage();
+            cy.clearAllSessionStorage();
 
-        deleteUser(kcUsername);
-        // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(1000); // Wait for user deletion to complete
+            deleteUser(kcUsername);
+            // eslint-disable-next-line cypress/no-unnecessary-waiting
+            cy.wait(1000); // Wait for user deletion to complete
 
-        cy.setLocale('en-EN');
-        cy.setLanguageHeaders('en-EN');
+            cy.setLocale(locale);
+            cy.setLanguageHeaders(locale);
 
-        cy.visit('/', {
-            onBeforeLoad: win => {
-                // Ensure clean state
-                win.sessionStorage.clear();
-                win.localStorage.clear();
-            }
+            cy.visit('/', {
+                onBeforeLoad: win => {
+                    // Ensure clean state
+                    win.sessionStorage.clear();
+                    win.localStorage.clear();
+                }
+            });
+
+            cy.log('Initiate SAML login flow');
+            cy.title().should('equal', title);
+            initiateSamlLogin({buttonName: buttonName}); // Should redirect to keycloak login page
+            waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
+
+            cy.log('Verify user is logged in');
+            // Wait for redirect back to Jahia
+            cy.url({timeout: 15000}).should('include', '/sites/' + siteKey);
+            cy.get('body', {timeout: 10000}).should('contain', kcUsername);
+            cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
+            cy.title().should('equal', title);
         });
-
-        cy.log('Initiate SAML login flow');
-        cy.title().should('equal', 'SAML Test Site');
-        initiateSamlLogin({buttonName: buttonName}); // Should redirect to keycloak login page
-        waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
-
-        cy.log('Verify user is logged in');
-        // Wait for redirect back to Jahia
-        cy.url({timeout: 15000}).should('include', '/sites/' + siteKey);
-        cy.get('body', {timeout: 10000}).should('contain', kcUsername);
-        cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
-        cy.title().should('equal', 'SAML Test Site');
-    });
-
-    it('User should be able to login using SAML authentication in FR', () => {
-        cy.clearAllCookies();
-        cy.clearAllLocalStorage();
-        cy.clearAllSessionStorage();
-
-        deleteUser(kcUsername);
-        // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(1000); // Wait for user deletion to complete
-
-        cy.setLocale('fr-FR');
-        cy.setLanguageHeaders('fr-FR');
-
-        cy.visit('/', {
-            onBeforeLoad: win => {
-                // Ensure clean state
-                win.sessionStorage.clear();
-                win.localStorage.clear();
-            }
-        });
-
-        cy.log('Initiate SAML login flow');
-        cy.title().should('equal', 'SAML Test Site FR');
-        initiateSamlLogin({buttonName: buttonName}); // Should redirect to keycloak login page
-        waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
-
-        cy.log('Verify user is logged in');
-        // Wait for redirect back to Jahia
-        cy.url({timeout: 15000}).should('include', '/sites/' + siteKey);
-        cy.get('body', {timeout: 10000}).should('contain', kcUsername);
-        cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
-        cy.title().should('equal', 'SAML Test Site FR');
     });
 });
