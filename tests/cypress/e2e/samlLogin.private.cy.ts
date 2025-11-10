@@ -75,7 +75,7 @@ describe('Login via SAML on Private Site', () => {
 
         // Should now be able to access the private site
         cy.url().should('contain', `/sites/${siteKey}`);
-        cy.get('body').should('contain', 'blachance8');
+        cy.get('body').should('contain', kcUsername);
         cy.title().should('equal', 'SAML Private Test Site');
     });
 });

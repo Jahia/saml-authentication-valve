@@ -5,6 +5,16 @@ import {initiateSamlLogin, waitAndFillKeycloakLoginForm} from '../support/helper
 describe('SAML Open Redirect Protection', () => {
     const siteKey = 'samlTestSite';
     const home = `/sites/${siteKey}/home`;
+    const TEST_CASES = [
+        {testName: 'Should block external URL redirects with HTTP protocol', redirect: 'http://evil.com/steal-data', shouldContain: `/sites/${siteKey}`, shouldNotContain: 'evil.com'},
+        {testName: 'Should block external URL redirects with HTTPS protocol', redirect: 'https://malicious-site.com/phishing', shouldContain: `/sites/${siteKey}`, shouldNotContain: 'malicious-site.com'},
+        {testName: 'Should block protocol-relative URLs (//)', redirect: '//attacker.com/evil-page', shouldContain: `/sites/${siteKey}`, shouldNotContain: 'attacker.com'},
+        {testName: 'Should block URLs with potential XSS payloads', redirect: '/sites/test?param=<script>alert("xss")</script>', shouldContain: `/sites/${siteKey}`, shouldNotContain: 'xss'},
+        {testName: 'Should allow safe local URL redirects', redirect: `/sites/${siteKey}/home.html`, shouldContain: `/sites/${siteKey}/home`, expectedTitle: 'SAML Open Redirect Test Site'},
+        {testName: 'Should block FTP protocol URLs', redirect: 'ftp://malicious-ftp.com/file.txt', shouldContain: `/sites/${siteKey}`, shouldNotContain: 'malicious-ftp.com'},
+        // eslint-disable-next-line no-script-url
+        {testName: 'Should block JavaScript protocol URLs', redirect: 'javascript:alert("XSS")', shouldContain: `/sites/${siteKey}`, shouldNotContain: 'javascript:'}
+    ];
 
     const kcUrl = 'http://keycloak:8080';
     const kcUsername = 'blachance8';
@@ -37,7 +47,6 @@ describe('SAML Open Redirect Protection', () => {
 
     // Add beforeEach to ensure clean state
     beforeEach(() => {
-        cy.clearAllCookies();
         cy.clearAllLocalStorage();
         cy.clearAllSessionStorage();
         // Wait a bit to ensure previous test cleanup is complete
@@ -45,82 +54,15 @@ describe('SAML Open Redirect Protection', () => {
         cy.wait(500);
     });
 
-    it('Should block external URL redirects with HTTP protocol', () => {
-        // Attempt to use an external HTTP URL as redirect parameter
-        initiateSamlLogin({siteKey: siteKey, redirect: 'http://evil.com/steal-data'});
-        waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
+    TEST_CASES.forEach(({testName, redirect, shouldContain, shouldNotContain}) => {
+        it(testName, () => {
+            initiateSamlLogin({siteKey: siteKey, redirect});
+            waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
 
-        // Verify user is redirected to the safe default location (site home) instead of malicious URL
-        cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
-        cy.url().should('not.contain', 'evil.com');
-        cy.get('body', {timeout: 10000}).should('contain', 'blachance8');
-    });
-
-    it('Should block external URL redirects with HTTPS protocol', () => {
-        // Attempt to use an external HTTPS URL as redirect parameter
-        initiateSamlLogin({siteKey: siteKey, redirect: 'https://malicious-site.com/phishing'});
-        waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
-
-        // Verify user is redirected to the safe default location instead of malicious URL
-        cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
-        cy.url().should('not.contain', 'malicious-site.com');
-        cy.get('body', {timeout: 10000}).should('contain', 'blachance8');
-    });
-
-    it('Should block protocol-relative URLs (//)', () => {
-        // Attempt to use a protocol-relative URL as redirect parameter
-        initiateSamlLogin({siteKey: siteKey, redirect: '//attacker.com/evil-page'});
-        waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
-
-        // Verify user is redirected to the safe default location
-        cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
-        cy.url().should('not.contain', 'attacker.com');
-        cy.get('body', {timeout: 10000}).should('contain', 'blachance8');
-    });
-
-    it('Should block URLs with potential XSS payloads', () => {
-        // Attempt to use a URL with XSS payload as redirect parameter
-        initiateSamlLogin({siteKey: siteKey, redirect: '/sites/test?param=<script>alert("xss")</script>'});
-        waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
-
-        // Verify user is redirected to the safe default location
-        cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
-        cy.url().should('not.contain', '<script>');
-        cy.get('body', {timeout: 10000}).should('contain', 'blachance8');
-    });
-
-    it('Should allow safe local URL redirects', () => {
-        // Use a safe local URL as redirect parameter
-        initiateSamlLogin({siteKey: siteKey, redirect: `/sites/${siteKey}/home.html`});
-        waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
-
-        // Verify user is redirected to the specified safe URL
-        cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}/home`);
-        cy.get('body', {timeout: 10000}).should('contain', 'blachance8');
-        cy.title().should('equal', 'SAML Open Redirect Test Site');
-    });
-
-    it('Should block FTP protocol URLs', () => {
-        // Attempt to use an FTP URL as redirect parameter
-        initiateSamlLogin({siteKey: siteKey, redirect: 'ftp://malicious-ftp.com/file.txt'});
-        waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
-
-        // Verify user is redirected to the safe default location
-        cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
-        cy.url().should('not.contain', 'ftp://');
-        cy.get('body', {timeout: 10000}).should('contain', 'blachance8');
-    });
-
-    it('Should block JavaScript protocol URLs', () => {
-        // Attempt to use a JavaScript URL as redirect parameter
-        // eslint-disable-next-line no-script-url
-        initiateSamlLogin({siteKey: siteKey, redirect: 'javascript:alert("XSS")'});
-        waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
-
-        // Verify user is redirected to the safe default location
-        cy.url({timeout: 15000}).should('contain', `/sites/${siteKey}`);
-        // eslint-disable-next-line no-script-url
-        cy.url().should('not.contain', 'javascript:');
-        cy.get('body', {timeout: 10000}).should('contain', 'blachance8');
+            // Verify user is redirected to the expected location
+            cy.url({timeout: 15000}).should('contain', shouldContain);
+            cy.url().should('not.contain', shouldNotContain);
+            cy.get('body', {timeout: 10000}).should('contain', kcUsername);
+        });
     });
 });

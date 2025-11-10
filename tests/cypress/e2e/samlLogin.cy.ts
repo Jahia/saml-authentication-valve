@@ -47,7 +47,7 @@ describe('Login via SAML', () => {
         cy.clearAllLocalStorage();
         cy.clearAllSessionStorage();
 
-        deleteUser('blachance8');
+        deleteUser(kcUsername);
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000); // Wait for user deletion to complete
 
@@ -69,8 +69,8 @@ describe('Login via SAML', () => {
 
         cy.log('Verify user is logged in');
         // Wait for redirect back to Jahia
-        cy.url({timeout: 15000}).should('include', '/sites/samlTestSite');
-        cy.get('body', {timeout: 10000}).should('contain', 'blachance8');
+        cy.url({timeout: 15000}).should('include', '/sites/' + siteKey);
+        cy.get('body', {timeout: 10000}).should('contain', kcUsername);
         cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
         cy.title().should('equal', 'SAML Test Site');
     });
@@ -80,7 +80,7 @@ describe('Login via SAML', () => {
         cy.clearAllLocalStorage();
         cy.clearAllSessionStorage();
 
-        deleteUser('blachance8');
+        deleteUser(kcUsername);
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000); // Wait for user deletion to complete
 
@@ -102,8 +102,8 @@ describe('Login via SAML', () => {
 
         cy.log('Verify user is logged in');
         // Wait for redirect back to Jahia
-        cy.url({timeout: 15000}).should('include', '/sites/samlTestSite');
-        cy.get('body', {timeout: 10000}).should('contain', 'blachance8');
+        cy.url({timeout: 15000}).should('include', '/sites/' + siteKey);
+        cy.get('body', {timeout: 10000}).should('contain', kcUsername);
         cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
         cy.title().should('equal', 'SAML Test Site FR');
     });
