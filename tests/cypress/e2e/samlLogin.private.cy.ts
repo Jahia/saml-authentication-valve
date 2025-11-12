@@ -1,5 +1,4 @@
-import {enableModule, createSite, deleteSite, deleteUser, setNodeProperty, getJahiaVersion, revokeRoles, installConfig} from '@jahia/cypress';
-import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
+import {enableModule, createSite, deleteSite, deleteUser, setNodeProperty, getJahiaVersion, revokeRoles, installConfig, publishAndWaitJobEnding} from '@jahia/cypress';
 import {waitAndFillKeycloakLoginForm, initiateSamlLogin} from '../support/helper';
 import {compare} from 'compare-versions';
 

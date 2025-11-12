@@ -1,5 +1,4 @@
-import {enableModule, createSite, deleteSite, installConfig, setNodeProperty} from '@jahia/cypress';
-import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
+import {enableModule, createSite, deleteSite, installConfig, setNodeProperty, publishAndWaitJobEnding} from '@jahia/cypress';
 import {initiateSamlLogin, waitAndFillKeycloakLoginForm} from '../support/helper';
 
 describe('SAML Open Redirect Protection', () => {
