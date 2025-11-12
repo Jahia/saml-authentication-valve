@@ -1,5 +1,4 @@
-import {createSite, deleteSite, enableModule, setNodeProperty} from '@jahia/cypress';
-import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
+import {createSite, deleteSite, enableModule, setNodeProperty, publishAndWaitJobEnding} from '@jahia/cypress';
 
 describe('Locale Test Demonstration', () => {
     const siteKey = 'samlTestSite';

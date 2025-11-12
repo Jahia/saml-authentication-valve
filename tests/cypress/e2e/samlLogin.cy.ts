@@ -1,15 +1,25 @@
-import {enableModule, createSite, deleteSite, setNodeProperty} from '@jahia/cypress';
-import {publishAndWaitJobEnding} from '@jahia/cypress/dist/utils/PublicationAndWorkflowHelper';
+import {enableModule, createSite, deleteSite, deleteUser, setNodeProperty, installConfig, publishAndWaitJobEnding} from '@jahia/cypress';
+import {createSamlButton, initiateSamlLogin, waitAndFillKeycloakLoginForm} from '../support/helper';
 
 describe('Login via SAML', () => {
     const siteKey = 'samlTestSite';
+    const home = `/sites/${siteKey}/home`;
     const buttonName = 'my-saml-button';
 
-    const home = `/sites/${siteKey}/home`;
+    const kcUrl = 'http://keycloak:8080';
+    const kcUsername = 'blachance8';
+    const kcPassword = 'password';
+
+    const TEST_CASES = [
+        {language: 'en', locale: 'en-EN', title: 'SAML Test Site EN'},
+        {language: 'fr', locale: 'fr-FR', title: 'SAML Test Site FR'},
+        {language: 'de', locale: 'de-DE', title: 'SAML Test Site DE'}
+    ];
+
     before(() => {
         deleteSite(siteKey);
         createSite(siteKey, {
-            languages: 'en,fr,de',
+            languages: TEST_CASES.map(c => c.language).join(','),
             locale: 'en',
             serverName: 'localhost',
             templateSet: 'samples-bootstrap-templates'
@@ -21,10 +31,10 @@ describe('Login via SAML', () => {
         ].forEach(moduleName => {
             enableModule(moduleName, siteKey);
         });
-        setNodeProperty(home, 'jcr:title', 'SAML Test Site', 'en');
-        setNodeProperty(home, 'jcr:title', 'SAML Test Site FR', 'fr');
-        setNodeProperty(home, 'jcr:title', 'SAML Test Site DE', 'de');
-        publishAndWaitJobEnding(home, ['en', 'fr', 'de']);
+        TEST_CASES.forEach(({language, title}) => {
+            setNodeProperty(home, 'jcr:title', title, language);
+        });
+        publishAndWaitJobEnding(home, TEST_CASES.map(c => c.language));
     });
 
     after(() => {
@@ -33,69 +43,41 @@ describe('Login via SAML', () => {
 
     it('User should be able to add SAML button and publish', () => {
         installConfig('samlLogin/org.jahia.modules.auth-samlTestSite.cfg');
-        createSamlButton(buttonName);
+        createSamlButton(home, buttonName);
         publishAndWaitJobEnding(home, ['en']);
     });
 
-    it('User should be able to login using SAML authentication', () => {
-        cy.clearAllCookies();
-        cy.setLocale('en-EN');
-        cy.setLanguageHeaders('en-EN');
-        cy.reload();
-        // Delete user to avoid preferred language to be already set
-        deleteUser('/users/fj/ac/bj/blachance8');
-        cy.visit('/');
-        cy.title().should('equal', 'SAML Test Site');
-        cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
-        cy.get('#username').should('be.visible').type('blachance8');
-        cy.get('#password').should('be.visible').type('password');
-        cy.get('input[type="submit"]').should('be.visible').click();
+    TEST_CASES.forEach(({language, locale, title}) => {
+        it('User should be able to login using SAML authentication in ' + language, () => {
+            cy.clearAllLocalStorage();
+            cy.clearAllSessionStorage();
 
-        cy.log('Verify user is logged in');
-        cy.get('body').should('contain', 'blachance8');
-        cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
-        cy.title().should('equal', 'SAML Test Site');
-    });
+            deleteUser(kcUsername);
+            // eslint-disable-next-line cypress/no-unnecessary-waiting
+            cy.wait(1000); // Wait for user deletion to complete
 
-    it('User should be able to login using SAML authentication in FR', () => {
-        cy.clearAllCookies();
-        cy.setLocale('fr-FR');
-        cy.setLanguageHeaders('fr-FR');
-        cy.reload();
-        // Delete user to avoid preferred language to be already set
-        deleteUser('/users/fj/ac/bj/blachance8');
-        cy.visit('/');
-        cy.title().should('equal', 'SAML Test Site FR');
-        cy.get(`input[value="${buttonName}"]`).should('exist').and('be.visible').click();
-        cy.get('#username').should('be.visible').type('blachance8');
-        cy.get('#password').should('be.visible').type('password');
-        cy.get('input[type="submit"]').should('be.visible').click();
-        cy.log('Verify user is logged in');
-        cy.get('body').should('contain', 'blachance8');
-        cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
-        cy.title().should('equal', 'SAML Test Site FR');
-    });
+            cy.setLocale(locale);
+            cy.setLanguageHeaders(locale);
 
-    function installConfig(configFilePath) {
-        return cy.runProvisioningScript(
-            {fileContent: `- installConfiguration: "${configFilePath}"`, type: 'application/yaml'},
-            [{fileName: `${configFilePath}`, type: 'text/plain'}]
-        );
-    }
+            cy.visit('/', {
+                onBeforeLoad: win => {
+                    // Ensure clean state
+                    win.sessionStorage.clear();
+                    win.localStorage.clear();
+                }
+            });
 
-    function createSamlButton(name) {
-        cy.apollo({
-            mutationFile: 'samlLogin/createSamlButton.graphql',
-            variables: {homePath: home, name}
-        }).should(res => {
-            expect(res?.data?.jcr.addNode.addChild.uuid, `Created SAML button ${name}`).to.be.not.undefined;
+            cy.log('Initiate SAML login flow');
+            cy.title().should('equal', title);
+            initiateSamlLogin({buttonName: buttonName}); // Should redirect to keycloak login page
+            waitAndFillKeycloakLoginForm(kcUrl, kcUsername, kcPassword);
+
+            cy.log('Verify user is logged in');
+            // Wait for redirect back to Jahia
+            cy.url({timeout: 15000}).should('include', '/sites/' + siteKey);
+            cy.get('body', {timeout: 10000}).should('contain', kcUsername);
+            cy.get(`input[value="${buttonName}"]`).should('not.exist'); // Logged in
+            cy.title().should('equal', title);
         });
-    }
-
-    function deleteUser(userPath) {
-        cy.apollo({
-            mutationFile: 'samlLogin/deleteUser.graphql',
-            variables: {userPath}
-        });
-    }
+    });
 });
