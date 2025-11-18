@@ -1,4 +1,4 @@
-package org.jahia.modules.saml2;
+package org.jahia.modules.saml2.internal;
 
 public final class SAML2Constants {
 

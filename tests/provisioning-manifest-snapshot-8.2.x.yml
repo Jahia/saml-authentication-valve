@@ -34,5 +34,6 @@
   - 'mvn:org.jahia.modules/default-skins'
   - 'mvn:org.jahia.modules/grid'
   - 'mvn:org.jahia.modules/saml-authentication-valve'
+  - 'mvn:org.jahia.modules/saml-authentication-valve-test-module'
   autoStart: true
   uninstallPreviousVersion: true

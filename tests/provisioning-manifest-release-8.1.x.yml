@@ -29,5 +29,6 @@
   - 'mvn:org.jahia.modules/bootstrap-components'
   - 'mvn:org.jahia.modules/sample-bootstrap-templates'
   - 'mvn:org.jahia.modules/saml-authentication-valve'
+  - 'mvn:org.jahia.modules/saml-authentication-valve-test-module'
   autoStart: true
   uninstallPreviousVersion: true

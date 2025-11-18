@@ -352,6 +352,7 @@
                             com.google.common.net;version="[30.1,34)",
                             *
                         </Import-Package>
+                        <Export-Package>org.jahia.modules.saml2</Export-Package>
                         <_noimportjava>true</_noimportjava>
                     </instructions>
                 </configuration>
