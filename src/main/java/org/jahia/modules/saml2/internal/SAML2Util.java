@@ -35,7 +35,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 
-@Component(service = SAML2InfoProvider.class, immediate = true)
+@Component(service = {SAML2InfoProvider.class, SAML2Util.class}, immediate = true)
 public final class SAML2Util implements SAML2InfoProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAML2Util.class);
