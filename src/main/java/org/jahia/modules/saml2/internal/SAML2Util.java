@@ -16,6 +16,8 @@ import org.opensaml.core.config.InitializationService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.pac4j.core.exception.TechnicalException;
+import org.pac4j.core.util.generator.RandomValueGenerator;
+import org.pac4j.core.util.generator.ValueGenerator;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.slf4j.Logger;
@@ -236,6 +238,7 @@ public final class SAML2Util implements SAML2InfoProvider {
 
             final SAML2Client client = new SAML2Client(saml2ClientConfiguration);
             client.setCallbackUrl(callbackUrl);
+            client.setStateGenerator(new RandomValueGenerator());
             try {
                 client.init();
             } catch (NullPointerException e) {
