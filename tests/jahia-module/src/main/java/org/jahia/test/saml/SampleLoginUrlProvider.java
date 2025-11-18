@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Jerome Blanchard
  */
 @Component(immediate = true)
-public class SampleLoginProvider implements LoginUrlProvider {
+public class SampleLoginUrlProvider implements LoginUrlProvider {
 
     @Reference SAML2InfoProvider saml2InfoProvider;
 
