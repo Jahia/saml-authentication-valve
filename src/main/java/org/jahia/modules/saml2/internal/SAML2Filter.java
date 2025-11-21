@@ -166,7 +166,6 @@ public class SAML2Filter extends AbstractServletFilter {
             });
             if (redirected) {
                 LOGGER.debug("SAMLConnectFilter request redirected to SSO");
-                return;
             }
         } else {
             LOGGER.error("No site found (param or servername based), cannot proceed with SAML connect");
