@@ -124,16 +124,20 @@ public class SAML2Filter extends AbstractServletFilter {
                     String redirection = util.getRedirectionUrl(httpRequest, siteKey);
                     LOGGER.debug("Redirecting to {}", redirection);
                     httpResponse.sendRedirect(redirection);
+                } else {
+                    httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to handle SSO callback");
                 }
             } catch (SAMLException e) {
-                LOGGER.warn("Cannot log in user : {}", e.getMessage());
+                LOGGER.warn("Unable to handle SAML callback : {}", e.getMessage());
+                httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while trying to login");
             }
         } else {
             LOGGER.error("No site found (param or servername based), cannot proceed with SAML authentication");
+            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to proceed with SAML authentication");
         }
     }
 
-    private void handleConnect(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+    private void handleConnect(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
         LOGGER.debug("SAML2Filter.handleConnect() matches request URI: {}", httpRequest.getRequestURI());
         final String siteKey = util.findSiteKeyForRequest(httpRequest);
         if (siteKey != null) {
@@ -166,13 +170,16 @@ public class SAML2Filter extends AbstractServletFilter {
             });
             if (redirected) {
                 LOGGER.debug("SAMLConnectFilter request redirected to SSO");
+            } else {
+                httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to redirect to SSO");
             }
         } else {
             LOGGER.error("No site found (param or servername based), cannot proceed with SAML connect");
+            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to proceed with SAML authentication");
         }
     }
 
-    private void handleMetadata(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+    private void handleMetadata(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
         LOGGER.debug("SAML2Filter.handleMetadata() matches URL {}", httpRequest.getRequestURI());
         final String siteKey = util.findSiteKeyForRequest(httpRequest);
         if (siteKey != null) {
@@ -188,10 +195,12 @@ public class SAML2Filter extends AbstractServletFilter {
             });
             if (generated) {
                 LOGGER.debug("SAML2 metadata successfully generated");
-                return;
+            } else {
+                httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to generate SAML metadata");
             }
         } else {
             LOGGER.error("No site found (param or servername based), cannot proceed with SAML metadata generation");
+            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to proceed with SAML authentication");
         }
     }
 
