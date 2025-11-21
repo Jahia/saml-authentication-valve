@@ -1,20 +1,22 @@
-package org.jahia.modules.saml2;
+package org.jahia.modules.saml2.internal;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jahia.api.settings.SettingsBean;
 import org.jahia.modules.jahiaauth.service.ConnectorConfig;
 import org.jahia.modules.jahiaauth.service.SettingsService;
+import org.jahia.modules.saml2.SAML2InfoProvider;
 import org.jahia.services.content.JCRCallback;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.JCRTemplate;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.sites.JahiaSitesService;
-import org.jahia.api.settings.SettingsBean;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.pac4j.core.exception.TechnicalException;
+import org.pac4j.core.util.generator.RandomValueGenerator;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.slf4j.Logger;
@@ -34,8 +36,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 
-@Component(immediate = true, service = SAML2Util.class)
-public final class SAML2Util {
+@Component(service = {SAML2InfoProvider.class, SAML2Util.class}, immediate = true)
+public final class SAML2Util implements SAML2InfoProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAML2Util.class);
     private final HashMap<String, SAML2Client> clients = new HashMap<>();
@@ -46,6 +48,14 @@ public final class SAML2Util {
     private SettingsService settingsService;
     @Reference
     private SettingsBean settingsBean;
+
+    @Override public String getRedirectionUrl(HttpServletRequest request) {
+        return getRedirectionUrl(request, findSiteKeyForRequest(request));
+    }
+
+    @Override public String getCallbackUrl(final HttpServletRequest request) {
+        return getSAML2Client(request, findSiteKeyForRequest(request)).getCallbackUrl();
+    }
 
     /**
      * We do not use URLResolver strategies to determine the site key (aka parsing the path to extract /sites/siteKey/**) to avoid
@@ -145,12 +155,6 @@ public final class SAML2Util {
         }
     }
 
-    /**
-     * Get saml client.
-     *
-     * @param request
-     * @return
-     */
     public SAML2Client getSAML2Client(final HttpServletRequest request, String siteKey) {
         final SAML2Client client;
         if (clients.containsKey(siteKey)) {
@@ -176,10 +180,6 @@ public final class SAML2Util {
         return null;
     }
 
-    /**
-     * Method to reset SAMLClient so that a new state {@link SAML2Client} can be generated, when it is requested the
-     * next time.
-     */
     public void resetClient(String siteKey) {
         clients.remove(siteKey);
     }
@@ -232,11 +232,12 @@ public final class SAML2Util {
                     spMetadataFile.delete();
                 }
             } catch (IOException e) {
-                throw new TechnicalException("Cannot udpate SP Metadata file", e);
+                throw new TechnicalException("Cannot update SP Metadata file", e);
             }
 
             final SAML2Client client = new SAML2Client(saml2ClientConfiguration);
             client.setCallbackUrl(callbackUrl);
+            client.setStateGenerator(new RandomValueGenerator());
             try {
                 client.init();
             } catch (NullPointerException e) {

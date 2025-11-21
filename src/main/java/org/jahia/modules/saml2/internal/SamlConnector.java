@@ -1,4 +1,4 @@
-package org.jahia.modules.saml2;
+package org.jahia.modules.saml2.internal;
 
 import org.jahia.modules.jahiaauth.service.ConnectorConfig;
 import org.jahia.modules.jahiaauth.service.ConnectorPropertyInfo;
