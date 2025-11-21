@@ -1,6 +1,4 @@
-import {enableModule, createSite, deleteSite, deleteUser, setNodeProperty, getJahiaVersion, revokeRoles, installConfig, publishAndWaitJobEnding} from '@jahia/cypress';
-import {waitAndFillKeycloakLoginForm, initiateSamlLogin} from '../support/helper';
-import {compare} from 'compare-versions';
+import {createSite, deleteSite, enableModule, publishAndWaitJobEnding, setNodeProperty} from '@jahia/cypress';
 
 describe('Login via SAML on Private Site', () => {
     const siteKey = 'samlTestSiteError';
