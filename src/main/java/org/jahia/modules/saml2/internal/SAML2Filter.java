@@ -98,26 +98,30 @@ public class SAML2Filter extends AbstractServletFilter {
         if (siteKey != null) {
             try {
                 boolean redirect = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
-                    final SAML2Client client = util.getSAML2Client(httpRequest, siteKey);
-                    final JEEContext webContext = new JEEContext(httpRequest, httpResponse);
-                    final Optional<SAML2Credentials> saml2Credentials = client.getCredentials(webContext);
-                    final Optional<UserProfile> saml2Profile = saml2Credentials.flatMap(c -> client.getUserProfile(c, webContext));
+                    try {
+                        final SAML2Client client = util.getSAML2Client(httpRequest, siteKey);
+                        final JEEContext webContext = new JEEContext(httpRequest, httpResponse);
+                        final Optional<SAML2Credentials> saml2Credentials = client.getCredentials(webContext);
+                        final Optional<UserProfile> saml2Profile = saml2Credentials.flatMap(c -> client.getUserProfile(c, webContext));
 
-                    if (saml2Profile.isPresent()) {
-                        Map<String, Object> properties = getMapperResult((BasicUserProfile) saml2Profile.get());
-                        ConnectorConfig config = settingsService.getConnectorConfig(siteKey, "Saml");
-                        for (MapperConfig mapper : config.getMappers()) {
-                            try {
-                                jahiaAuthMapperService.executeMapper(httpRequest.getSession().getId(), mapper, properties);
-                            } catch (JahiaAuthException e) {
-                                LOGGER.warn("Cannot log in user : {}", e.getMessage());
-                                return false;
+                        if (saml2Profile.isPresent()) {
+                            Map<String, Object> properties = getMapperResult((BasicUserProfile) saml2Profile.get());
+                            ConnectorConfig config = settingsService.getConnectorConfig(siteKey, "Saml");
+                            for (MapperConfig mapper : config.getMappers()) {
+                                try {
+                                    jahiaAuthMapperService.executeMapper(httpRequest.getSession().getId(), mapper, properties);
+                                } catch (JahiaAuthException e) {
+                                    LOGGER.warn("Cannot log in user : {}", e.getMessage());
+                                    return false;
+                                }
                             }
+                            jahiaAuthMapperService.executeConnectorResultProcessors(config, properties);
+                            return true;
                         }
-                        jahiaAuthMapperService.executeConnectorResultProcessors(config, properties);
-                        return true;
+                        LOGGER.warn("Cannot log in user : saml2Profile is not present");
+                    } catch (Exception e) {
+                        LOGGER.warn("Unable to handle SAML callback : {}", e.getMessage());
                     }
-                    LOGGER.warn("Cannot log in user : saml2Profile is not present");
                     return false;
                 });
                 if (redirect) {
@@ -142,36 +146,40 @@ public class SAML2Filter extends AbstractServletFilter {
         final String siteKey = util.findSiteKeyForRequest(httpRequest);
         if (siteKey != null) {
             boolean redirected = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
-                // Store authentication context (redirect URL, site param) in cookies
-                util.storeAuthenticationContext(httpRequest, httpResponse, siteKey);
+                try {
+                    // Store authentication context (redirect URL, site param) in cookies
+                    util.storeAuthenticationContext(httpRequest, httpResponse, siteKey);
 
-                final SAML2Client client = util.getSAML2Client(httpRequest, siteKey);
-                JEEContext webContext = new JEEContext(httpRequest, httpResponse);
-                final Optional<RedirectionAction> action = client.getRedirectionAction(webContext);
-                if (action.isPresent()) {
-                    RedirectionAction redirectionAction = action.get();
-                    try {
-                        if (redirectionAction instanceof OkAction) {
-                            httpResponse.getWriter().append(((OkAction) redirectionAction).getContent());
-                        } else if (redirectionAction instanceof SeeOtherAction) {
-                            httpResponse.sendRedirect(((SeeOtherAction) redirectionAction).getLocation());
-                        } else if (redirectionAction instanceof FoundAction) {
-                            httpResponse.sendRedirect(((FoundAction) redirectionAction).getLocation());
+                    final SAML2Client client = util.getSAML2Client(httpRequest, siteKey);
+                    JEEContext webContext = new JEEContext(httpRequest, httpResponse);
+                    final Optional<RedirectionAction> action = client.getRedirectionAction(webContext);
+                    if (action.isPresent()) {
+                        RedirectionAction redirectionAction = action.get();
+                        try {
+                            if (redirectionAction instanceof OkAction) {
+                                httpResponse.getWriter().append(((OkAction) redirectionAction).getContent());
+                            } else if (redirectionAction instanceof SeeOtherAction) {
+                                httpResponse.sendRedirect(((SeeOtherAction) redirectionAction).getLocation());
+                            } else if (redirectionAction instanceof FoundAction) {
+                                httpResponse.sendRedirect(((FoundAction) redirectionAction).getLocation());
+                            }
+                            httpResponse.getWriter().flush();
+                            return true;
+                        } catch (IOException e) {
+                            LOGGER.error("Cannot send response", e);
                         }
-                        httpResponse.getWriter().flush();
-                        return true;
-                    } catch (IOException e) {
-                        LOGGER.error("Cannot send response", e);
+                    } else {
+                        LOGGER.warn("No SAML redirection");
                     }
-                } else {
-                    LOGGER.warn("No SAML redirection");
+                } catch (Exception e) {
+                    LOGGER.error("Error during SAML connect", e);
                 }
                 return false;
             });
             if (redirected) {
                 LOGGER.debug("SAMLConnectFilter request redirected to SSO");
             } else {
-                httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to redirect to SSO");
+                httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to redirect to SSO");
             }
         } else {
             LOGGER.error("No site found (param or servername based), cannot proceed with SAML connect");
@@ -184,8 +192,8 @@ public class SAML2Filter extends AbstractServletFilter {
         final String siteKey = util.findSiteKeyForRequest(httpRequest);
         if (siteKey != null) {
             boolean generated = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
-                SAML2MetadataResolver metadataResolver = util.getSAML2Client(httpRequest, siteKey).getServiceProviderMetadataResolver();
                 try {
+                    SAML2MetadataResolver metadataResolver = util.getSAML2Client(httpRequest, siteKey).getServiceProviderMetadataResolver();
                     httpResponse.getWriter().append(metadataResolver.getMetadata());
                     return true;
                 } catch (Exception e) {
@@ -196,7 +204,7 @@ public class SAML2Filter extends AbstractServletFilter {
             if (generated) {
                 LOGGER.debug("SAML2 metadata successfully generated");
             } else {
-                httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to generate SAML metadata");
+                httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to generate SAML metadata");
             }
         } else {
             LOGGER.error("No site found (param or servername based), cannot proceed with SAML metadata generation");
