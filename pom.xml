@@ -23,7 +23,7 @@
         <bouncycastle.version>1.78</bouncycastle.version>
         <joda-time.version>2.12.7</joda-time.version>
         <java-support.version>7.5.2</java-support.version>
-        <jahia-module-signature>MCwCFElkZrHqiMzBfecZxg0+r1TJXXUFAhQ4fArgzonjlfKCgjT4qMsesOxmhw==</jahia-module-signature>
+        <jahia-module-signature>MCwCFAL4NNgtYZAICtZ02Qkj9bm0igXGAhRjvrsV+IcEwQGTszVpY3n3ip0nIw==</jahia-module-signature>
         <jahia.plugin.version>6.9</jahia.plugin.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
