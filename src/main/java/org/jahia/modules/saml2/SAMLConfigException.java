@@ -15,14 +15,11 @@
  */
 package org.jahia.modules.saml2;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * @author Jerome Blanchard
  */
-public interface SAML2InfoProvider {
-    String getRedirectionUrl(HttpServletRequest request);
-
-    String getCallbackUrl(HttpServletRequest request) throws SAMLConfigException;
-
+public class SAMLConfigException extends Exception {
+    public SAMLConfigException(String message) {
+        super(message);
+    }
 }

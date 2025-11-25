@@ -214,6 +214,17 @@ Such a sample jsp page could be:
 You can always route the user to the SAML Authentication from an external link (a portal page, for example) using the site url followed by connect.saml?siteKey={sitekey} as explained in the Adding a login form section.
 :::
 
+### Understanding SAML Authentication errors
+
+Clients will only (and always) receive HTTP 400 errors with a simple message indicating that the authentication failed according to the current step (connect or callback).
+When such an error occurs, you have to check the log file to understand the reason for the failure.
+
+Common reasons for SAML authentication failures are:
+- Missing or wrong `siteKey` query param in the URL.
+- Missing or unreadable SAML configuration for the site.
+- Wrong keystore or certificate configuration.
+- Mismatched Relying Party Identifier.
+
 ### Related links
 
 More details on configuration options can be found in the pac4j library documentation: [http://www.pac4j.org/3.2.x/docs/clients/saml.html](http://www.pac4j.org/3.2.x/docs/clients/saml.html)
