@@ -17,6 +17,7 @@ package org.jahia.modules.saml2.internal;
 
 import org.jahia.bin.filters.AbstractServletFilter;
 import org.jahia.modules.jahiaauth.service.*;
+import org.jahia.modules.saml2.SAMLConfigException;
 import org.jahia.utils.ClassLoaderUtils;
 import org.opensaml.core.config.InitializationService;
 import org.osgi.service.component.annotations.Activate;
@@ -79,66 +80,17 @@ public class SAML2Filter extends AbstractServletFilter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         String requestURI = httpRequest.getRequestURI();
-        if (requestURI.endsWith("callback.saml")) {
-            handleCallback(httpRequest, httpResponse);
-            return;
-        } else if (requestURI.endsWith("connect.saml")) {
+        if (requestURI.endsWith("connect.saml")) {
             handleConnect(httpRequest, httpResponse);
+            return;
+        } else if (requestURI.endsWith("callback.saml")) {
+            handleCallback(httpRequest, httpResponse);
             return;
         } else if (requestURI.endsWith("metadata.saml")) {
             handleMetadata(httpRequest, httpResponse);
             return;
         }
         chain.doFilter(request, response);
-    }
-
-    private void handleCallback(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
-        LOGGER.debug("SAML2Filter.handleCallback() matches URL {}", httpRequest.getRequestURI());
-        String siteKey = util.findSiteKeyForRequest(httpRequest);
-        if (siteKey != null) {
-            try {
-                boolean redirect = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
-                    try {
-                        final SAML2Client client = util.getSAML2Client(httpRequest, siteKey);
-                        final JEEContext webContext = new JEEContext(httpRequest, httpResponse);
-                        final Optional<SAML2Credentials> saml2Credentials = client.getCredentials(webContext);
-                        final Optional<UserProfile> saml2Profile = saml2Credentials.flatMap(c -> client.getUserProfile(c, webContext));
-
-                        if (saml2Profile.isPresent()) {
-                            Map<String, Object> properties = getMapperResult((BasicUserProfile) saml2Profile.get());
-                            ConnectorConfig config = settingsService.getConnectorConfig(siteKey, "Saml");
-                            for (MapperConfig mapper : config.getMappers()) {
-                                try {
-                                    jahiaAuthMapperService.executeMapper(httpRequest.getSession().getId(), mapper, properties);
-                                } catch (JahiaAuthException e) {
-                                    LOGGER.warn("Cannot log in user : {}", e.getMessage());
-                                    return false;
-                                }
-                            }
-                            jahiaAuthMapperService.executeConnectorResultProcessors(config, properties);
-                            return true;
-                        }
-                        LOGGER.warn("Cannot log in user : saml2Profile is not present");
-                    } catch (Exception e) {
-                        LOGGER.warn("Unable to handle SAML callback : {}", e.getMessage());
-                    }
-                    return false;
-                });
-                if (redirect) {
-                    String redirection = util.getRedirectionUrl(httpRequest, siteKey);
-                    LOGGER.debug("Redirecting to {}", redirection);
-                    httpResponse.sendRedirect(redirection);
-                } else {
-                    httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to handle SSO callback");
-                }
-            } catch (SAMLException e) {
-                LOGGER.warn("Unable to handle SAML callback : {}", e.getMessage());
-                httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while trying to login");
-            }
-        } else {
-            LOGGER.error("No site found (param or servername based), cannot proceed with SAML authentication");
-            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to proceed with SAML authentication");
-        }
     }
 
     private void handleConnect(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
@@ -149,7 +101,6 @@ public class SAML2Filter extends AbstractServletFilter {
                 try {
                     // Store authentication context (redirect URL, site param) in cookies
                     util.storeAuthenticationContext(httpRequest, httpResponse, siteKey);
-
                     final SAML2Client client = util.getSAML2Client(httpRequest, siteKey);
                     JEEContext webContext = new JEEContext(httpRequest, httpResponse);
                     final Optional<RedirectionAction> action = client.getRedirectionAction(webContext);
@@ -169,22 +120,67 @@ public class SAML2Filter extends AbstractServletFilter {
                             LOGGER.error("Cannot send response", e);
                         }
                     } else {
-                        LOGGER.warn("No SAML redirection");
+                        LOGGER.warn("No SAML redirection found in config");
                     }
+                } catch (SAMLConfigException e) {
+                    LOGGER.warn("Error in SAML configuration for siteKey '" + siteKey + "': " + e.getMessage());
                 } catch (Exception e) {
-                    LOGGER.error("Error during SAML connect", e);
+                    LOGGER.error("Unexpected error while trying to connect to SAML", e);
                 }
                 return false;
             });
             if (redirected) {
                 LOGGER.debug("SAMLConnectFilter request redirected to SSO");
-            } else {
-                httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to redirect to SSO");
+                return;
             }
         } else {
-            LOGGER.error("No site found (param or servername based), cannot proceed with SAML connect");
-            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to proceed with SAML authentication");
+            LOGGER.warn("No site found (param or servername based), cannot proceed with SAML connect");
         }
+        httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error while trying to connect to SAML");
+    }
+
+    private void handleCallback(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
+        LOGGER.debug("SAML2Filter.handleCallback() matches URL {}", httpRequest.getRequestURI());
+        String siteKey = util.findSiteKeyForRequest(httpRequest);
+        if (siteKey != null) {
+            String redirection = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
+                try {
+                    final SAML2Client client = util.getSAML2Client(httpRequest, siteKey);
+                    final JEEContext webContext = new JEEContext(httpRequest, httpResponse);
+                    final Optional<SAML2Credentials> saml2Credentials = client.getCredentials(webContext);
+                    final Optional<UserProfile> saml2Profile = saml2Credentials.flatMap(c -> client.getUserProfile(c, webContext));
+
+                    if (saml2Profile.isPresent()) {
+                        Map<String, Object> properties = getMapperResult((BasicUserProfile) saml2Profile.get());
+                        ConnectorConfig config = settingsService.getConnectorConfig(siteKey, "Saml");
+                        for (MapperConfig mapper : config.getMappers()) {
+                            try {
+                                jahiaAuthMapperService.executeMapper(httpRequest.getSession().getId(), mapper, properties);
+                            } catch (JahiaAuthException e) {
+                                LOGGER.warn("Cannot log in user : {}", e.getMessage());
+                                return null;
+                            }
+                        }
+                        jahiaAuthMapperService.executeConnectorResultProcessors(config, properties);
+                        return util.getRedirectionUrl(httpRequest, siteKey);
+                    }
+                    LOGGER.warn("Cannot log in user : saml2Profile is not present");
+                } catch (SAMLConfigException e) {
+                    LOGGER.warn("Error in SAML configuration for siteKey '" + siteKey + "': " + e.getMessage());
+                } catch (Exception e) {
+                    LOGGER.warn("Unable to handle SAML callback : {}", e.getMessage());
+                }
+                return null;
+            });
+            if (redirection != null) {
+                LOGGER.debug("SAML Callback performed, redirecting to locale page {}", redirection);
+                httpResponse.sendRedirect(redirection);
+                return;
+            }
+        } else {
+            LOGGER.warn("No site found (param or servername based), cannot proceed with SAML authentication");
+        }
+        httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error while trying to proceed with SAML authentication");
     }
 
     private void handleMetadata(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
@@ -196,20 +192,21 @@ public class SAML2Filter extends AbstractServletFilter {
                     SAML2MetadataResolver metadataResolver = util.getSAML2Client(httpRequest, siteKey).getServiceProviderMetadataResolver();
                     httpResponse.getWriter().append(metadataResolver.getMetadata());
                     return true;
+                } catch (SAMLConfigException e) {
+                    LOGGER.warn("Error in SAML configuration for siteKey '" + siteKey + "': " + e.getMessage());
                 } catch (Exception e) {
                     LOGGER.error("Error when getting metadata", e);
-                    return false;
                 }
+                return false;
             });
             if (generated) {
                 LOGGER.debug("SAML2 metadata successfully generated");
-            } else {
-                httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to generate SAML metadata");
+                return;
             }
         } else {
-            LOGGER.error("No site found (param or servername based), cannot proceed with SAML metadata generation");
-            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to proceed with SAML authentication");
+            LOGGER.warn("No site found (param or servername based), cannot proceed with SAML metadata generation");
         }
+        httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error while trying to generate SAML metadata");
     }
 
     @Override

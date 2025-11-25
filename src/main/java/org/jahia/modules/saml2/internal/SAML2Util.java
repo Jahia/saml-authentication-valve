@@ -4,8 +4,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.api.settings.SettingsBean;
 import org.jahia.modules.jahiaauth.service.ConnectorConfig;
+import org.jahia.modules.jahiaauth.service.JahiaAuthException;
 import org.jahia.modules.jahiaauth.service.SettingsService;
 import org.jahia.modules.saml2.SAML2InfoProvider;
+import org.jahia.modules.saml2.SAMLConfigException;
 import org.jahia.services.content.JCRCallback;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.JCRTemplate;
@@ -53,7 +55,7 @@ public final class SAML2Util implements SAML2InfoProvider {
         return getRedirectionUrl(request, findSiteKeyForRequest(request));
     }
 
-    @Override public String getCallbackUrl(final HttpServletRequest request) {
+    @Override public String getCallbackUrl(final HttpServletRequest request) throws SAMLConfigException {
         return getSAML2Client(request, findSiteKeyForRequest(request)).getCallbackUrl();
     }
 
@@ -155,12 +157,15 @@ public final class SAML2Util implements SAML2InfoProvider {
         }
     }
 
-    public SAML2Client getSAML2Client(final HttpServletRequest request, String siteKey) {
+    public SAML2Client getSAML2Client(final HttpServletRequest request, String siteKey) throws SAMLConfigException {
         final SAML2Client client;
         if (clients.containsKey(siteKey)) {
             client = clients.get(siteKey);
         } else {
             final ConnectorConfig saml2Settings = this.settingsService.getConnectorConfig(siteKey, "Saml");
+            if (saml2Settings == null) {
+                throw new SAMLConfigException("No SAML2 settings found for siteKey: " + siteKey);
+            }
             client = initSAMLClient(saml2Settings, request);
             clients.put(siteKey, client);
         }
@@ -209,12 +214,6 @@ public final class SAML2Util implements SAML2InfoProvider {
         return saml2ClientConfiguration;
     }
 
-    /**
-     * New method to Initializing saml client.
-     *
-     * @param saml2Settings
-     * @param request
-     */
     private SAML2Client initSAMLClient(ConnectorConfig saml2Settings, HttpServletRequest request) {
         final SAML2Configuration saml2ClientConfiguration = getSAML2ClientConfiguration(saml2Settings);
         if (StringUtils.isEmpty(saml2Settings.getProperty(SAML2Constants.SERVER_LOCATION))) {
