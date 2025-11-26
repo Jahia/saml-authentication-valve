@@ -36,13 +36,13 @@ jobs:
           incident_service: saml-authentication-valve-JahiaRL
           testrail_project: SAML Module
           timeout_minutes: 30
-          tests_manifest: ${{ github.event.inputs.manifest }}
+          tests_manifest: ${{ github.event.inputs.tests_manifest }}
           jahia_image: ${{ github.event.inputs.jahia_image }}
           should_use_build_artifacts: false
           should_skip_artifacts: true
-          should_skip_notifications: false
-          should_skip_testrail: false
-          should_skip_zencrepes: false
+          should_skip_notifications: true
+          should_skip_testrail: true
+          should_skip_zencrepes: true
           github_artifact_name: saml-standalone-release-artifacts-${{ github.run_number }}
           bastion_ssh_private_key: ${{ secrets.BASTION_SSH_PRIVATE_KEY_JAHIACI }}
           jahia_license: ${{ secrets.JAHIA_LICENSE_8X_FULL }}
