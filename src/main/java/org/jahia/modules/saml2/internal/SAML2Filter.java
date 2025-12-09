@@ -70,7 +70,7 @@ public class SAML2Filter extends AbstractServletFilter {
         setMatchAllUrls(false);
         setUrlPatterns(new String[]{"*.saml"});
         setFilterName("SAML2Filter");
-        setOrder(-872f);
+        setOrder(-5.4f);
     }
 
     @Override
