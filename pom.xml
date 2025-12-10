@@ -9,7 +9,7 @@
 
     <artifactId>saml-authentication-valve</artifactId>
     <name>SAML Authentication Valve</name>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.1.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <description>This is the custom module (SAML Authentication Valve) for running on a Digital Experience Manager
         server.
@@ -23,7 +23,7 @@
         <bouncycastle.version>1.78</bouncycastle.version>
         <joda-time.version>2.12.7</joda-time.version>
         <java-support.version>7.5.2</java-support.version>
-        <jahia-module-signature>MCwCFAL4NNgtYZAICtZ02Qkj9bm0igXGAhRjvrsV+IcEwQGTszVpY3n3ip0nIw==</jahia-module-signature>
+        <jahia-module-signature>MCwCFEv2zu7GAaQNwOoY0ShTwwdDGGneAhR7xamfITs+q/V17O9gVrUq/4wprQ==</jahia-module-signature>
         <jahia.plugin.version>6.9</jahia.plugin.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
