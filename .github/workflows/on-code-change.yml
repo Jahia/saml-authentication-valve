@@ -62,8 +62,6 @@ jobs:
     secrets: inherit
     name: Integration Tests (Standalone)
     needs: build
-    runs-on: self-hosted
-    timeout-minutes: 45
     with:
       jahia_image: 'ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT'
       module_id: saml-authentication-valve
