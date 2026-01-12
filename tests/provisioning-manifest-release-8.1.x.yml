@@ -1,5 +1,6 @@
 - installBundle:
-  - 'mvn:org.jahia.modules/jahia-authentication/RELEASE'
+  # In Maven, 2.0.0-SNAPSHOT is considered less than 2.0.0 (release) so we can't use "[1.0,2.0)"
+  - 'mvn:org.jahia.modules/jahia-authentication/[1.0,2.0-SNAPSHOT)'
   - 'mvn:org.jahia.modules/jcr-auth-provider/RELEASE'
   - 'mvn:org.jahia.modules/contact'
   - 'mvn:org.jahia.modules/event/3.1.0'
