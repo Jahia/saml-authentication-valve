@@ -58,6 +58,7 @@ jobs:
     with:
       jahia_image: 'ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT'
       module_id: saml-authentication-valve
+      module_branch: main
       testrail_project: SAML Module
       pagerduty_skip_notification: false
       provisioning_manifest: 'provisioning-manifest-build-8.2.x.yml'
