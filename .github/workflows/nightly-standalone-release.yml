@@ -12,6 +12,7 @@ jobs:
     with:
       jahia_image: 'jahia/jahia-ee:8.1'
       module_id: saml-authentication-valve
+      module_branch: main
       testrail_project: SAML Module
       pagerduty_skip_notification: false
       provisioning_manifest: 'provisioning-manifest-release-8.1.x.yml'

@@ -42,7 +42,6 @@ jobs:
         with:
           nexus_username: ${{ secrets.NEXUS_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
-          module_id: saml-authentication-valve
           
   sonar-analysis:
     name: Sonar Analysis
@@ -52,7 +51,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: jahia/jahia-modules-action/sonar-analysis@v2
         with:
-          primary_release_branch: master
+          primary_release_branch: main
           github_pr_id: ${{github.event.number}}
           sonar_url: ${{ secrets.SONAR_URL }}
           sonar_token: ${{ secrets.SONAR_TOKEN }}
@@ -65,6 +64,7 @@ jobs:
     with:
       jahia_image: 'ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT'
       module_id: saml-authentication-valve
+      module_branch: ${{ github.ref }}
       testrail_project: SAML Module
       pagerduty_skip_notification: false
       provisioning_manifest: 'provisioning-manifest-build-8.2.x.yml'
