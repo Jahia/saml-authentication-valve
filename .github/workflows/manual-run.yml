@@ -21,6 +21,7 @@ jobs:
     with:
       jahia_image: ${{ github.event.inputs.jahia_image || 'ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT' }}
       module_id: saml-authentication-valve
+      module_branch: ${{ github.ref }}
       testrail_project: SAML Module
       pagerduty_skip_notification: true
       provisioning_manifest: ${{ github.event.inputs.provisioning_manifest || 'provisioning-manifest-snapshot-8.2.x.yml' }}
