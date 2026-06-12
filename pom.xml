@@ -25,8 +25,8 @@
         <java-support.version>7.5.2</java-support.version>
         <jahia-module-signature>MCwCFEQl8cCw9WVWj9HnM1KxBSF4bYSFAhQ0cVi+hN3epYSL8Lx7kNHtUUEjIw==</jahia-module-signature>
         <jahia.plugin.version>6.9</jahia.plugin.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <sonar.sources>src/main/resources/javascript</sonar.sources>
     </properties>
 
