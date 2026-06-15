@@ -1,6 +1,8 @@
 - installBundle:
-  - 'mvn:org.jahia.modules/jahia-authentication/RELEASE'
-  - 'mvn:org.jahia.modules/jcr-auth-provider/[3.0-SNAPSHOT,4.0-SNAPSHOT)'
+  # The range should include the jahia-authentication version defined in the pom.xml
+  - 'mvn:org.jahia.modules/jahia-authentication/[2.0-SNAPSHOT,3.0-SNAPSHOT)'
+  # Use the version range of jcr-auth-provider compatible with the jahia-authentication version above
+  - 'mvn:org.jahia.modules/jcr-auth-provider/[4.0-SNAPSHOT,5.0-SNAPSHOT)'
   - 'mvn:org.jahia.modules/contact'
   - 'mvn:org.jahia.modules/event'
   - 'mvn:org.jahia.modules/font-awesome'
