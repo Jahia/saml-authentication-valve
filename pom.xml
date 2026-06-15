@@ -16,6 +16,7 @@
     </description>
 
     <properties>
+        <jahia-depends>jahia-authentication</jahia-depends>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <pac4j.version>4.5.7</pac4j.version>
         <opensaml.version>3.4.6</opensaml.version>
@@ -24,8 +25,6 @@
         <joda-time.version>2.12.7</joda-time.version>
         <java-support.version>7.5.2</java-support.version>
         <jahia-module-signature>MCwCFEQl8cCw9WVWj9HnM1KxBSF4bYSFAhQ0cVi+hN3epYSL8Lx7kNHtUUEjIw==</jahia-module-signature>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
         <sonar.sources>src/main/resources/javascript</sonar.sources>
     </properties>
 
