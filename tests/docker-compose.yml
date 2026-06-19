@@ -16,8 +16,12 @@ services:
         ports:
             - '389:389'
             - '636:636'
+        extra_hosts:
+            - "jahia:172.18.0.10"
+            - "keycloak:172.18.0.11"
         networks:
-            - stack
+            default:
+                ipv4_address: 172.18.0.12
 
     keycloak:
         image: quay.io/keycloak/keycloak:21.0
@@ -37,8 +41,12 @@ services:
             # external port needs to be same as docker internal port (8080) for generating idp-metadata.xml
             - '8080:8080'
         command: 'start-dev --import-realm'
+        extra_hosts:
+            - "jahia:172.18.0.10"
+            - "ldap:172.18.0.12"
         networks:
-            - stack
+            default:
+                ipv4_address: 172.18.0.11
 
     jahia:
         image: '${JAHIA_IMAGE}'
@@ -53,8 +61,12 @@ services:
         ports:
             - '8081:8080'
             - '8000:8000'
+        extra_hosts:
+            - "jahia:172.18.0.10"
+            - "keycloak:172.18.0.11"
         networks:
-            - stack
+            default:
+                ipv4_address: 172.18.0.10
 
     # Cypress container
     cypress:
@@ -71,7 +83,14 @@ services:
             - NEXUS_USERNAME=${NEXUS_USERNAME}
             - NEXUS_PASSWORD=${NEXUS_PASSWORD}
         networks:
-            - stack
+            default:
+                ipv4_address: 172.18.0.20
+        extra_hosts:
+            - "jahia:172.18.0.10"
+            - "keycloak:172.18.0.11"
 
 networks:
-    stack:
+    default:
+        ipam:
+            config:
+                - subnet: 172.18.0.0/16
