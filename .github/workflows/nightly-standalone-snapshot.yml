@@ -1,4 +1,4 @@
-name: Nightly (Jahia Snapshot)
+name: Nightly (Jahia SN)
 
 on:
   workflow_dispatch:
@@ -12,9 +12,8 @@ jobs:
     with:
       jahia_image: 'ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT'
       module_id: saml-authentication-valve
-      module_branch: main
+      module_branch: ${{ github.ref }}
       testrail_project: SAML Module
-      pagerduty_skip_notification: false
-      provisioning_manifest: 'provisioning-manifest-snapshot-8.2.x.yml'
+      provisioning_manifest: 'provisioning-manifest-snapshot.yml'
       artifact_prefix: saml
-      pagerduty_incident_service: saml-authentication-valve-JahiaSN
+      incident_service: saml-authentication-valve-JahiaRL

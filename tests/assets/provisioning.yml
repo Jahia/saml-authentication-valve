@@ -1,5 +1,3 @@
-- karafCommand: "bundle:list"
-
 - installBundle:
   # The range should include the jahia-authentication version defined in the pom.xml
   - 'mvn:org.jahia.modules/jahia-authentication/[2.0-SNAPSHOT,3.0-SNAPSHOT)'
@@ -22,6 +20,7 @@
   - 'mvn:org.jahia.modules/person'
   - 'mvn:org.jahia.modules/news'
   - 'mvn:org.jahia.modules/calendar'
+  - 'mvn:org.jahia.modules/tabularList'
   - 'mvn:org.jahia.modules/bootstrap3-core'
   - 'mvn:org.jahia.modules/bootstrap3-components'
   - 'mvn:org.jahia.modules/location'
@@ -36,6 +35,5 @@
   - 'mvn:org.jahia.modules/skins'
   - 'mvn:org.jahia.modules/default-skins'
   - 'mvn:org.jahia.modules/grid'
-  - 'mvn:org.jahia.modules/tabularList'
   autoStart: true
   uninstallPreviousVersion: true

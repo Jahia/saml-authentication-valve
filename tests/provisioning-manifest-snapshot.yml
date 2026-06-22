@@ -1,0 +1,6 @@
+- include: 'provisioning.yml'
+
+- installBundle:
+  - 'mvn:org.jahia.modules/saml-authentication-valve'
+  autoStart: true
+  uninstallPreviousVersion: true

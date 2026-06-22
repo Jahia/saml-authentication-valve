@@ -174,6 +174,11 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
+"@faker-js/faker@^10.3.0":
+  version "10.5.0"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-10.5.0.tgz#d2f6a8c7f08d087ac5f077d6babd0821edf24c03"
+  integrity sha512-bsxD8WLS5lIj7aaoCx1YJkktqYj5vlBUE6HWzu2Q51ksrGJ0H737ECCKlFU7Yf8Br45z9t99frBp/J7kzbMPAg==
+
 "@graphql-typed-document-node/core@^3.1.1":
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.1.1.tgz#076d78ce99822258cf813ecc1e7fa460fa74d052"
@@ -198,12 +203,14 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
-"@jahia/cypress@^6.3.1":
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/@jahia/cypress/-/cypress-6.3.1.tgz#c0c1c6bce91e16519e6220f05a0c58d6a6dd9549"
-  integrity sha512-dJpdoGBNkMoxelxWSp0q91sGXdFDZ/tBzyLONypjG/bHm0Bcd6zRC0rJJg01NK6Gh2FFjsdiqhWjGNF6a5PQ8A==
+"@jahia/cypress@^8.2.1":
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/@jahia/cypress/-/cypress-8.2.1.tgz#69b76fd7e9f97048867657e4ae8195d48cc24145"
+  integrity sha512-TRDy7LRePjYcnK5pZ61z+C7fspHqQDqMrEFUcsekBHT75nwKfanMU2wy5eMcTbkcvZfwnKpCncg7vOxCfOlfrw==
   dependencies:
     "@apollo/client" "^3.4.9"
+    "@faker-js/faker" "^10.3.0"
+    compare-versions "^6.1.1"
     cypress-real-events "^1.11.0"
     graphql "^15.5.0"
     graphql-tag "^2.11.0"
@@ -1265,7 +1272,7 @@ common-tags@^1.8.0:
   resolved "https://registry.yarnpkg.com/common-tags/-/common-tags-1.8.2.tgz#94ebb3c076d26032745fd54face7f688ef5ac9c6"
   integrity sha512-gk/Z852D2Wtb//0I+kRFNKKE9dIIVirjoqPoA1wJU+XePVXZfGeBpk45+A1rKO4Q43prqWBNY/MiIeRLbPWUaA==
 
-compare-versions@^6.1.0:
+compare-versions@^6.1.0, compare-versions@^6.1.1:
   version "6.1.1"
   resolved "https://registry.yarnpkg.com/compare-versions/-/compare-versions-6.1.1.tgz#7af3cc1099ba37d244b3145a9af5201b629148a9"
   integrity sha512-4hm4VPpIecmlg59CHXnRDnqGplJFrbLG4aFEl5vl6cK1u76ws3LLvX7ikFnTDl5vo39sjWD6AaDPYodJp/NNHg==

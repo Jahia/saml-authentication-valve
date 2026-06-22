@@ -1,0 +1,3 @@
+- karafCommand: "bundle:list"
+
+- include: 'provisioning.yml'
