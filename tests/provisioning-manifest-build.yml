@@ -1,5 +1,7 @@
 - karafCommand: "bundle:list"
 
+- include: 'provisioning.yml'
+
 - installBundle:
   # The range should include the jahia-authentication version defined in the pom.xml
   - 'mvn:org.jahia.modules/jahia-authentication/[2.0-SNAPSHOT,3.0-SNAPSHOT)'
