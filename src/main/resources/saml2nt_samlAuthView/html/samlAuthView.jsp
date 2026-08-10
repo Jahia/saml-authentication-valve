@@ -118,19 +118,20 @@
                 <input ng-model="saml.maximumAuthenticationLifetime">
             </md-input-container>
             <md-input-container class="md-block" flex>
-                <md-checkbox ng-model="saml.forceAuth" ng-disabled="saml.passive" aria-label=""
-                             ng-click="enable()">
+                <md-checkbox ng-model="saml.forceAuth" ng-disabled="saml.passive">
                     <span message-key="angular.saml2.directives.settings.ma-settings.forceAuth"></span>
                 </md-checkbox>
-                <md-checkbox ng-model="saml.passive" ng-disabled="saml.forceAuth" aria-label=""
-                             ng-click="enable()">
+                <md-checkbox ng-model="saml.passive" ng-disabled="saml.forceAuth">
                     <span message-key="angular.saml2.directives.settings.ma-settings.passive"></span>
                 </md-checkbox>
-                <md-checkbox ng-model="saml.signAuthnRequest" aria-label="" ng-click="enable()">
+                <md-checkbox ng-model="saml.signAuthnRequest">
                     <span message-key="angular.saml2.directives.settings.ma-settings.signAuthnRequest"></span>
                 </md-checkbox>
-                <md-checkbox ng-model="saml.requireSignedAssertions" aria-label="" ng-click="enable()">
+                <md-checkbox ng-model="saml.requireSignedAssertions">
                     <span message-key="angular.saml2.directives.settings.ma-settings.requireSignedAssertions"></span>
+                </md-checkbox>
+                <md-checkbox ng-model="saml.requireSignedResponses">
+                    <span message-key="angular.saml2.directives.settings.ma-settings.requireSignedResponses"></span>
                 </md-checkbox>
             </md-input-container>
             <md-input-container class="md-block" flex>

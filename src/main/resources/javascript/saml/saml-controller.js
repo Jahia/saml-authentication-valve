@@ -5,6 +5,21 @@
 
     SamlController.$inject = ['$location', 'settingsService', 'helperService', 'i18nService', 'jahiaContext'];
 
+    // Reads a stored setting the way the server does: only 'true' and 'false' are recognised,
+    // ignoring case and surrounding whitespace, and anything else takes the documented value.
+    function readBoolean(value, defaultValue) {
+        const normalized = angular.isString(value) ? value.trim().toLowerCase() : value;
+        if (normalized === 'true' || normalized === true) {
+            return true;
+        }
+
+        if (normalized === 'false' || normalized === false) {
+            return false;
+        }
+
+        return defaultValue;
+    }
+
     function SamlController($location, settingsService, helperService, i18nService, jahiaContext) {
         var vm = this;
 
@@ -66,6 +81,7 @@
                     passive: vm.passive,
                     signAuthnRequest: vm.signAuthnRequest,
                     requireSignedAssertions: vm.requireSignedAssertions,
+                    requireSignedResponses: vm.requireSignedResponses,
                     bindingType: vm.bindingType,
                 }
             }).success(function () {
@@ -99,7 +115,7 @@
             i18nService.addKey(saml2i18n);
             vm.siteKey = jahiaContext.siteKey;
 
-            settingsService.getConnectorData('Saml', ['enabled', 'relyingPartyIdentifier', 'serverLocation', 'keyStoreType', 'keyStoreAlias', 'keyStorePass', 'privateKeyPass', 'incomingTargetUrl', 'postLoginPath', 'maximumAuthenticationLifetime', 'forceAuth', 'passive', 'signAuthnRequest', 'requireSignedAssertions', 'bindingType']).success(function (data) {
+            settingsService.getConnectorData('Saml', ['enabled', 'relyingPartyIdentifier', 'serverLocation', 'keyStoreType', 'keyStoreAlias', 'keyStorePass', 'privateKeyPass', 'incomingTargetUrl', 'postLoginPath', 'maximumAuthenticationLifetime', 'forceAuth', 'passive', 'signAuthnRequest', 'requireSignedAssertions', 'requireSignedResponses', 'bindingType']).success(function (data) {
                 if (data && !angular.equals(data, {})) {
                     vm.connectorHasSettings = true;
                     vm.enabled = data.enabled;
@@ -115,7 +131,11 @@
                     vm.forceAuth = data.forceAuth === 'true';
                     vm.passive = data.passive === 'true';
                     vm.signAuthnRequest = data.signAuthnRequest === 'true';
-                    vm.requireSignedAssertions = data.requireSignedAssertions === 'true';
+                    // Read these two the way the server does: only 'true' and 'false' are recognised,
+                    // ignoring case and surrounding whitespace, and anything else falls back to the
+                    // documented value -- assertions are required for a site that made no choice.
+                    vm.requireSignedAssertions = readBoolean(data.requireSignedAssertions, true);
+                    vm.requireSignedResponses = readBoolean(data.requireSignedResponses, false);
                     vm.bindingType = data.bindingType;
                     vm.expandedCard = true;
                 } else {
@@ -128,6 +148,8 @@
                     vm.incomingTargetUrl = jahiaContext.sitePath + "/home.callback.saml?siteKey=" + jahiaContext.siteKey;
                     vm.postLoginPath = jahiaContext.sitePath + "/home.html";
                     vm.maximumAuthenticationLifetime = 86400;
+                    vm.requireSignedAssertions = true;
+                    vm.requireSignedResponses = false;
                     vm.bindingType = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
                 }
             }).error(function (data) {

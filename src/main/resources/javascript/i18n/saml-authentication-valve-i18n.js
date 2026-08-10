@@ -22,6 +22,7 @@ var saml2i18n = {
     "angular.saml2.directives.settings.ma-settings.relyingPartyIdentifier": "Relying Party Identifier",
     "angular.saml2.directives.settings.ma-settings.serverLocation": "Server location",
     "angular.saml2.directives.settings.ma-settings.requireSignedAssertions": "Requires signed assertions",
+    "angular.saml2.directives.settings.ma-settings.requireSignedResponses": "Requires signed response envelope",
     "angular.saml2.directives.settings.ma-settings.signAuthnRequest": "Sign authentication request",
     "angular.saml2.directives.settings.ma-settings.subtitle.saml2Setting": "SAML2 Settings",
     "angular.saml2.directives.settings.ma-settings.validate.message.identityProviderMetadata": "Please upload the Identity Provider.",

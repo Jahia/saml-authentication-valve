@@ -207,10 +207,35 @@ public final class SAML2Util implements SAML2InfoProvider {
         saml2ClientConfiguration.setForceAuth(saml2Settings.getBooleanProperty(SAML2Constants.FORCE_AUTH));
         saml2ClientConfiguration.setPassive(saml2Settings.getBooleanProperty(SAML2Constants.PASSIVE));
         saml2ClientConfiguration.setAuthnRequestSigned(saml2Settings.getBooleanProperty(SAML2Constants.SIGN_AUTH_REQUEST));
-        saml2ClientConfiguration.setWantsAssertionsSigned(saml2Settings.getBooleanProperty(SAML2Constants.REQUIRES_SIGNED_ASSERTIONS));
+        boolean wantsAssertionsSigned = booleanValueOrDefault(SAML2Constants.REQUIRES_SIGNED_ASSERTIONS,
+                saml2Settings.getProperty(SAML2Constants.REQUIRES_SIGNED_ASSERTIONS), true);
+        if (!wantsAssertionsSigned) {
+            LOGGER.warn("SAML2 site '{}' is configured with {} = false", saml2Settings.getSiteKey(), SAML2Constants.REQUIRES_SIGNED_ASSERTIONS);
+        }
+        saml2ClientConfiguration.setWantsAssertionsSigned(wantsAssertionsSigned);
+        saml2ClientConfiguration.setWantsResponsesSigned(booleanValueOrDefault(SAML2Constants.REQUIRES_SIGNED_RESPONSES,
+                saml2Settings.getProperty(SAML2Constants.REQUIRES_SIGNED_RESPONSES), false));
         saml2ClientConfiguration.setAuthnRequestBindingType(saml2Settings.getProperty(SAML2Constants.BINDING_TYPE));
 
         return saml2ClientConfiguration;
+    }
+
+    /**
+     * Reads an optional boolean setting. Only {@code true} and {@code false} are recognised, ignoring case and
+     * surrounding whitespace; the given value applies when the setting is absent, and equally when it holds anything
+     * else — so a typo in the configuration file resolves to the documented behaviour rather than to its opposite.
+     * The settings screen reads these values the same way.
+     */
+    static boolean booleanValueOrDefault(String name, String rawValue, boolean defaultValue) {
+        String value = StringUtils.trimToNull(rawValue);
+        if (value == null) {
+            return defaultValue;
+        }
+        if ("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)) {
+            return Boolean.parseBoolean(value);
+        }
+        LOGGER.warn("SAML2 setting {} holds '{}', which is neither true nor false; using {}", name, value, defaultValue);
+        return defaultValue;
     }
 
     private SAML2Client initSAMLClient(ConnectorConfig saml2Settings, HttpServletRequest request) {
