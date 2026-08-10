@@ -57,7 +57,10 @@ To configure SAML:
     - **Requires signed assertions**
        Accepts a response from the IdP only when the assertion it carries is itself signed. This option is
        selected for a site that has not made an explicit choice. Clear it only when your IdP signs the
-       response envelope alone and cannot be configured to sign the assertion.
+       response envelope alone and cannot be configured to sign the assertion. Clearing it moves the
+       requirement onto the envelope rather than removing it: a response whose assertion carries no
+       signature is accepted only when the envelope's own signature validates, and a response carrying
+       no signature at all is always refused.
 
     - **Requires signed responses**
        Also demands a signature on the response envelope. Select it when your IdP signs both the envelope
