@@ -116,9 +116,11 @@
                     vm.forceAuth = data.forceAuth === 'true';
                     vm.passive = data.passive === 'true';
                     vm.signAuthnRequest = data.signAuthnRequest === 'true';
-                    // A site that has not made an explicit choice requires signed assertions.
-                    vm.requireSignedAssertions = data.requireSignedAssertions !== 'false';
-                    vm.requireSignedResponses = data.requireSignedResponses === 'true';
+                    // Read these two the way the server does: only 'true' and 'false' are recognised,
+                    // ignoring case and surrounding whitespace, and anything else falls back to the
+                    // documented value -- assertions are required for a site that made no choice.
+                    vm.requireSignedAssertions = readBoolean(data.requireSignedAssertions, true);
+                    vm.requireSignedResponses = readBoolean(data.requireSignedResponses, false);
                     vm.bindingType = data.bindingType;
                     vm.expandedCard = true;
                 } else {
@@ -138,6 +140,19 @@
             }).error(function (data) {
                 helperService.errorToast(i18nService.message('joant_samlOAuthView.message.label') + ' ' + data.error);
             });
+        }
+
+        function readBoolean(value, defaultValue) {
+            var normalized = angular.isString(value) ? value.trim().toLowerCase() : value;
+            if (normalized === 'true' || normalized === true) {
+                return true;
+            }
+
+            if (normalized === 'false' || normalized === false) {
+                return false;
+            }
+
+            return defaultValue;
         }
 
         function validate() {
