@@ -5,6 +5,21 @@
 
     SamlController.$inject = ['$location', 'settingsService', 'helperService', 'i18nService', 'jahiaContext'];
 
+    // Reads a stored setting the way the server does: only 'true' and 'false' are recognised,
+    // ignoring case and surrounding whitespace, and anything else takes the documented value.
+    function readBoolean(value, defaultValue) {
+        const normalized = angular.isString(value) ? value.trim().toLowerCase() : value;
+        if (normalized === 'true' || normalized === true) {
+            return true;
+        }
+
+        if (normalized === 'false' || normalized === false) {
+            return false;
+        }
+
+        return defaultValue;
+    }
+
     function SamlController($location, settingsService, helperService, i18nService, jahiaContext) {
         var vm = this;
 
@@ -140,19 +155,6 @@
             }).error(function (data) {
                 helperService.errorToast(i18nService.message('joant_samlOAuthView.message.label') + ' ' + data.error);
             });
-        }
-
-        function readBoolean(value, defaultValue) {
-            var normalized = angular.isString(value) ? value.trim().toLowerCase() : value;
-            if (normalized === 'true' || normalized === true) {
-                return true;
-            }
-
-            if (normalized === 'false' || normalized === false) {
-                return false;
-            }
-
-            return defaultValue;
         }
 
         function validate() {
