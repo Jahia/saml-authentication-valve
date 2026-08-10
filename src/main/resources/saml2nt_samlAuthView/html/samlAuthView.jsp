@@ -132,6 +132,9 @@
                 <md-checkbox ng-model="saml.requireSignedAssertions" aria-label="" ng-click="enable()">
                     <span message-key="angular.saml2.directives.settings.ma-settings.requireSignedAssertions"></span>
                 </md-checkbox>
+                <md-checkbox ng-model="saml.requireSignedResponses" aria-label="" ng-click="enable()">
+                    <span message-key="angular.saml2.directives.settings.ma-settings.requireSignedResponses"></span>
+                </md-checkbox>
             </md-input-container>
             <md-input-container class="md-block" flex>
                 <label message-key="angular.saml2.directives.settings.ma-settings.bindingType"></label>

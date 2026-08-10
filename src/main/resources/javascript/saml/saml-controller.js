@@ -66,6 +66,7 @@
                     passive: vm.passive,
                     signAuthnRequest: vm.signAuthnRequest,
                     requireSignedAssertions: vm.requireSignedAssertions,
+                    requireSignedResponses: vm.requireSignedResponses,
                     bindingType: vm.bindingType,
                 }
             }).success(function () {
@@ -99,7 +100,7 @@
             i18nService.addKey(saml2i18n);
             vm.siteKey = jahiaContext.siteKey;
 
-            settingsService.getConnectorData('Saml', ['enabled', 'relyingPartyIdentifier', 'serverLocation', 'keyStoreType', 'keyStoreAlias', 'keyStorePass', 'privateKeyPass', 'incomingTargetUrl', 'postLoginPath', 'maximumAuthenticationLifetime', 'forceAuth', 'passive', 'signAuthnRequest', 'requireSignedAssertions', 'bindingType']).success(function (data) {
+            settingsService.getConnectorData('Saml', ['enabled', 'relyingPartyIdentifier', 'serverLocation', 'keyStoreType', 'keyStoreAlias', 'keyStorePass', 'privateKeyPass', 'incomingTargetUrl', 'postLoginPath', 'maximumAuthenticationLifetime', 'forceAuth', 'passive', 'signAuthnRequest', 'requireSignedAssertions', 'requireSignedResponses', 'bindingType']).success(function (data) {
                 if (data && !angular.equals(data, {})) {
                     vm.connectorHasSettings = true;
                     vm.enabled = data.enabled;
@@ -115,7 +116,9 @@
                     vm.forceAuth = data.forceAuth === 'true';
                     vm.passive = data.passive === 'true';
                     vm.signAuthnRequest = data.signAuthnRequest === 'true';
-                    vm.requireSignedAssertions = data.requireSignedAssertions === 'true';
+                    // A site that has not made an explicit choice requires signed assertions.
+                    vm.requireSignedAssertions = data.requireSignedAssertions !== 'false';
+                    vm.requireSignedResponses = data.requireSignedResponses === 'true';
                     vm.bindingType = data.bindingType;
                     vm.expandedCard = true;
                 } else {
@@ -128,6 +131,8 @@
                     vm.incomingTargetUrl = jahiaContext.sitePath + "/home.callback.saml?siteKey=" + jahiaContext.siteKey;
                     vm.postLoginPath = jahiaContext.sitePath + "/home.html";
                     vm.maximumAuthenticationLifetime = 86400;
+                    vm.requireSignedAssertions = true;
+                    vm.requireSignedResponses = false;
                     vm.bindingType = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
                 }
             }).error(function (data) {

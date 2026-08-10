@@ -55,7 +55,13 @@ To configure SAML:
        Sign the request sent to the IdP.
 
     - **Requires signed assertions**
-       If set, will only accept signed assertions from the IdP.
+       Accepts a response from the IdP only when the assertion it carries is itself signed. This option is
+       selected for a site that has not made an explicit choice. Clear it only when your IdP signs the
+       response envelope alone and cannot be configured to sign the assertion.
+
+    - **Requires signed responses**
+       Also demands a signature on the response envelope. Select it when your IdP signs both the envelope
+       and the assertion, so that both signatures are checked.
 
 11. In **Binding type**, select the SAML binding type used to communicate with the IdP.
 12. Click **Save**.
@@ -80,7 +86,8 @@ postLoginPath = /home.html
 maximumAuthenticationLifetime = 86400
 forceAuth = false
 passive = false
-requireSignedAssertions = false
+requireSignedAssertions = true
+requireSignedResponses = false
 signAuthnRequest = true
 bindingType = urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST
 keyStoreType = PKCS12
@@ -224,6 +231,8 @@ Common reasons for SAML authentication failures are:
 - Missing or unreadable SAML configuration for the site.
 - Wrong keystore or certificate configuration.
 - Mismatched Relying Party Identifier.
+- A response whose assertion carries no signature, while the site requires signed assertions. Either configure
+  the IdP to sign the assertion, or clear **Requires signed assertions** for that site.
 
 ### Related links
 

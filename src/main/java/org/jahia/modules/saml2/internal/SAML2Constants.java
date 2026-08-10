@@ -22,6 +22,7 @@ public final class SAML2Constants {
     public static final String SIGN_AUTH_REQUEST = "signAuthnRequest";
     public static final String BINDING_TYPE = "bindingType";
     public static final String REQUIRES_SIGNED_ASSERTIONS = "requireSignedAssertions";
+    public static final String REQUIRES_SIGNED_RESPONSES = "requireSignedResponses";
 
     public static final String REDIRECT = "redirect";
     public static final String SITE = "site";
