@@ -16,6 +16,12 @@ public final class SAML2Constants {
     public static final String POST_LOGIN_PATH = "postLoginPath";
     public static final String MAPPER_NAME = "mapperName";
     public static final String MAPPER_ID_FIELD = "mapperIdField";
+    /**
+     * The property carrying the NameID of the assertion. SAML states the subject of an assertion in
+     * its NameID, and the attributes beside it are whatever the identity provider was configured to
+     * send.
+     */
+    public static final String NAME_ID = "nameID";
     public static final String MAXIMUM_AUTHENTICATION_LIFETIME = "maximumAuthenticationLifetime";
     public static final String FORCE_AUTH = "forceAuth";
     public static final String PASSIVE = "passive";

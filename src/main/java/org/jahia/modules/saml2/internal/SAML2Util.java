@@ -106,11 +106,8 @@ public final class SAML2Util implements SAML2InfoProvider {
         final String redirectParam = request.getParameter(SAML2Constants.REDIRECT);
         if (redirectParam != null) {
             if (isAuthorizedRedirect(request, redirectParam, false)) {
-                final Cookie redirectCookie = new Cookie(SAML2Constants.REDIRECT, redirectParam);
-                redirectCookie.setPath(contextPath);
-                redirectCookie.setSecure(request.isSecure());
-                redirectCookie.setHttpOnly(true);
-                response.addCookie(redirectCookie);
+                SamlCookies.write(request, response, SAML2Constants.REDIRECT, redirectParam,
+                        SamlCookies.MAX_AGE_SECONDS);
             } else {
                 LOGGER.info("Unauthorized redirect param URL detected, activate debug for more information");
                 LOGGER.debug("Unauthorized redirect param URL: {}", redirectParam);
@@ -120,11 +117,8 @@ public final class SAML2Util implements SAML2InfoProvider {
         // Store site parameter if provided (the site parameter is used to manage site users).
         final String siteParam = request.getParameter(SAML2Constants.SITE);
         if (siteParam != null) {
-            final Cookie siteCookie = new Cookie(siteKey, siteParam.replaceAll("\n\r", ""));
-            siteCookie.setPath(contextPath);
-            siteCookie.setSecure(request.isSecure());
-            siteCookie.setHttpOnly(true);
-            response.addCookie(siteCookie);
+            SamlCookies.write(request, response, siteKey, siteParam.replaceAll("\n\r", ""),
+                    SamlCookies.MAX_AGE_SECONDS);
         }
     }
 
@@ -218,6 +212,10 @@ public final class SAML2Util implements SAML2InfoProvider {
         saml2ClientConfiguration.setWantsResponsesSigned(booleanValueOrDefault(SAML2Constants.REQUIRES_SIGNED_RESPONSES,
                 saml2Settings.getProperty(SAML2Constants.REQUIRES_SIGNED_RESPONSES), false));
         saml2ClientConfiguration.setAuthnRequestBindingType(saml2Settings.getProperty(SAML2Constants.BINDING_TYPE));
+        // Remember which authentication request this browser started, so pac4j compares the
+        // InResponseTo of the response against it. Its default factory answers no store, and the
+        // comparison is then skipped.
+        saml2ClientConfiguration.setSamlMessageStoreFactory(new FlowCookieMessageStoreFactory());
 
         return saml2ClientConfiguration;
     }

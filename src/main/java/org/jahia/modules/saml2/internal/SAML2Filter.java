@@ -154,20 +154,20 @@ public class SAML2Filter extends AbstractServletFilter {
                         ConnectorConfig config = settingsService.getConnectorConfig(siteKey, "Saml");
                         for (MapperConfig mapper : config.getMappers()) {
                             try {
-                                jahiaAuthMapperService.executeMapper(httpRequest.getSession().getId(), mapper, properties);
+                                jahiaAuthMapperService.executeMapper(httpRequest, mapper, properties);
                             } catch (JahiaAuthException e) {
                                 LOGGER.warn("Cannot log in user : {}", e.getMessage());
                                 return null;
                             }
                         }
-                        jahiaAuthMapperService.executeConnectorResultProcessors(config, properties);
+                        jahiaAuthMapperService.executeConnectorResultProcessors(httpRequest, config, properties);
                         return util.getRedirectionUrl(httpRequest, siteKey);
                     }
                     LOGGER.warn("Cannot log in user : saml2Profile is not present");
                 } catch (SAMLConfigException e) {
                     LOGGER.warn("Error in SAML configuration for siteKey '" + siteKey + "': " + e.getMessage());
                 } catch (Exception e) {
-                    LOGGER.warn("Unable to handle SAML callback : {}", e.getMessage());
+                    LOGGER.warn("Unable to handle SAML callback", e);
                 }
                 return null;
             });
@@ -218,6 +218,12 @@ public class SAML2Filter extends AbstractServletFilter {
      */
     private Map<String, Object> getMapperResult(BasicUserProfile saml2Profile) {
         Map<String, Object> properties = new HashMap<>();
+        // The subject of the assertion, under the name the connector declares as verified. An attribute
+        // may carry any value the identity provider was configured to send, and the NameID is what the
+        // assertion states the subject to be.
+        if (saml2Profile.getId() != null) {
+            properties.put(SAML2Constants.NAME_ID, saml2Profile.getId());
+        }
         for (Map.Entry<String, Object> entry : saml2Profile.getAttributes().entrySet()) {
             if (entry.getValue() instanceof List) {
                 final List<?> l = (List<?>) entry.getValue();
