@@ -20,6 +20,6 @@
 <c:if test="${not renderContext.loggedIn}">
     <form action="${renderContext.mainResource.node.name}.connect.saml" method="GET">
         <input type="hidden" name="siteKey" value="${renderContext.site.siteKey}"/>
-        <input type="submit" value="${currentNode.displayableName}">
+        <input type="submit" value="${fn:escapeXml(currentNode.displayableName)}">
     </form>
 </c:if>
