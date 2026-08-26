@@ -18,7 +18,7 @@
 <%--@elvariable id="currentResource" type="org.jahia.services.render.Resource"--%>
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
 <c:if test="${not renderContext.loggedIn}">
-    <form action="${renderContext.mainResource.node.name}.connect.saml" method="GET">
+    <form action="${fn:escapeXml(renderContext.mainResource.node.name)}.connect.saml" method="GET">
         <input type="hidden" name="siteKey" value="${renderContext.site.siteKey}"/>
         <input type="submit" value="${fn:escapeXml(currentNode.displayableName)}">
     </form>
