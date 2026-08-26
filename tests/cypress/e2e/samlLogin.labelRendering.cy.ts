@@ -50,7 +50,7 @@ describe('SAML login button label rendering', () => {
         cy.logout();
         cy.clearCookies();
         cy.visit(`/cms/render/live/en${home}.html`);
-        cy.get('form[action$=".connect.saml"] input[type="submit"]').should($submit => {
+        cy.get('form[action$="connect.saml"] input[type="submit"]').should($submit => {
             expect($submit.attr('value'), 'value attribute').to.equal(LABEL);
             expect($submit[0].getAttributeNames(), 'attributes carried by the submit button')
                 .to.have.members(['type', 'value']);
