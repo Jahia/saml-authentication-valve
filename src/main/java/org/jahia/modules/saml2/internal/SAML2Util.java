@@ -109,6 +109,7 @@ public final class SAML2Util implements SAML2InfoProvider {
                 final Cookie redirectCookie = new Cookie(SAML2Constants.REDIRECT, redirectParam);
                 redirectCookie.setPath(contextPath);
                 redirectCookie.setSecure(request.isSecure());
+                redirectCookie.setHttpOnly(true);
                 response.addCookie(redirectCookie);
             } else {
                 LOGGER.info("Unauthorized redirect param URL detected, activate debug for more information");
@@ -122,6 +123,7 @@ public final class SAML2Util implements SAML2InfoProvider {
             final Cookie siteCookie = new Cookie(siteKey, siteParam.replaceAll("\n\r", ""));
             siteCookie.setPath(contextPath);
             siteCookie.setSecure(request.isSecure());
+            siteCookie.setHttpOnly(true);
             response.addCookie(siteCookie);
         }
     }
