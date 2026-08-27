@@ -94,9 +94,13 @@ public final class SAML2Util implements SAML2InfoProvider {
     }
 
     /**
-     * Store redirect URL and preferred language in cookies for use after SAML authentication
+     * Remember, in a cookie, where to send the browser once the identity provider returns.
+     * <p>
+     * The site is deliberately not stored here. It travels on the redirect this flow builds later,
+     * as the {@code site} query parameter {@code getRedirectionUrl} appends, and that is what the
+     * valve reads when it resolves the account.
      */
-    public void storeAuthenticationContext(HttpServletRequest request, HttpServletResponse response, String siteKey) {
+    public void storeAuthenticationContext(HttpServletRequest request, HttpServletResponse response) {
         String contextPath = request.getContextPath();
         if (StringUtils.isEmpty(contextPath)) {
             contextPath = "/";
@@ -115,16 +119,6 @@ public final class SAML2Util implements SAML2InfoProvider {
                 LOGGER.info("Unauthorized redirect param URL detected, activate debug for more information");
                 LOGGER.debug("Unauthorized redirect param URL: {}", redirectParam);
             }
-        }
-
-        // Store site parameter if provided (the site parameter is used to manage site users).
-        final String siteParam = request.getParameter(SAML2Constants.SITE);
-        if (siteParam != null) {
-            final Cookie siteCookie = new Cookie(siteKey, siteParam.replaceAll("\n\r", ""));
-            siteCookie.setPath(contextPath);
-            siteCookie.setSecure(request.isSecure());
-            siteCookie.setHttpOnly(true);
-            response.addCookie(siteCookie);
         }
     }
 
