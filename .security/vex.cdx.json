@@ -1,0 +1,34 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "library",
+      "bom-ref": "pkg:maven/org.jahia.modules/saml-authentication-valve",
+      "name": "saml-authentication-valve",
+      "group": "org.jahia.modules",
+      "purl": "pkg:maven/org.jahia.modules/saml-authentication-valve"
+    }
+  },
+  "vulnerabilities": [
+    {
+      "id": "CVE-2026-40458",
+      "source": {
+        "name": "NVD",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40458"
+      },
+      "affects": [
+        {
+          "ref": "pkg:maven/org.pac4j/pac4j-core@4.5.7?type=jar"
+        }
+      ],
+      "analysis": {
+        "state": "not_affected",
+        "justification": "code_not_reachable",
+        "detail": "The advisory concerns pac4j's own CSRF protection: CsrfAuthorizer and DefaultCsrfTokenGenerator compare tokens through String.hashCode(), so a collision defeats the check. Those classes are reached only through pac4j's security engine (SecurityLogic / CallbackLogic, via DefaultAuthorizationChecker and DefaultMatchingChecker). This module never enters that engine: it drives SAML2Client directly (SAML2Filter#getRedirectionAction and #getCredentials) and configures no authorizer or matcher. A bytecode scan of the shipped bundle confirms that org.pac4j.core.authorization.authorizer.CsrfAuthorizer and org.pac4j.core.matching.matcher.csrf.* are referenced by no class outside pac4j-core itself, and by none of the module's own classes. Cross-site forgery on the assertion consumer endpoint is handled by SAML RelayState, not by a pac4j CSRF token. No fix exists in the pac4j 4.x line: the advisory is fixed in 5.7.10 and 6.4.1, and pac4j-saml-opensamlv3 - the OpenSAML 3 binding this module depends on - was last published as 4.5.10. Remediation therefore means migrating to pac4j-saml 5.7.11 on OpenSAML 4, tracked separately.",
+        "response": ["will_not_fix"]
+      }
+    }
+  ]
+}
