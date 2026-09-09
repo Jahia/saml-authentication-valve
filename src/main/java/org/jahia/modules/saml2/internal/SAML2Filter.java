@@ -98,8 +98,8 @@ public class SAML2Filter extends AbstractServletFilter {
         if (siteKey != null) {
             boolean redirected = ClassLoaderUtils.executeWith(InitializationService.class.getClassLoader(), () -> {
                 try {
-                    // Store authentication context (redirect URL, site param) in cookies
-                    util.storeAuthenticationContext(httpRequest, httpResponse, siteKey);
+                    // Remember where to send the browser after the identity provider returns
+                    util.storeAuthenticationContext(httpRequest, httpResponse);
                     final SAML2Client client = util.getSAML2Client(httpRequest, siteKey);
                     JEEContext webContext = new JEEContext(httpRequest, httpResponse);
                     final Optional<RedirectionAction> action = client.getRedirectionAction(webContext);

@@ -18,8 +18,11 @@
 <%--@elvariable id="currentResource" type="org.jahia.services.render.Resource"--%>
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
 <c:if test="${not renderContext.loggedIn}">
-    <form action="${renderContext.mainResource.node.name}.connect.saml" method="GET">
+    <%-- The name of the hosting page is not part of the target: SAML2Filter matches any
+         request URI ending in connect.saml, and resolves the site from the siteKey
+         parameter below. A relative action reaches it from any page. --%>
+    <form action="connect.saml" method="GET">
         <input type="hidden" name="siteKey" value="${renderContext.site.siteKey}"/>
-        <input type="submit" value="${currentNode.displayableName}">
+        <input type="submit" value="${fn:escapeXml(currentNode.displayableName)}">
     </form>
 </c:if>
