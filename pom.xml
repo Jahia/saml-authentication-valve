@@ -24,7 +24,7 @@
         <bouncycastle.version>1.84</bouncycastle.version>
         <joda-time.version>2.12.7</joda-time.version>
         <java-support.version>7.5.2</java-support.version>
-        <jahia-module-signature>MCwCFEqyfk20F226L99q/Ny1XBWOA3nMAhRFDeL9aY30xgs2Zhrl1+Z2ZdcplA==</jahia-module-signature>
+        <jahia-module-signature>MCwCFDtB7wW/JLjQq8i50wX+9bC3f7JFAhQkR3gEvcevwZJMU66+br3hkFvUeA==</jahia-module-signature>
         <sonar.sources>src/main/resources/javascript</sonar.sources>
     </properties>
 
