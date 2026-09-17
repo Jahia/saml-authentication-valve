@@ -24,6 +24,6 @@ jobs:
       module_branch: ${{ github.ref }}
       testrail_project: SAML Module
       skip_notifications: true
-      provisioning_manifest: ${{ github.event.inputs.provisioning_manifest || 'provisioning-manifest-snapshot.yml' }}
+      provisioning_manifest: ${{ github.event.inputs.tests_manifest || 'provisioning-manifest-snapshot.yml' }}
       artifact_prefix: saml
 
