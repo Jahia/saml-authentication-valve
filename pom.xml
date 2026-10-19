@@ -21,7 +21,7 @@
         <pac4j.version>4.5.7</pac4j.version>
         <opensaml.version>3.4.6</opensaml.version>
         <cryptacular.version>1.2.6</cryptacular.version>
-        <bouncycastle.version>1.84</bouncycastle.version>
+        <bouncycastle.version>1.85</bouncycastle.version>
         <joda-time.version>2.12.7</joda-time.version>
         <java-support.version>7.5.2</java-support.version>
         <jahia-module-signature>MCwCFDtB7wW/JLjQq8i50wX+9bC3f7JFAhQkR3gEvcevwZJMU66+br3hkFvUeA==</jahia-module-signature>
