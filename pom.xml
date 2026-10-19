@@ -341,6 +341,17 @@
             </snapshots>
         </repository>
         <repository>
+            <id>jahia-maven-central</id>
+            <name>Jahia Maven Central Repository</name>
+            <url>https://maven.jahia.com/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>shibboleth</id>
             <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
         </repository>
